@@ -15,7 +15,7 @@ def index(request):
     context = {
         'hero_sections': HeroSection.objects.filter(is_active=True),
         'testimonials': Testimonial.objects.filter(is_active=True),
-        'faqs': FAQ.objects.filter(is_active=True),
+        'faqs': FAQ.objects.filter(is_active=True)[:3],
         'user': request.user if request.user.is_authenticated else None,
         'apps': Feature.objects.filter(is_active=True)
     }
@@ -76,7 +76,7 @@ def contact_view(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Your message has been sent successfully!')
-            return redirect('index')
+            return redirect('landing:contact')
     else:
         form = ContactForm()
     
