@@ -37,6 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'dashboardmanager',
+    'financialmanagement',
+    'fitnesstracker',
+    'mealtracker',
+    'habittracker',
+    'mentalhealth',
+    'taskmanager'
 ]
 
 MIDDLEWARE = [
@@ -74,8 +81,16 @@ WSGI_APPLICATION = 'smartlife_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'project_smartlifestyle',
+        'USER' : 'root',
+        'PASSWORD' : '',
+        'HOST' : '127.0.0.1',
+        'PORT' : '3306',
+        'OPTION' :{
+            'init_command':"set sql_mode='STRICT_TRANS_TABLE'"
+        }
+        
     }
 }
 
