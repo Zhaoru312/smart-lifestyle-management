@@ -1,8 +1,206 @@
 /* General Styles */
 body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
 }
+
+/* Remove padding from container-fluid */
+.container-fluid {
+    padding: 0;
+}
+
+/* Footer styling */
+footer {
+    background-color: #f8f9fa;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+}
+
+footer h5 {
+    color: #333;
+    font-weight: 600;
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+}
+
+footer ul li {
+    margin-bottom: 0.5rem;
+}
+
+footer ul li a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer ul li a:hover {
+    color: #0d6efd;
+}
+
+/* Social links styling */
+.social-links a {
+    font-size: 1.25rem;
+    transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+    color: #0d6efd !important;
+}
+
+/* Newsletter form */
+footer form {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+footer input[type="email"] {
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+footer button {
+    border-radius: 4px;
+}
+
+/* Footer bottom */
+footer hr {
+    border-top: 1px solid #eee;
+    margin: 2rem 0;
+}
+
+footer .container {
+    max-width: 1200px;
+}
+
+/* Add margin after hero section for separation */
+.section-title, .our-apps, #our-apps, .main-content > h2:first-child {
+    margin-top: 2.5rem;
+}
+
+/* General section styling */
+.section-title, .our-apps, #our-apps, .main-content > h2, .faq-title, .contact-title {
+    text-align: center;
+    font-weight: 800;
+    font-size: 2rem;
+    margin-bottom: 2.5rem;
+    margin-top: 2.5rem;
+    letter-spacing: 0.5px;
+}
+
+.section-spacing {
+    margin: 3.5rem 0 3rem 0;
+}
+
+.section-spacing {
+    margin: 3rem 0 2rem 0;
+}
+
+/* Testimonials Styling */
+.testimonial-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 3.5rem auto;
+    width: 100%;
+}
+
+.testimonial-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 2.5rem 3rem;
+    max-width: 600px;
+    width: 100%;
+    margin: 1rem auto;
+    text-align: center;
+    font-style: italic;
+    color: #333;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.testimonial-card img {
+    display: block;
+    margin: 0 auto 1rem auto;
+    border-radius: 8px;
+    max-width: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.testimonial-author {
+    font-weight: 600;
+    margin-top: 1rem;
+    font-style: normal;
+    color: #222;
+}
+
+/* FAQ Styling */
+.faq-section {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto 3.5rem auto;
+    padding: 2.5rem 2.5rem;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    text-align: center;
+}
+
+.faq-question {
+    font-weight: 600;
+    margin-top: 1.5rem;
+}
+
+.faq-answer {
+    margin-bottom: 1.25rem;
+    color: #444;
+}
+
+/* Contact Section Styling */
+.contact-section {
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto 3.5rem auto;
+    padding: 3rem 2.5rem;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.09);
+    text-align: center;
+}
+
+.contact-section h2 {
+    margin-bottom: 1.25rem;
+}
+
+@media (max-width: 768px) {
+    .testimonial-card, .faq-section, .contact-section {
+        padding: 1rem 0.5rem;
+    }
+    .testimonial-card {
+        max-width: 98vw;
+    }
+    .faq-section {
+        max-width: 99vw;
+    }
+    .contact-section {
+        max-width: 99vw;
+    }
+    .section-title, .our-apps, #our-apps, .main-content > h2, .faq-title, .contact-title {
+        font-size: 1.3rem;
+        margin-top: 1.5rem;
+        margin-bottom: 1.2rem;
+    }
+}
+
 
 /* Container Styles */
 .login-container,
@@ -16,23 +214,247 @@ body {
 }
 
 /* Hero Section */
-.hero {
-    background: linear-gradient(360deg, #0D72AC 0%, #0A5B88 100%);
+.hero-section {
+    position: relative;
+    overflow: hidden;
+    height: 80vh;
+    min-height: 500px;
+    z-index: 0;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    width: 100%;
+}
+
+.hero-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     color: white;
-    padding: 100px 0;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    background: none;
+}
+
+/* Fix for background image */
+.hero-item[data-background] {
+    background-image: var(--background-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.hero-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1)),
+                linear-gradient(-45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1));
+    background-size: 20px 20px;
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.hero-item[data-background] {
+    background-image: var(--background-image);
+}
+
+.hero-item[data-background]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+    z-index: 1;
+}
+
+/* Add default background for hero items without images */
+.hero-item:not([data-background]) {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.hero-item:not(.d-none) {
+    opacity: 1;
+}
+
+.hero-item h1 {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #ffffff;
+}
+
+.hero-item p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.hero-item .btn {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    background-color: #007bff;
+    border: none;
+}
+
+.hero-item .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    background-color: #0056b3;
+}
+
+/* Hero Content overlay styling */
+.hero-content-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.65); /* Darker overlay for better text contrast */
+}
+
+.hero-content-inner {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    text-align: center;
+    color: white;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
+.hero-title {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 4px 16px rgba(0,0,0,0.95), 0 0 8px #222;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    font-weight: 400;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    margin-bottom: 1.5rem;
+}
+
+.hero-btn {
+    font-size: 1.15rem;
+    font-weight: 500;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+
+@media (max-width: 768px) {
+    .hero-content-overlay {
+        padding: 1rem;
+        min-height: 40vh;
+    }
+    .hero-content-inner {
+        padding: 1rem 0.5rem;
+    }
+}
+
+.hero-content-inner {
+    position: relative;
+    z-index: 3;
+    padding: 2rem;
     text-align: center;
 }
 
-.hero h1 {
-    font-size: 3.5rem;
-    margin-bottom: 1.5rem;
+.hero-title {
+    font-size: 2.5rem;
     font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
 }
 
-.hero p {
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
+.hero-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    opacity: 0.9;
 }
+
+.hero-btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    background-color: #007bff;
+    color: white;
+}
+
+.hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    background-color: #0056b3;
+}
+
+/* Hero Navigation */
+.hero-nav {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.75rem;
+    z-index: 3;
+}
+
+.hero-nav button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.hero-nav button.active {
+    background: #007bff;
+    width: 12px;
+    height: 12px;
+}
+
+.hero-nav button:hover {
+    background: #007bff;
+}
+
+
 
 /* Features Section */
 .feature-card {
@@ -75,7 +497,6 @@ body {
 
 .form-control:valid {
     border-color: #198754;
-    padding-right: calc(1.5em + 0.75rem);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right calc(0.375em + 0.1875rem) center;
@@ -84,7 +505,6 @@ body {
 
 .form-control:invalid {
     border-color: #dc3545;
-    padding-right: calc(1.5em + 0.75rem);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right calc(0.375em + 0.1875rem) center;

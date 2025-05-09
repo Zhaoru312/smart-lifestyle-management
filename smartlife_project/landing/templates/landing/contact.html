@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'landing/base.html' %}
 
 {% block content %}
 <div class="container py-5">
@@ -17,7 +17,7 @@
                         {% endfor %}
                     {% endif %}
 
-                    <form method="post" action="{% url 'contact' %}" class="needs-validation" novalidate>
+                    <form method="post" action="{% url 'landing:contact' %}" class="needs-validation" novalidate>
                         {% csrf_token %}
                         
                         <div class="mb-3">

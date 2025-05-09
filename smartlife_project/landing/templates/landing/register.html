@@ -25,7 +25,7 @@
                 {% endfor %}
             {% endif %}
 
-            <form method="post" action="{% url 'register' %}" class="needs-validation" novalidate>
+            <form method="post" action="{% url 'landing:register' %}" class="needs-validation" novalidate>
                 {% csrf_token %}
                 
                 <div class="mb-3">
@@ -55,7 +55,7 @@
                 <button type="submit" class="btn btn-primary w-100">Register</button>
 
                 <div class="text-center mt-3">
-                    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+                    <p>Already have an account? <a href="{% url 'landing:login' %}">Login</a></p>
                 </div>
             </form>
         </div>

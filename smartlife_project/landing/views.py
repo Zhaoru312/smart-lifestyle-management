@@ -4,7 +4,6 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import HeroSection, Feature, Testimonial, FAQ
@@ -12,20 +11,16 @@ from .forms import ContactForm, FAQForm
 
 # Create your views here.
 def index(request):
-    if request.user.is_authenticated:
-        return redirect('dashboardmanager:index')
+    # Always show the landing page regardless of authentication status
+    context = {
+        'hero_sections': HeroSection.objects.filter(is_active=True),
+        'testimonials': Testimonial.objects.filter(is_active=True),
+        'faqs': FAQ.objects.filter(is_active=True),
+        'user': request.user if request.user.is_authenticated else None,
+        'apps': Feature.objects.filter(is_active=True)
+    }
     
-    hero_section = HeroSection.objects.filter(is_active=True).first()
-    features = Feature.objects.filter(is_active=True).order_by('order')
-    testimonials = Testimonial.objects.filter(is_active=True)
-    faqs = FAQ.objects.filter(is_active=True).order_by('order')
-    
-    return render(request, 'index.html', {
-        'hero_section': hero_section,
-        'features': features,
-        'testimonials': testimonials,
-        'faqs': faqs
-    })
+    return render(request, 'landing/index.html', context)
 
 def login_view(request):
     if request.method == 'POST':
@@ -44,7 +39,7 @@ def login_view(request):
         else:
             messages.error(request, 'Invalid username or password')
     
-    return render(request, 'login.html')
+    return render(request, 'landing/login.html')
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, help_text='Required. Enter a valid email address.')
@@ -73,7 +68,7 @@ def register_view(request):
     else:
         form = CustomUserCreationForm()
     
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'landing/register.html', {'form': form})
 
 def contact_view(request):
     if request.method == 'POST':
@@ -85,7 +80,7 @@ def contact_view(request):
     else:
         form = ContactForm()
     
-    return render(request, 'contact.html', {'form': form})
+    return render(request, 'landing/contact.html', {'form': form})
 
 def faq_view(request):
     if request.method == 'POST':
@@ -98,51 +93,32 @@ def faq_view(request):
         form = FAQForm()
     
     faqs = FAQ.objects.filter(is_active=True).order_by('order')
-    return render(request, 'faq.html', {'form': form, 'faqs': faqs})
+    return render(request, 'landing/faq.html', {'form': form, 'faqs': faqs})
 
 def logout_view(request):
     logout(request)
-    return redirect('index')
+    return redirect("/")
 
 def forgot_password_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         try:
             user = User.objects.get(email=email)
+            
             # Generate a random token
             import random
             import string
             token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
             
-            # Send reset email
-            subject = 'SmartLife - Password Reset Request'
-            message = f'''
-Dear {user.username},
-
-You have requested to reset your password for your SmartLife account.
-
-Please click on the link below to reset your password:
-http://localhost:8000/reset-password/{token}/
-
-If you did not request this password reset, please ignore this email.
-
-Best regards,
-SmartLife Team
-'''
-            
-            send_mail(
-                subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [email],
-                fail_silently=False,
-            )
+            # For development, just print the reset link
+            reset_link = f'http://localhost:8000/reset-password/{token}/'
+            print(f"Reset link for {user.username}: {reset_link}")
             
             messages.success(request, 'An email has been sent with instructions to reset your password.')
-            return redirect('login')
+            return redirect('landing:forgot_password')
             
         except User.DoesNotExist:
             messages.error(request, 'No account found with this email address.')
-            return redirect('forgot_password')
+            return redirect('landing:forgot_password')
     
-    return render(request, 'forgot_password.html')
+    return render(request, 'landing/forgot_password.html')
