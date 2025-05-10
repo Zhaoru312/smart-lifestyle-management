@@ -272,13 +272,11 @@ def profile(request):
         profile = UserProfile.objects.create(user=request.user)
     
     if request.method == 'POST':
-        # Handle avatar upload
-        if 'avatar' in request.FILES:
-            avatar = request.FILES['avatar']
-            if avatar.size > 5 * 1024 * 1024:  # 5MB limit
-                messages.error(request, 'Avatar file size must be less than 5MB')
-                return redirect('dashboardmanager:profile')
-            else:
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            # Handle avatar upload
+            if 'avatar' in request.FILES:
+                avatar = request.FILES['avatar']
                 # Delete old avatar if exists
                 if profile.avatar:
                     try:
@@ -293,59 +291,15 @@ def profile(request):
                         destination.write(chunk)
                 profile.avatar = filename
 
-        # Handle profile fields with validation
-        errors = {}
-        
-        # Validate birth date
-        birth_date = request.POST.get('birth_date')
-        if birth_date:
-            try:
-                birth_date = timezone.datetime.strptime(birth_date, '%Y-%m-%d').date()
-                if birth_date > timezone.now().date():
-                    errors['birth_date'] = 'Birth date cannot be in the future'
-            except ValueError:
-                errors['birth_date'] = 'Invalid date format. Please use YYYY-MM-DD'
-        
-        # Validate phone number
-        phone_number = request.POST.get('phone_number', '')
-        if phone_number:
-            if not phone_number.isdigit():
-                errors['phone_number'] = 'Phone number can only contain digits'
-            if len(phone_number) < 8 or len(phone_number) > 15:
-                errors['phone_number'] = 'Phone number must be between 8 and 15 digits'
-        
-        # Validate website URL
-        website = request.POST.get('website', '')
-        if website and not website.startswith(('http://', 'https://')):
-            website = 'https://' + website
-        
-        # Update profile fields
-        profile.bio = request.POST.get('bio', '')
-        profile.birth_date = birth_date if not errors.get('birth_date') else None
-        profile.phone_number = phone_number if not errors.get('phone_number') else ''
-        profile.address = request.POST.get('address', '')
-        profile.website = website
-        profile.interests = request.POST.get('interests', '')
-        profile.profession = request.POST.get('profession', '')
-        profile.company = request.POST.get('company', '')
-        profile.location = request.POST.get('location', '')
-
-        # Handle social media
-        social_media = {}
-        for platform in ['facebook', 'twitter', 'linkedin', 'instagram']:
-            url = request.POST.get(f'social_media[{platform}]', '')
-            if url:
-                social_media[platform] = url
-        profile.social_media = social_media
-
-        # Handle notification preferences
-        profile.notification_email = request.POST.get('notification_email') == 'on'
-        profile.notification_sms = request.POST.get('notification_sms') == 'on'
-        profile.notification_push = request.POST.get('notification_push') == 'on'
-
-        profile.save()
-        messages.success(request, 'Profile updated successfully')
-        return redirect('dashboardmanager:profile')
+            # Save the form
+            profile = form.save()
+            messages.success(request, 'Profile updated successfully')
+            return redirect('dashboardmanager:profile')
+        else:
+            # Form is invalid, show errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
 
     # Get user's default layout
     default_layout = DashboardLayout.objects.filter(user=request.user, is_default=True).first()
@@ -379,44 +333,58 @@ def landing_page(request):
     if not request.user.is_superuser:
         return redirect('dashboardmanager:index')
     
+    # Get all data
+    hero_sections = HeroSection.objects.all().order_by('-is_active', 'id')
+    features = Feature.objects.all().order_by('order', '-is_active')
+    testimonials = Testimonial.objects.all().order_by('-is_active', 'id')
+    faqs = FAQ.objects.all().order_by('order', '-is_active')
+    
+    # Initialize forms
+    hero_form = HeroSectionForm(request.POST or None, request.FILES or None)
+    feature_form = FeatureForm(request.POST or None)
+    testimonial_form = TestimonialForm(request.POST or None, request.FILES or None)
+    faq_form = FAQForm(request.POST or None)
+    
     # Handle form submissions
     if request.method == 'POST':
+        # Hero Section
         if 'add_hero' in request.POST:
-            hero_form = HeroSectionForm(request.POST, request.FILES)
             if hero_form.is_valid():
-                hero_form.save()
+                hero = hero_form.save(commit=False)
+                if not hero.call_to_action_url:
+                    hero.call_to_action_url = None
+                hero.save()
                 messages.success(request, 'Hero section added successfully')
-                return redirect('dashboardmanager:landing_page')
+                hero_form = HeroSectionForm()  # Reset form after successful submission
+            else:
+                messages.error(request, 'Please fix the errors below')
+                
+        # Feature
         elif 'add_feature' in request.POST:
-            feature_form = FeatureForm(request.POST)
             if feature_form.is_valid():
                 feature_form.save()
                 messages.success(request, 'Feature added successfully')
-                return redirect('dashboardmanager:landing_page')
+                feature_form = FeatureForm()  # Reset form after successful submission
+            else:
+                messages.error(request, 'Please fix the errors below')
+                
+        # Testimonial
         elif 'add_testimonial' in request.POST:
-            testimonial_form = TestimonialForm(request.POST, request.FILES)
             if testimonial_form.is_valid():
                 testimonial_form.save()
                 messages.success(request, 'Testimonial added successfully')
-                return redirect('dashboardmanager:landing_page')
+                testimonial_form = TestimonialForm()  # Reset form after successful submission
+            else:
+                messages.error(request, 'Please fix the errors below')
+                
+        # FAQ
         elif 'add_faq' in request.POST:
-            faq_form = FAQForm(request.POST)
             if faq_form.is_valid():
                 faq_form.save()
                 messages.success(request, 'FAQ added successfully')
-                return redirect('dashboardmanager:landing_page')
-    
-    # Get all data
-    hero_sections = HeroSection.objects.all()
-    features = Feature.objects.all()
-    testimonials = Testimonial.objects.all()
-    faqs = FAQ.objects.all()
-    
-    # Initialize empty forms
-    hero_form = HeroSectionForm()
-    feature_form = FeatureForm()
-    testimonial_form = TestimonialForm()
-    faq_form = FAQForm()
+                faq_form = FAQForm()  # Reset form after successful submission
+            else:
+                messages.error(request, 'Please fix the errors below')
     
     context = {
         'hero_sections': hero_sections,
@@ -518,3 +486,51 @@ def update_faq(request, pk):
     
     context = {'faq': faq}
     return render(request, 'dashboardmanager/update_faq.html', context)
+
+@login_required
+def delete_hero_section(request, pk):
+    if not request.user.is_superuser:
+        return redirect('dashboardmanager:index')
+    
+    hero = get_object_or_404(HeroSection, pk=pk)
+    if request.method == 'POST':
+        hero.delete()
+        messages.success(request, 'Hero section deleted successfully')
+        return redirect('dashboardmanager:landing_page')
+    return redirect('dashboardmanager:landing_page')
+
+@login_required
+def delete_feature(request, pk):
+    if not request.user.is_superuser:
+        return redirect('dashboardmanager:index')
+    
+    feature = get_object_or_404(Feature, pk=pk)
+    if request.method == 'POST':
+        feature.delete()
+        messages.success(request, 'Feature deleted successfully')
+        return redirect('dashboardmanager:landing_page')
+    return redirect('dashboardmanager:landing_page')
+
+@login_required
+def delete_testimonial(request, pk):
+    if not request.user.is_superuser:
+        return redirect('dashboardmanager:index')
+    
+    testimonial = get_object_or_404(Testimonial, pk=pk)
+    if request.method == 'POST':
+        testimonial.delete()
+        messages.success(request, 'Testimonial deleted successfully')
+        return redirect('dashboardmanager:landing_page')
+    return redirect('dashboardmanager:landing_page')
+
+@login_required
+def delete_faq(request, pk):
+    if not request.user.is_superuser:
+        return redirect('dashboardmanager:index')
+    
+    faq = get_object_or_404(FAQ, pk=pk)
+    if request.method == 'POST':
+        faq.delete()
+        messages.success(request, 'FAQ deleted successfully')
+        return redirect('dashboardmanager:landing_page')
+    return redirect('dashboardmanager:landing_page')

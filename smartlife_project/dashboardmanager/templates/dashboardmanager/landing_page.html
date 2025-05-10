@@ -1,23 +1,26 @@
 {% extends 'dashboardmanager/base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container-fluid py-4">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Landing Page Management</h1>
-        <a href="{% url 'dashboardmanager:index' %}" class="btn btn-secondary">
+        <a href="{% url 'dashboardmanager:index' %}" class="btn btn-info">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
     </div>
-
+    
     <div class="row">
         <!-- Hero Sections -->
         <div class="col-12 mb-4">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex align-items-center">
                     <h5 class="mb-0">Hero Sections</h5>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHeroModal">
-                        <i class="bi bi-plus-lg"></i> Add Hero Section
-                    </button>
+                    <div class="ms-auto">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addHeroModal">
+                            <i class="fas fa-plus"></i> Add Hero Section
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -40,7 +43,7 @@
                                     </td>
                                     <td>
                                         <a href="{% url 'dashboardmanager:update_hero_section' hero.id %}" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-pencil"></i> Edit
+                                            <i class="fas fa-pencil-alt"></i> Edit
                                         </a>
                                     </td>
                                 </tr>
@@ -55,11 +58,13 @@
         <!-- Features -->
         <div class="col-12 mb-4">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex align-items-center">
                     <h5 class="mb-0">Features</h5>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFeatureModal">
-                        <i class="bi bi-plus-lg"></i> Add Feature
-                    </button>
+                    <div class="ms-auto">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFeatureModal">
+                            <i class="fas fa-plus"></i> Add Feature
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -84,7 +89,7 @@
                                     </td>
                                     <td>
                                         <a href="{% url 'dashboardmanager:update_feature' feature.id %}" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-pencil"></i> Edit
+                                            <i class="fas fa-pencil-alt"></i> Edit
                                         </a>
                                     </td>
                                 </tr>
@@ -99,11 +104,13 @@
         <!-- Testimonials -->
         <div class="col-12 mb-4">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex align-items-center">
                     <h5 class="mb-0">Testimonials</h5>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTestimonialModal">
-                        <i class="bi bi-plus-lg"></i> Add Testimonial
-                    </button>
+                    <div class="ms-auto">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTestimonialModal">
+                            <i class="fas fa-plus"></i> Add Testimonial
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -125,9 +132,9 @@
                                     <td>
                                         {% for i in "12345" %}
                                             {% if forloop.counter <= testimonial.rating %}
-                                                <i class="bi bi-star-fill text-warning"></i>
+                                                <i class="fas fa-star text-warning"></i>
                                             {% else %}
-                                                <i class="bi bi-star text-warning"></i>
+                                                <i class="fas fa-star-o text-warning"></i>
                                             {% endif %}
                                         {% endfor %}
                                     </td>
@@ -138,7 +145,7 @@
                                     </td>
                                     <td>
                                         <a href="{% url 'dashboardmanager:update_testimonial' testimonial.id %}" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-pencil"></i> Edit
+                                            <i class="fas fa-pencil-alt"></i> Edit
                                         </a>
                                     </td>
                                 </tr>
@@ -153,11 +160,13 @@
         <!-- FAQs -->
         <div class="col-12 mb-4">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex align-items-center">
                     <h5 class="mb-0">FAQs</h5>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFAQModal">
-                        <i class="bi bi-plus-lg"></i> Add FAQ
-                    </button>
+                    <div class="ms-auto">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFAQModal">
+                            <i class="fas fa-plus"></i> Add FAQ
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -165,7 +174,7 @@
                             <thead>
                                 <tr>
                                     <th>Question</th>
-                                    <th>Category</th>
+        
                                     <th>Order</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -175,7 +184,7 @@
                                 {% for faq in faqs %}
                                 <tr>
                                     <td>{{ faq.question }}</td>
-                                    <td>{{ faq.category }}</td>
+
                                     <td>{{ faq.order }}</td>
                                     <td>
                                         <span class="badge bg-{{ faq.is_active|yesno:'success,danger' }}">
@@ -184,7 +193,7 @@
                                     </td>
                                     <td>
                                         <a href="{% url 'dashboardmanager:update_faq' faq.id %}" class="btn btn-sm btn-primary">
-                                            <i class="bi bi-pencil"></i> Edit
+                                            <i class="fas fa-pencil-alt"></i> Edit
                                         </a>
                                     </td>
                                 </tr>
@@ -200,20 +209,87 @@
 
 <!-- Add Hero Modal -->
 <div class="modal fade" id="addHeroModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add Hero Section</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" enctype="multipart/form-data">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" enctype="multipart/form-data" action="{% url 'dashboardmanager:landing_page' %}" class="needs-validation" novalidate>
                 {% csrf_token %}
                 <div class="modal-body">
-                    {{ hero_form.as_p }}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" name="add_hero" class="btn btn-primary">Add Hero Section</button>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ hero_form.title.id_for_label }}">Title</label>
+                                {{ hero_form.title }}
+                                <div class="invalid-feedback">
+                                    {% for error in hero_form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ hero_form.call_to_action_text.id_for_label }}">Call to Action Text</label>
+                                {{ hero_form.call_to_action_text }}
+                                <div class="invalid-feedback">
+                                    {% for error in hero_form.call_to_action_text.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ hero_form.call_to_action_url.id_for_label }}">Call to Action URL</label>
+                                {{ hero_form.call_to_action_url }}
+                                <div class="invalid-feedback">
+                                    {% for error in hero_form.call_to_action_url.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ hero_form.is_active.id_for_label }}">Active</label>
+                                {{ hero_form.is_active }}
+                                <div class="invalid-feedback">
+                                    {% for error in hero_form.is_active.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ hero_form.subtitle.id_for_label }}">Subtitle</label>
+                                {{ hero_form.subtitle }}
+                                <div class="invalid-feedback">
+                                    {% for error in hero_form.subtitle.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ hero_form.background_image.id_for_label }}">Background Image</label>
+                                {{ hero_form.background_image }}
+                                <div class="invalid-feedback">
+                                    {% for error in hero_form.background_image.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" name="add_hero" class="btn btn-primary">Add Hero Section</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -222,38 +298,163 @@
 
 <!-- Add Feature Modal -->
 <div class="modal fade" id="addFeatureModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add Feature</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" action="{% url 'dashboardmanager:landing_page' %}" class="needs-validation" novalidate>
                 {% csrf_token %}
                 <div class="modal-body">
-                    {{ feature_form.as_p }}
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" name="add_feature" class="btn btn-primary">Add Feature</button>
-                </div>
-            </form>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ feature_form.title.id_for_label }}">Title</label>
+                                {{ feature_form.title }}
+                                <div class="invalid-feedback">
+                                    {% for error in feature_form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ feature_form.icon.id_for_label }}">Icon</label>
+                                {{ feature_form.icon }}
+                                <div class="invalid-feedback">
+                                    {% for error in feature_form.icon.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ feature_form.order.id_for_label }}">Order</label>
+                                {{ feature_form.order }}
+                                <div class="invalid-feedback">
+                                    {% for error in feature_form.order.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ feature_form.is_active.id_for_label }}">Active</label>
+                                {{ feature_form.is_active }}
+                                <div class="invalid-feedback">
+                                    {% for error in feature_form.is_active.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ feature_form.description.id_for_label }}">Description</label>
+                                {{ feature_form.description }}
+                                <div class="invalid-feedback">
+                                    {% for error in feature_form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" name="add_feature" class="btn btn-primary">Add Feature</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Add Testimonial Modal -->
 <div class="modal fade" id="addTestimonialModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add Testimonial</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" enctype="multipart/form-data">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" enctype="multipart/form-data" action="{% url 'dashboardmanager:landing_page' %}" class="needs-validation" novalidate>
                 {% csrf_token %}
                 <div class="modal-body">
-                    {{ testimonial_form.as_p }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ testimonial_form.name.id_for_label }}">Name</label>
+                                {{ testimonial_form.name }}
+                                <div class="invalid-feedback">
+                                    {% for error in testimonial_form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ testimonial_form.role.id_for_label }}">Role</label>
+                                {{ testimonial_form.role }}
+                                <div class="invalid-feedback">
+                                    {% for error in testimonial_form.role.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ testimonial_form.rating.id_for_label }}">Rating</label>
+                                {{ testimonial_form.rating }}
+                                <div class="invalid-feedback">
+                                    {% for error in testimonial_form.rating.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ testimonial_form.is_active.id_for_label }}">Active</label>
+                                {{ testimonial_form.is_active }}
+                                <div class="invalid-feedback">
+                                    {% for error in testimonial_form.is_active.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ testimonial_form.content.id_for_label }}">Content</label>
+                                {{ testimonial_form.content }}
+                                <div class="invalid-feedback">
+                                    {% for error in testimonial_form.content.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ testimonial_form.image.id_for_label }}">Image</label>
+                                {{ testimonial_form.image }}
+                                <div class="invalid-feedback">
+                                    {% for error in testimonial_form.image.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -266,16 +467,65 @@
 
 <!-- Add FAQ Modal -->
 <div class="modal fade" id="addFAQModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add FAQ</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form method="post" action="{% url 'dashboardmanager:landing_page' %}" class="needs-validation" novalidate>
                 {% csrf_token %}
                 <div class="modal-body">
-                    {{ faq_form.as_p }}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ faq_form.question.id_for_label }}">Question</label>
+                                {{ faq_form.question }}
+                                <div class="invalid-feedback">
+                                    {% for error in faq_form.question.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ faq_form.order.id_for_label }}">Order</label>
+                                {{ faq_form.order }}
+                                <div class="invalid-feedback">
+                                    {% for error in faq_form.order.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ faq_form.is_active.id_for_label }}">Active</label>
+                                {{ faq_form.is_active }}
+                                <div class="invalid-feedback">
+                                    {% for error in faq_form.is_active.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="{{ faq_form.answer.id_for_label }}">Answer</label>
+                                {{ faq_form.answer }}
+                                <div class="invalid-feedback">
+                                    {% for error in faq_form.answer.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

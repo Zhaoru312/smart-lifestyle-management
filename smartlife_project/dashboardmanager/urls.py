@@ -18,4 +18,8 @@ urlpatterns = [
     path('landing/feature/<int:pk>/', views.update_feature, name='update_feature'),
     path('landing/testimonial/<int:pk>/', views.update_testimonial, name='update_testimonial'),
     path('landing/faq/<int:pk>/', views.update_faq, name='update_faq'),
+    path('landing/hero/<int:pk>/delete/', views.delete_hero_section, name='delete_hero_section'),
+    path('landing/feature/<int:pk>/delete/', views.delete_feature, name='delete_feature'),
+    path('landing/testimonial/<int:pk>/delete/', views.delete_testimonial, name='delete_testimonial'),
+    path('landing/faq/<int:pk>/delete/', views.delete_faq, name='delete_faq'),
 ]

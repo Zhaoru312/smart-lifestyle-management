@@ -14,12 +14,63 @@ SESSION_EXPIRY_BROWSER = 0  # Session ends when browser closes
 # Create your views here.
 def index(request):
     # Always show the landing page regardless of authentication status
+    if request.method == 'POST':
+        # Handle hero section form
+        if 'add_hero' in request.POST:
+            hero_form = HeroSectionForm(request.POST, request.FILES)
+            if hero_form.is_valid():
+                hero_form.save()
+                messages.success(request, 'Hero section added successfully')
+                return redirect('index')
+            else:
+                messages.error(request, 'Please fix the errors below')
+                
+        # Handle feature form
+        elif 'add_feature' in request.POST:
+            feature_form = FeatureForm(request.POST)
+            if feature_form.is_valid():
+                feature_form.save()
+                messages.success(request, 'Feature added successfully')
+                return redirect('index')
+            else:
+                messages.error(request, 'Please fix the errors below')
+                
+        # Handle testimonial form
+        elif 'add_testimonial' in request.POST:
+            testimonial_form = TestimonialForm(request.POST, request.FILES)
+            if testimonial_form.is_valid():
+                testimonial_form.save()
+                messages.success(request, 'Testimonial added successfully')
+                return redirect('index')
+            else:
+                messages.error(request, 'Please fix the errors below')
+                
+        # Handle FAQ form
+        elif 'add_faq' in request.POST:
+            faq_form = FAQForm(request.POST)
+            if faq_form.is_valid():
+                faq_form.save()
+                messages.success(request, 'FAQ added successfully')
+                return redirect('index')
+            else:
+                messages.error(request, 'Please fix the errors below')
+                
+    # Initialize forms
+    hero_form = HeroSectionForm(request.POST or None, request.FILES or None)
+    feature_form = FeatureForm(request.POST or None)
+    testimonial_form = TestimonialForm(request.POST or None, request.FILES or None)
+    faq_form = FAQForm(request.POST or None)
+    
     context = {
         'hero_sections': HeroSection.objects.filter(is_active=True),
         'testimonials': Testimonial.objects.filter(is_active=True),
         'faqs': FAQ.objects.filter(is_active=True)[:3],
         'user': request.user if request.user.is_authenticated else None,
         'apps': Feature.objects.filter(is_active=True),
+        'hero_form': hero_form,
+        'feature_form': feature_form,
+        'testimonial_form': testimonial_form,
+        'faq_form': faq_form,
         'show_messages': True
     }
     
