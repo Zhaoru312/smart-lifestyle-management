@@ -25,7 +25,7 @@
                     </h2>
                     <div id="collapse{{ faq.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ faq.id }}" data-bs-parent="#faqAccordion">
                         <div class="accordion-body">
-                            {{ faq.answer|safe }}
+                            {{ faq.safe_answer }}
                         </div>
                     </div>
                 </div>
@@ -35,10 +35,5 @@
     </div>
 </div>
 
-<script>
-    // Initialize Bootstrap components
-    var faqAccordion = new bootstrap.Accordion('#faqAccordion', {
-        flush: true
-    });
-</script>
+
 {% endblock %}

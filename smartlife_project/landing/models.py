@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 class HeroSection(models.Model):
     title = models.CharField(max_length=200)
@@ -22,6 +21,7 @@ class Feature(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     icon = models.CharField(max_length=50)  # For font awesome or bootstrap icons
+    template = models.CharField(max_length=100, null=True, blank=True, help_text="Template name to render this feature")
     order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -70,12 +70,13 @@ class ContactMessage(models.Model):
 class FAQ(models.Model):
     question = models.CharField(max_length=200)
     answer = models.TextField()
-    category = models.CharField(max_length=50, choices=[
-        ('general', 'General'),
-        ('features', 'Features'),
-        ('pricing', 'Pricing'),
-        ('technical', 'Technical')
-    ])
+    
+    @property
+    def safe_answer(self):
+        """Return the answer with HTML tags escaped."""
+        from django.utils.html import escape
+        return escape(self.answer)
+
     order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -17,31 +17,27 @@
                         {% endfor %}
                     {% endif %}
 
-                    <form method="post" action="{% url 'landing:contact' %}" class="needs-validation" novalidate>
+                    <form method="post" action="{% url 'landing:contact' %}">
                         {% csrf_token %}
                         
                         <div class="mb-3">
                             <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
                             {{ form.name }}
-                            <div class="invalid-feedback">Please enter your name.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
                             {{ form.email }}
-                            <div class="invalid-feedback">Please enter a valid email address.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="{{ form.subject.id_for_label }}" class="form-label">Subject</label>
                             {{ form.subject }}
-                            <div class="invalid-feedback">Please enter a subject.</div>
                         </div>
 
                         <div class="mb-3">
                             <label for="{{ form.message.id_for_label }}" class="form-label">Message</label>
                             {{ form.message }}
-                            <div class="invalid-feedback">Please enter your message.</div>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">Send Message</button>

@@ -1,33 +1,118 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
+from django.utils import timezone
+from django.core.files.storage import default_storage
+from django import forms
+from .models import DashboardWidget, UserPreference, DashboardNotification, DashboardLayout , UserProfile
 from landing.models import HeroSection, Feature, Testimonial, FAQ
+import uuid
 
 @login_required
 def index(request):
     if not request.user.is_authenticated:
         return redirect('landing:login')
     
+    # Get user preferences
+    try:
+        user_prefs = UserPreference.objects.get(user=request.user)
+    except UserPreference.DoesNotExist:
+        user_prefs = UserPreference.objects.create(user=request.user)
+    
+    # Get dashboard widgets
+    widgets = DashboardWidget.objects.filter(
+        user=request.user,
+        is_active=True
+    ).order_by('position_y', 'position_x')
+    
+    # Get notifications
+    notifications = DashboardNotification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).order_by('-created_at')[:5]
+    
+    # Get dashboard statistics
+    stats = {
+        'total_expenses': 1234.56,  # Replace with actual data
+        'workout_streak': 14,       # Replace with actual data
+        'active_habits': 5,         # Replace with actual data
+        'pending_tasks': 3          # Replace with actual data
+    }
+
+    # Get user's layouts
+    layouts = DashboardLayout.objects.filter(user=request.user).order_by('-is_default', '-created_at')
+    
+    # Get recent activity
+    recent_activity = [
+        {
+            'date': '2025-05-09',
+            'activity': 'Completed morning workout',
+            'category': 'Fitness',
+            'status': 'completed'
+        },
+        {
+            'date': '2025-05-09',
+            'activity': 'Logged daily expenses',
+            'category': 'Finance',
+            'status': 'completed'
+        },
+        {
+            'date': '2025-05-09',
+            'activity': 'Checked meditation habit',
+            'category': 'Habit',
+            'status': 'completed'
+        },
+        {
+            'date': '2025-05-09',
+            'activity': 'Logged dinner meal',
+            'category': 'Meal',
+            'status': 'completed'
+        }
+    ]
+    
+    context = {
+        'user': request.user,
+        'stats': stats,
+        'recent_activity': recent_activity,
+        'widgets': widgets,
+        'notifications': notifications,
+        'user_prefs': user_prefs,
+        'layouts': layouts
+    }
+    
+    return render(request, 'dashboardmanager/index.html', context)
+
+@login_required
+def applist(request):
+    if not request.user.is_authenticated:
+        return redirect('landing:login')
+    
     apps = [
-        {'name': 'Finance', 'url': '/finance/', 'icon': 'fas fa-wallet'},
-        {'name': 'Fitness', 'url': '/fitness/', 'icon': 'fas fa-dumbbell'},
-        {'name': 'Habit', 'url': '/habit/', 'icon': 'fas fa-repeat'},
-        {'name': 'Meal', 'url': '/meal/', 'icon': 'fas fa-utensils'},
-        {'name': 'Mental', 'url': '/mental/', 'icon': 'fas fa-brain'},
-        {'name': 'Tasks', 'url': '/tasks/', 'icon': 'fas fa-tasks'}
+        {'name': 'Finance', 'url': '/finance/', 'icon': 'fas fa-wallet', 'description': 'Manage your finances and track expenses'},
+        {'name': 'Fitness', 'url': '/fitness/', 'icon': 'fas fa-dumbbell', 'description': 'Track your workouts and fitness goals'},
+        {'name': 'Habit', 'url': '/habit/', 'icon': 'fas fa-check-circle', 'description': 'Build and track your habits'},
+        {'name': 'Meal', 'url': '/meal/', 'icon': 'fas fa-utensils', 'description': 'Log and plan your meals'},
+        {'name': 'Mental', 'url': '/mental/', 'icon': 'fas fa-brain', 'description': 'Track your mental health and mood'},
+        {'name': 'Tasks', 'url': '/tasks/', 'icon': 'fas fa-tasks', 'description': 'Manage your daily tasks and to-do list'}
     ]
     
     if request.user.is_superuser:
-        apps.append({'name': 'Landing Page', 'url': '/dashboard/landing/', 'icon': 'fas fa-home'})
+        apps.append({
+            'name': 'Landing Page', 
+            'url': '/dashboard/landing/', 
+            'icon': 'fas fa-home',
+            'description': 'Manage the landing page content'
+        })
     
     context = {
         'user': request.user,
         'apps': apps
     }
     
-    return render(request, 'dashboardmanager/index.html', context)
+    return render(request, 'dashboardmanager/applist.html', context)
 
-from django import forms
+
 
 # Add forms for each section
 
@@ -49,7 +134,245 @@ class TestimonialForm(forms.ModelForm):
 class FAQForm(forms.ModelForm):
     class Meta:
         model = FAQ
-        fields = ['question', 'answer', 'category', 'order', 'is_active']
+        fields = ['question', 'answer', 'order', 'is_active']
+
+class DashboardLayoutForm(forms.ModelForm):
+    class Meta:
+        model = DashboardLayout
+        fields = ['name', 'description', 'layout_data', 'is_default', 'is_public']
+
+@login_required
+def list_layouts(request):
+    if not request.user.is_authenticated:
+        return redirect('landing:login')
+    
+    # Get all layouts for the user
+    layouts = DashboardLayout.objects.filter(user=request.user).order_by('-is_default', '-created_at')
+    
+    context = {
+        'user': request.user,
+        'layouts': layouts
+    }
+    
+    return render(request, 'dashboardmanager/layouts/list.html', context)
+
+@login_required
+def create_layout(request):
+    if not request.user.is_authenticated:
+        return redirect('landing:login')
+    
+    if request.method == 'POST':
+        form = DashboardLayoutForm(request.POST)
+        if form.is_valid():
+            layout = form.save(commit=False)
+            layout.user = request.user
+            layout.save()
+            messages.success(request, 'Layout created successfully')
+            return redirect('dashboardmanager:list_layouts')
+    else:
+        form = DashboardLayoutForm()
+    
+    context = {
+        'user': request.user,
+        'form': form
+    }
+    
+    return render(request, 'dashboardmanager/layouts/create.html', context)
+
+@login_required
+def view_layout(request, pk):
+    if not request.user.is_authenticated:
+        return redirect('landing:login')
+    
+    layout = get_object_or_404(DashboardLayout, pk=pk, user=request.user)
+    
+    context = {
+        'user': request.user,
+        'layout': layout
+    }
+    
+    return render(request, 'dashboardmanager/layouts/view.html', context)
+
+@login_required
+def edit_layout(request, pk):
+    if not request.user.is_authenticated:
+        return redirect('landing:login')
+    
+    layout = get_object_or_404(DashboardLayout, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        form = DashboardLayoutForm(request.POST, instance=layout)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Layout updated successfully')
+            return redirect('dashboardmanager:view_layout', pk=pk)
+    else:
+        form = DashboardLayoutForm(instance=layout)
+    
+    context = {
+        'user': request.user,
+        'layout': layout,
+        'form': form
+    }
+    
+    return render(request, 'dashboardmanager/layouts/edit.html', context)
+
+@login_required
+def delete_layout(request, pk):
+    if not request.user.is_authenticated:
+        return redirect('landing:login')
+    
+    layout = get_object_or_404(DashboardLayout, pk=pk, user=request.user)
+    
+    if request.method == 'POST':
+        layout.delete()
+        messages.success(request, 'Layout deleted successfully')
+        return redirect('dashboardmanager:list_layouts')
+    
+    context = {
+        'user': request.user,
+        'layout': layout
+    }
+    
+    return render(request, 'dashboardmanager/layouts/delete.html', context)
+
+@login_required
+def set_default_layout(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    
+    try:
+        layout = get_object_or_404(DashboardLayout, pk=pk, user=request.user)
+        layout.is_default = True
+        layout.save()
+        
+        # Ensure only one layout per user can be default
+        DashboardLayout.objects.filter(
+            user=request.user,
+            is_default=True
+        ).exclude(pk=pk).update(is_default=False)
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Default layout set successfully'
+        })
+    except DashboardLayout.DoesNotExist:
+        return JsonResponse({'error': 'Layout not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+def profile(request):
+    if not request.user.is_authenticated:
+        return redirect('landing:login')
+    
+    try:
+        profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=request.user)
+    
+    if request.method == 'POST':
+        # Handle avatar upload
+        if 'avatar' in request.FILES:
+            avatar = request.FILES['avatar']
+            if avatar.size > 5 * 1024 * 1024:  # 5MB limit
+                messages.error(request, 'Avatar file size must be less than 5MB')
+                return redirect('dashboardmanager:profile')
+            else:
+                # Delete old avatar if exists
+                if profile.avatar:
+                    try:
+                        default_storage.delete(profile.avatar.path)
+                    except:
+                        pass
+
+                # Save new avatar
+                filename = f"profile_avatars/{request.user.username}_{uuid.uuid4()}.jpg"
+                with default_storage.open(filename, 'wb') as destination:
+                    for chunk in avatar.chunks():
+                        destination.write(chunk)
+                profile.avatar = filename
+
+        # Handle profile fields with validation
+        errors = {}
+        
+        # Validate birth date
+        birth_date = request.POST.get('birth_date')
+        if birth_date:
+            try:
+                birth_date = timezone.datetime.strptime(birth_date, '%Y-%m-%d').date()
+                if birth_date > timezone.now().date():
+                    errors['birth_date'] = 'Birth date cannot be in the future'
+            except ValueError:
+                errors['birth_date'] = 'Invalid date format. Please use YYYY-MM-DD'
+        
+        # Validate phone number
+        phone_number = request.POST.get('phone_number', '')
+        if phone_number:
+            if not phone_number.isdigit():
+                errors['phone_number'] = 'Phone number can only contain digits'
+            if len(phone_number) < 8 or len(phone_number) > 15:
+                errors['phone_number'] = 'Phone number must be between 8 and 15 digits'
+        
+        # Validate website URL
+        website = request.POST.get('website', '')
+        if website and not website.startswith(('http://', 'https://')):
+            website = 'https://' + website
+        
+        # Update profile fields
+        profile.bio = request.POST.get('bio', '')
+        profile.birth_date = birth_date if not errors.get('birth_date') else None
+        profile.phone_number = phone_number if not errors.get('phone_number') else ''
+        profile.address = request.POST.get('address', '')
+        profile.website = website
+        profile.interests = request.POST.get('interests', '')
+        profile.profession = request.POST.get('profession', '')
+        profile.company = request.POST.get('company', '')
+        profile.location = request.POST.get('location', '')
+
+        # Handle social media
+        social_media = {}
+        for platform in ['facebook', 'twitter', 'linkedin', 'instagram']:
+            url = request.POST.get(f'social_media[{platform}]', '')
+            if url:
+                social_media[platform] = url
+        profile.social_media = social_media
+
+        # Handle notification preferences
+        profile.notification_email = request.POST.get('notification_email') == 'on'
+        profile.notification_sms = request.POST.get('notification_sms') == 'on'
+        profile.notification_push = request.POST.get('notification_push') == 'on'
+
+        profile.save()
+        messages.success(request, 'Profile updated successfully')
+        return redirect('dashboardmanager:profile')
+
+    # Get user's default layout
+    default_layout = DashboardLayout.objects.filter(user=request.user, is_default=True).first()
+    
+    # Handle layout setting
+    if request.method == 'POST' and 'layout_id' in request.POST:
+        try:
+            layout_id = request.POST.get('layout_id')
+            if layout_id:
+                layout = DashboardLayout.objects.get(pk=layout_id, user=request.user)
+                layout.is_default = True
+                layout.save()
+                messages.success(request, 'Default layout set successfully')
+            else:
+                messages.error(request, 'Please select a layout')
+        except DashboardLayout.DoesNotExist:
+            messages.error(request, 'Layout not found')
+        except Exception as e:
+            messages.error(request, f'Error setting layout: {str(e)}')
+        
+        return redirect('dashboardmanager:profile')
+
+    return render(request, 'dashboardmanager/profile.html', {
+        'profile': profile,
+        'default_layout': default_layout,
+        'layouts': DashboardLayout.objects.filter(user=request.user)
+    })
 
 @login_required
 def landing_page(request):

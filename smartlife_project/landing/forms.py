@@ -1,5 +1,7 @@
 from django import forms
-from .models import ContactMessage, FAQ, HeroSection
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from .models import ContactMessage, FAQ
 
 class ContactForm(forms.ModelForm):
     class Meta:
@@ -15,22 +17,23 @@ class ContactForm(forms.ModelForm):
 class FAQForm(forms.ModelForm):
     class Meta:
         model = FAQ
-        fields = ['question', 'category', 'answer']
+        fields = ['question', 'answer']
         widgets = {
             'question': forms.TextInput(attrs={'class': 'form-control'}),
-            'category': forms.Select(attrs={'class': 'form-control'}),
             'answer': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
         }
 
-class HeroSectionForm(forms.ModelForm):
+class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True, help_text='Required. Enter a valid email address.')
+    
     class Meta:
-        model = HeroSection
-        fields = ['title', 'subtitle', 'background_image', 'call_to_action_text', 'call_to_action_url', 'is_active']
-        widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'subtitle': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'background_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
-            'call_to_action_text': forms.TextInput(attrs={'class': 'form-control'}),
-            'call_to_action_url': forms.URLInput(attrs={'class': 'form-control'}),
-            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-        }
+        model = User
+        fields = ('username', 'email', 'password1', 'password2')
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].help_text = 'Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'
+        self.fields['password1'].help_text = 'Your password can\'t be too similar to your other personal information. Your password must contain at least 8 characters. Your password can\'t be a commonly used password. Your password can\'t be entirely numeric.'
+        self.fields['password2'].help_text = 'Enter the same password as before, for verification.'
+
+

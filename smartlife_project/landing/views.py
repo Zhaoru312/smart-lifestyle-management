@@ -1,13 +1,15 @@
+import random
+import string
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 from django.contrib import messages
-from django.core.mail import send_mail
-from django.conf import settings
-from .models import HeroSection, Feature, Testimonial, FAQ
-from .forms import ContactForm, FAQForm
+from django.urls import reverse
+from .models import Feature, HeroSection, Testimonial, FAQ
+from .forms import ContactForm, FAQForm, CustomUserCreationForm
+
+# Constants
+SESSION_EXPIRY_NEVER = 1209600  # 2 weeks in seconds
+SESSION_EXPIRY_BROWSER = 0  # Session ends when browser closes
 
 # Create your views here.
 def index(request):
@@ -17,7 +19,8 @@ def index(request):
         'testimonials': Testimonial.objects.filter(is_active=True),
         'faqs': FAQ.objects.filter(is_active=True)[:3],
         'user': request.user if request.user.is_authenticated else None,
-        'apps': Feature.objects.filter(is_active=True)
+        'apps': Feature.objects.filter(is_active=True),
+        'show_messages': True
     }
     
     return render(request, 'landing/index.html', context)
@@ -32,27 +35,14 @@ def login_view(request):
         if user is not None:
             login(request, user)
             if remember_me:
-                request.session.set_expiry(1209600)  # 2 weeks
+                request.session.set_expiry(SESSION_EXPIRY_NEVER)
             else:
-                request.session.set_expiry(0)  # Session ends when browser closes
-            return redirect('dashboardmanager:index')
+                request.session.set_expiry(SESSION_EXPIRY_BROWSER)
+            return redirect(reverse('dashboardmanager:index'))
         else:
             messages.error(request, 'Invalid username or password')
     
     return render(request, 'landing/login.html')
-
-class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True, help_text='Required. Enter a valid email address.')
-    
-    class Meta:
-        model = User
-        fields = ('username', 'email', 'password1', 'password2')
-        
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['username'].help_text = 'Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'
-        self.fields['password1'].help_text = 'Your password can\'t be too similar to your other personal information. Your password must contain at least 8 characters. Your password can\'t be a commonly used password. Your password can\'t be entirely numeric.'
-        self.fields['password2'].help_text = 'Enter the same password as before, for verification.'
 
 def register_view(request):
     if request.method == 'POST':
@@ -60,7 +50,7 @@ def register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('dashboardmanager:index')
+            return redirect(reverse('dashboardmanager:index'))
         else:
             for field, errors in form.errors.items():
                 for error in errors:
@@ -106,12 +96,10 @@ def forgot_password_view(request):
             user = User.objects.get(email=email)
             
             # Generate a random token
-            import random
-            import string
             token = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
             
             # For development, just print the reset link
-            reset_link = f'http://localhost:8000/reset-password/{token}/'
+            reset_link = f'{request.scheme}://{request.get_host()}/reset-password/{token}/'
             print(f"Reset link for {user.username}: {reset_link}")
             
             messages.success(request, 'An email has been sent with instructions to reset your password.')

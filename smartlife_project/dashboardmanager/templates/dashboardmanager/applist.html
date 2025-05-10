@@ -1,0 +1,51 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block content_header %}
+    <div class="row mb-2">
+        <div class="col-sm-6">
+            <h1 class="m-0">Available Applications</h1>
+        </div>
+        <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/">Dashboard</a></li>
+                <li class="breadcrumb-item active">App List</li>
+            </ol>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Available Applications</h3>
+                    <div class="card-tools">
+                        <a href="/dashboard/" class="btn btn-default btn-sm">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for app in apps %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <i class="fas {{ app.icon }} fa-3x mb-3 text-primary"></i>
+                                        <h5 class="card-title">{{ app.name }}</h5>
+                                        <p class="card-text">{{ app.description }}</p>
+                                        <a href="{{ app.url }}" class="btn btn-primary btn-block">Go to {{ app.name }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
