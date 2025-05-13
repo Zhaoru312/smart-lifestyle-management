@@ -1,11 +1,10 @@
 {% extends 'landing/base.html' %}
 
 {% block content %}
-<div class="container-fluid">
-    <!-- Hero Section -->
-    <div class="hero-section">
-        <div class="hero-content">
-            {% for hero in hero_sections %}
+<!-- Hero Section - Full width without container constraints -->
+<section class="hero-section">
+    <div class="hero-content">
+        {% for hero in hero_sections %}
             <div class="hero-item{% if forloop.first %} active{% endif %}" data-background="{% if hero.background_image %}{{ hero.background_image.url }}{% endif %}">
                 <div class="hero-content-overlay">
                     <div class="hero-content-inner">
@@ -26,8 +25,9 @@
             <button class="hero-nav-dot{% if forloop.first %} active{% endif %}" data-index="{{ forloop.counter0 }}"></button>
             {% endfor %}
         </div>
-    </div>
+</section>
 
+<div class="container-fluid px-0">
     <!-- Features -->
     <section class="features-section py-5 bg-light">
         <div class="container">
@@ -41,9 +41,15 @@
                             <h3 class="card-title">{{ app.title }}</h3>
                             <p class="card-text">{{ app.description }}</p>
                             {% if user.is_authenticated %}
-                                <a href="{{ app.title }}" class="btn btn-outline-primary mt-3">Get Started</a>
+                                <a href="{{ app.title }}" class="btn btn-primary mt-3 app-button">
+                                    <span>Get Started</span>
+                                    <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                                </a>
                             {% else %}
-                                <a href="{% url 'landing:login' %}" class="btn btn-outline-primary mt-3">Login to Get Started</a>
+                                <a href="{% url 'landing:login' %}" class="btn btn-primary mt-3 app-button">
+                                    <span>Login to Get Started</span>
+                                    <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+                                </a>
                             {% endif %}
                         </div>
                     </div>

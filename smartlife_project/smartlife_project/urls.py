@@ -22,9 +22,13 @@ from django.views.generic import TemplateView
 from django.views.defaults import page_not_found, server_error
 
 urlpatterns = [
-    # Main app URLs
+    # Landing page and public-facing URLs
     path('', include('landing.urls')),
+    
+    # Dashboard and user management
     path('dashboard/', include('dashboardmanager.urls')),
+    
+    # Feature-specific app URLs
     path('finance/', include('financialmanagement.urls')),
     path('fitness/', include('fitnesstracker.urls')),
     path('habit/', include('habittracker.urls')),
@@ -32,10 +36,10 @@ urlpatterns = [
     path('mental/', include('mentalhealth.urls')),
     path('tasks/', include('taskmanager.urls')),
     
-    # Django admin
+    # Django admin interface
     path('admin/', admin.site.urls),
     
-    # Authentication URLs
+    # Django built-in authentication URLs (login, logout, password reset, etc.)
     path('accounts/', include('django.contrib.auth.urls')),
 ]
 

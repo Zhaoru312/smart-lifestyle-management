@@ -4,12 +4,20 @@ from django.contrib.auth.models import User
 
 # User Profile Model
 class UserProfile(models.Model):
+    """
+    User profile model extending the built-in Django User model.
+    Stores additional information about users including personal details,
+    preferences, and profile customization options.
+    """
     CURRENCY_CHOICES = [
         ('USD', 'US Dollar'),
         ('EUR', 'Euro'),
         ('GBP', 'British Pound'),
         ('JPY', 'Japanese Yen'),
-        ('IDR', 'Indonesian Rupiah')
+        ('IDR', 'Indonesian Rupiah'),
+        ('AUD', 'Australian Dollar'),
+        ('CAD', 'Canadian Dollar'),
+        ('SGD', 'Singapore Dollar')
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
@@ -52,13 +60,17 @@ class UserProfile(models.Model):
 
 # Dashboard Bookmarks
 class DashboardBookmark(models.Model):
+    """
+    Model for storing user bookmarks in the dashboard.
+    Allows users to save and organize important links with categories and tags.
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
-    title = models.CharField(max_length=200)
-    url = models.URLField()
-    description = models.TextField(blank=True)
-    category = models.CharField(max_length=50, blank=True)
+    title = models.CharField(max_length=200, help_text='Name of the bookmark')
+    url = models.URLField(help_text='URL of the bookmark')
+    description = models.TextField(blank=True, help_text='Optional description of the bookmark')
+    category = models.CharField(max_length=50, blank=True, help_text='Category for organizing bookmarks')
     tags = models.CharField(max_length=200, blank=True, help_text='Comma-separated tags')
-    is_favorite = models.BooleanField(default=False)
+    is_favorite = models.BooleanField(default=False, help_text='Mark as a favorite for quick access')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -82,12 +94,16 @@ class DashboardBookmark(models.Model):
 
 # Dashboard Notes
 class DashboardNote(models.Model):
+    """
+    Model for storing user notes in the dashboard.
+    Allows users to create and organize notes with categories and tags.
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notes')
-    title = models.CharField(max_length=200)
-    content = models.TextField()
-    category = models.CharField(max_length=50, blank=True)
+    title = models.CharField(max_length=200, help_text='Title of the note')
+    content = models.TextField(help_text='Content of the note')
+    category = models.CharField(max_length=50, blank=True, help_text='Category for organizing notes')
     tags = models.CharField(max_length=200, blank=True, help_text='Comma-separated tags')
-    is_pinned = models.BooleanField(default=False)
+    is_pinned = models.BooleanField(default=False, help_text='Pin note to top of list')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -117,20 +133,26 @@ class DashboardNote(models.Model):
 
 # Dashboard Reminders
 class DashboardReminder(models.Model):
+    """
+    Model for storing user reminders in the dashboard.
+    Supports one-time and recurring reminders with customizable intervals.
+    """
     REMINDER_TYPES = [
         ('one_time', 'One Time'),
         ('daily', 'Daily'),
         ('weekly', 'Weekly'),
-        ('monthly', 'Monthly')
+        ('monthly', 'Monthly'),
+        ('yearly', 'Yearly'),
+        ('custom', 'Custom Interval')
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reminders')
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    reminder_type = models.CharField(max_length=20, choices=REMINDER_TYPES)
-    due_date = models.DateTimeField()
+    title = models.CharField(max_length=200, help_text='Title of the reminder')
+    description = models.TextField(blank=True, help_text='Optional description or details')
+    reminder_type = models.CharField(max_length=20, choices=REMINDER_TYPES, help_text='Type of reminder recurrence')
+    due_date = models.DateTimeField(help_text='When the reminder is due')
     repeat_interval = models.IntegerField(null=True, blank=True, help_text='Interval in days for repeating reminders')
-    is_completed = models.BooleanField(default=False)
+    is_completed = models.BooleanField(default=False, help_text='Mark if the reminder has been completed')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -173,13 +195,17 @@ class DashboardReminder(models.Model):
 
 # Dashboard Shortcuts
 class DashboardShortcut(models.Model):
+    """
+    Model for storing user shortcuts in the dashboard.
+    Allows users to create keyboard shortcuts for frequently used actions.
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shortcuts')
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, help_text='Name of the shortcut')
     icon = models.CharField(max_length=50, help_text='FontAwesome icon class (e.g., fa-home)')
     shortcut_key = models.CharField(max_length=20, help_text='Keyboard shortcut (e.g., Ctrl+H)')
     action = models.CharField(max_length=200, help_text='URL or action to perform')
-    description = models.TextField(blank=True)
-    is_active = models.BooleanField(default=True)
+    description = models.TextField(blank=True, help_text='Optional description of what the shortcut does')
+    is_active = models.BooleanField(default=True, help_text='Whether the shortcut is currently active')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

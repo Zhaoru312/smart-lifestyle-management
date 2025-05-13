@@ -78,10 +78,11 @@ class TestimonialForm(forms.ModelForm):
 class FAQForm(forms.ModelForm):
     class Meta:
         model = FAQ
-        fields = ['question', 'answer', 'order', 'is_active']
+        fields = ['question', 'answer', 'category', 'order', 'is_active']
         widgets = {
             'question': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'answer': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'required': True}),
+            'category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional category'}),
             'order': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
@@ -117,13 +118,27 @@ class ReminderForm(forms.ModelForm):
         model = DashboardReminder
         fields = ['title', 'description', 'reminder_type', 'due_date', 'repeat_interval', 'is_completed']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            'reminder_type': forms.Select(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter reminder title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional details about this reminder'}),
+            'reminder_type': forms.Select(attrs={'class': 'form-control', 'id': 'reminder-type-select'}),
             'due_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
-            'repeat_interval': forms.NumberInput(attrs={'class': 'form-control'}),
+            'repeat_interval': forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'placeholder': 'Days between repetitions'}),
             'is_completed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['repeat_interval'].help_text = 'Required for custom interval reminders'
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        reminder_type = cleaned_data.get('reminder_type')
+        repeat_interval = cleaned_data.get('repeat_interval')
+        
+        if reminder_type == 'custom' and not repeat_interval:
+            self.add_error('repeat_interval', 'This field is required for custom interval reminders')
+            
+        return cleaned_data
 
 class ShortcutForm(forms.ModelForm):
     class Meta:
