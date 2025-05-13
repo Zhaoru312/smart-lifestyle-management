@@ -11,9 +11,9 @@ from django.utils import timezone
 
 # Local application imports
 from .models import UserProfile, DashboardBookmark, DashboardNote, DashboardReminder, DashboardShortcut
-from landing.models import HeroSection, Feature, Testimonial, FAQ
+from .models import HeroSection, Feature, Testimonial, FAQ
 from .forms import (
-    ProfileForm, HeroForm, FeatureForm, TestimonialForm, FAQForm,
+    ProfileForm, HeroForm, FeatureForm, TestimonialForm, dashboardFAQForm,
     BookmarkForm, NoteForm, ReminderForm, ShortcutForm
 )
 
@@ -203,7 +203,7 @@ def landing_page(request):
     hero_form = HeroForm(request.POST or None, request.FILES or None)
     feature_form = FeatureForm(request.POST or None)
     testimonial_form = TestimonialForm(request.POST or None, request.FILES or None)
-    faq_form = FAQForm(request.POST or None)
+    faq_form = dashboardFAQForm(request.POST or None)
     
     # Handle form submissions
     if request.method == 'POST':
@@ -242,7 +242,7 @@ def landing_page(request):
             if faq_form.is_valid():
                 faq_form.save()
                 messages.success(request, 'FAQ added successfully')
-                faq_form = FAQForm()  # Reset form after successful submission
+                faq_form = dashboardFAQForm()  # Reset form after successful submission
             else:
                 messages.error(request, 'Please fix the errors below')
     
@@ -345,7 +345,7 @@ def update_faq(request, pk):
     faq = get_object_or_404(FAQ, pk=pk)
     
     if request.method == 'POST':
-        form = FAQForm(request.POST, instance=faq)
+        form = dashboardFAQForm(request.POST, instance=faq)
         if form.is_valid():
             form.save()
             messages.success(request, 'FAQ updated successfully')
@@ -355,7 +355,7 @@ def update_faq(request, pk):
                 for error in errors:
                     messages.error(request, f"{field}: {error}")
     else:
-        form = FAQForm(instance=faq)
+        form = dashboardFAQForm(instance=faq)
     
     context = {
         'faq': faq,

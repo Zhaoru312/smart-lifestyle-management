@@ -114,35 +114,12 @@
                         <div class="card-body">
                             <h3 class="card-title text-center mb-4">Get in Touch</h3>
 
-                            <form method="post" action="{% url 'landing:contact' %}" class="needs-validation" novalidate>
-                                {% csrf_token %}
-                                
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" required>
-                                    <div class="invalid-feedback">Please enter your name.</div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
-                                    <div class="invalid-feedback">Please enter a valid email address.</div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="subject" class="form-label">Subject</label>
-                                    <input type="text" class="form-control" id="subject" name="subject" required>
-                                    <div class="invalid-feedback">Please enter a subject.</div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="message" class="form-label">Message</label>
-                                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
-                                    <div class="invalid-feedback">Please enter your message.</div>
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100">Send Message</button>
-                            </form>
+                            <div class="text-center">
+                                <p class="mb-4">Have questions or feedback? We'd love to hear from you!</p>
+                                <a href="{% url 'landing:contact' %}" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-envelope me-2"></i>Contact Us
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

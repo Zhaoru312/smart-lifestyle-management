@@ -1,6 +1,6 @@
 from django import forms
 from .models import UserProfile, DashboardBookmark, DashboardNote, DashboardReminder, DashboardShortcut
-from landing.models import HeroSection, Feature, Testimonial, FAQ
+from .models import HeroSection, Feature, Testimonial, FAQ
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -75,7 +75,7 @@ class TestimonialForm(forms.ModelForm):
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
-class FAQForm(forms.ModelForm):
+class dashboardFAQForm(forms.ModelForm):
     class Meta:
         model = FAQ
         fields = ['question', 'answer', 'category', 'order', 'is_active']

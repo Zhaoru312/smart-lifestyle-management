@@ -191,7 +191,7 @@ const FormValidation = (function() {
         if (!registerForm) return;
         
         // Password strength meter
-        const passwordInput = registerForm.querySelector('input[name="password1"]');
+        const passwordInput = registerForm.querySelector('input[name="password"]');
         if (passwordInput) {
             const strengthMeter = document.createElement('div');
             strengthMeter.className = 'password-strength mt-2';
@@ -205,9 +205,9 @@ const FormValidation = (function() {
         }
         
         // Password confirmation validation
-        const password2Input = registerForm.querySelector('input[name="password2"]');
-        if (password2Input && passwordInput) {
-            password2Input.addEventListener('input', function() {
+        const confirm_passwordinput = registerForm.querySelector('input[name="confirm_password"]');
+        if (confirm_passwordinput && passwordInput) {
+            confirm_passwordinput.addEventListener('input', function() {
                 if (this.value !== passwordInput.value) {
                     this.setCustomValidity('Passwords do not match');
                 } else {

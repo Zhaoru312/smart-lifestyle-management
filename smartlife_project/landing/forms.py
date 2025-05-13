@@ -2,7 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator
-from .models import ContactMessage, FAQ, Newsletter
+# Import models from dashboardmanager instead of local models
+from dashboardmanager.models import ContactMessage, FAQ, Newsletter
 
 class ContactForm(forms.ModelForm):
     """
@@ -90,27 +91,6 @@ class FAQForm(forms.ModelForm):
         }),
         help_text='Be specific and clear with your question'
     )
-    
-    answer = forms.CharField(
-        required=False,  # Allow users to submit questions without answers
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'placeholder': 'Suggested Answer (Optional)',
-            'rows': 5
-        }),
-        help_text='If you know the answer, you can suggest it here'
-    )
-    
-    category = forms.CharField(
-        required=False,
-        max_length=100,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Category (Optional)'
-        }),
-        help_text='Optional category to help organize your question'
-    )
-    
     class Meta:
         model = FAQ
         fields = ['question', 'answer', 'category']
@@ -131,10 +111,11 @@ class FAQForm(forms.ModelForm):
             
         return question
 
-class CustomUserCreationForm(UserCreationForm):
+class CustomUserCreationForm(forms.ModelForm):
     """
     Enhanced user registration form with additional fields and validation.
     Includes email field and improved styling for all form elements.
+    Based on Django's UserCreationForm but with custom field names.
     """
     first_name = forms.CharField(
         max_length=30, 
@@ -168,9 +149,27 @@ class CustomUserCreationForm(UserCreationForm):
         help_text='Required. Enter a valid email address. This will be used for account recovery.'
     )
     
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Password',
+            'autocomplete': 'new-password'
+        }),
+        help_text='Your password must be at least 8 characters long and cannot be entirely numeric.'
+    )
+    
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirm Password',
+            'autocomplete': 'new-password'
+        }),
+        help_text='Enter the same password as before, for verification.'
+    )
+    
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'password')
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -183,19 +182,18 @@ class CustomUserCreationForm(UserCreationForm):
         })
         self.fields['username'].help_text = 'Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'
         
-        self.fields['password1'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': 'Password',
-            'autocomplete': 'new-password'
-        })
-        self.fields['password1'].help_text = 'Your password must be at least 8 characters long and cannot be entirely numeric.'
-        
-        self.fields['password2'].widget.attrs.update({
-            'class': 'form-control',
-            'placeholder': 'Confirm Password',
-            'autocomplete': 'new-password'
-        })
-        self.fields['password2'].help_text = 'Enter the same password as before, for verification.'
+        # First name and last name styling
+        if 'first_name' in self.fields:
+            self.fields['first_name'].widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': 'First Name'
+            })
+            
+        if 'last_name' in self.fields:
+            self.fields['last_name'].widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': 'Last Name'
+            })
         
     def clean_email(self):
         """Validate that the email is not already in use"""
@@ -209,6 +207,17 @@ class CustomUserCreationForm(UserCreationForm):
         username = self.cleaned_data.get('username').lower()
         return username
         
+    def clean(self):
+        """Validate that the password and confirm_password fields match"""
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+        
+        if password and confirm_password and password != confirm_password:
+            self.add_error('confirm_password', 'Passwords do not match')
+            
+        return cleaned_data
+    
     def save(self, commit=True):
         """Save the user with normalized data"""
         user = super().save(commit=False)
@@ -216,6 +225,9 @@ class CustomUserCreationForm(UserCreationForm):
         user.username = self.cleaned_data['username'].lower()
         user.first_name = self.cleaned_data.get('first_name', '')
         user.last_name = self.cleaned_data.get('last_name', '')
+        
+        # Set the password using the set_password method
+        user.set_password(self.cleaned_data['password'])
         
         if commit:
             user.save()

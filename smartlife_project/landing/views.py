@@ -4,102 +4,160 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
-from .models import Feature, HeroSection, Testimonial, FAQ
-from .forms import ContactForm, FAQForm, CustomUserCreationForm
-from dashboardmanager.forms import HeroForm, FeatureForm, TestimonialForm, FAQForm
-    
-# Constants
-SESSION_EXPIRY_NEVER = 1209600  # 2 weeks in seconds
-SESSION_EXPIRY_BROWSER = 0  # Session ends when browser closes
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.db.models import Q
+from django.core.mail import mail_admins, send_mail
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.contrib.auth.tokens import default_token_generator
 
-def index(request):
+# Local imports
+from dashboardmanager.models import Feature, HeroSection, Testimonial, FAQ, Newsletter, UserProfile, ContactMessage
+from .forms import ContactForm, FAQForm, CustomUserCreationForm
+from dashboardmanager.forms import HeroForm, FeatureForm, TestimonialForm, dashboardFAQForm
+
+# Custom error views
+def custom_404_view(request, exception):
+    """Custom 404 page not found error view"""
+    return render(request, 'landing/errors/404.html', status=404)
+
+def custom_500_view(request):
+    """Custom 500 server error view"""
+    return render(request, 'landing/errors/500.html', status=500)
+
+def custom_403_view(request, exception):
+    """Custom 403 permission denied error view"""
+    return render(request, 'landing/errors/403.html', status=403)
+
+from django.views.generic import TemplateView, View
+
+class IndexView(TemplateView):
     """
     Landing page view that handles form submissions for hero sections, features,
     testimonials, and FAQs.
     """
-    # Initialize forms
-    hero_form = HeroForm(request.POST or None, request.FILES or None)
-    feature_form = FeatureForm(request.POST or None)
-    testimonial_form = TestimonialForm(request.POST or None, request.FILES or None)
-    faq_form = FAQForm(request.POST or None)
-
-    if request.method == 'POST':
+    template_name = 'landing/index.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Add forms to context
+        context['hero_form'] = HeroForm()
+        context['feature_form'] = FeatureForm()
+        context['testimonial_form'] = TestimonialForm()
+        context['faq_form'] = dashboardFAQForm()
+        
+        # Add data to context
+        context['hero_sections'] = HeroSection.objects.filter(is_active=True)
+        context['testimonials'] = Testimonial.objects.filter(is_active=True)
+        context['faqs'] = FAQ.objects.filter(is_active=True)[:3]
+        context['user'] = self.request.user if self.request.user.is_authenticated else None
+        context['apps'] = Feature.objects.filter(is_active=True)
+        context['show_messages'] = True
+        
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        # Initialize forms with POST data
+        hero_form = HeroForm(request.POST, request.FILES) if 'add_hero' in request.POST else None
+        feature_form = FeatureForm(request.POST) if 'add_feature' in request.POST else None
+        testimonial_form = TestimonialForm(request.POST, request.FILES) if 'add_testimonial' in request.POST else None
+        faq_form = dashboardFAQForm(request.POST) if 'add_faq' in request.POST else None
+        
         # Handle form submissions
-        if 'add_hero' in request.POST and hero_form.is_valid():
+        if hero_form and 'add_hero' in request.POST and hero_form.is_valid():
             hero_form.save()
             messages.success(request, 'Hero section added successfully')
-            return redirect('index')
+            return redirect('landing:index')
         
-        elif 'add_feature' in request.POST and feature_form.is_valid():
+        elif feature_form and 'add_feature' in request.POST and feature_form.is_valid():
             feature_form.save()
             messages.success(request, 'Feature added successfully')
-            return redirect('index')
+            return redirect('landing:index')
         
-        elif 'add_testimonial' in request.POST and testimonial_form.is_valid():
+        elif testimonial_form and 'add_testimonial' in request.POST and testimonial_form.is_valid():
             testimonial_form.save()
             messages.success(request, 'Testimonial added successfully')
-            return redirect('index')
+            return redirect('landing:index')
         
-        elif 'add_faq' in request.POST and faq_form.is_valid():
+        elif faq_form and 'add_faq' in request.POST and faq_form.is_valid():
             faq_form.save()
             messages.success(request, 'FAQ added successfully')
-            return redirect('index')
+            return redirect('landing:index')
         
         # If any form is invalid
         messages.error(request, 'Please fix the errors below')
+        
+        # Return the GET view with the context including the invalid form
+        context = self.get_context_data()
+        if hero_form:
+            context['hero_form'] = hero_form
+        if feature_form:
+            context['feature_form'] = feature_form
+        if testimonial_form:
+            context['testimonial_form'] = testimonial_form
+        if faq_form:
+            context['faq_form'] = faq_form
+            
+        return self.render_to_response(context)
 
-    context = {
-        'hero_sections': HeroSection.objects.filter(is_active=True),
-        'testimonials': Testimonial.objects.filter(is_active=True),
-        'faqs': FAQ.objects.filter(is_active=True)[:3],
-        'user': request.user if request.user.is_authenticated else None,
-        'apps': Feature.objects.filter(is_active=True),
-        'hero_form': hero_form,
-        'feature_form': feature_form,
-        'testimonial_form': testimonial_form,
-        'faq_form': faq_form,
-        'show_messages': True
-    }
-    
-    return render(request, 'landing/index.html', context)
+# Function-based view for backward compatibility
+def index(request):
+    """Redirect to class-based view"""
+    view = IndexView.as_view()
+    return view(request)
 
-def auth_view(request):
+class AuthView(TemplateView):
     """
     Unified authentication view that handles login, registration, and password reset.
     Uses a single template with tabs for different authentication functions.
     """
-    # Redirect already logged-in users to dashboard
-    if request.user.is_authenticated:
-        return redirect(reverse('dashboardmanager:index'))
+    template_name = 'landing/auth.html'
     
-    # Get the active tab from query parameters or set to login by default
-    active_tab = request.GET.get('tab', 'login')
+    def dispatch(self, request, *args, **kwargs):
+        # Redirect already logged-in users to dashboard
+        if request.user.is_authenticated:
+            return redirect(reverse('dashboardmanager:index'))
+        return super().dispatch(request, *args, **kwargs)
     
-    # Get the 'next' parameter if present
-    next_url = request.GET.get('next', reverse('dashboardmanager:index'))
-    
-    return render(request, 'landing/auth.html', {
-        'active_tab': active_tab,
-        'next': next_url
-    })
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Get the active tab from query parameters or set to login by default
+        context['active_tab'] = self.request.GET.get('tab', 'login')
+        
+        # Get the 'next' parameter if present
+        context['next'] = self.request.GET.get('next', reverse('dashboardmanager:index'))
+        
+        return context
 
-def login_view(request):
+# Function-based view for backward compatibility
+def auth_view(request):
+    """Redirect to class-based view"""
+    view = AuthView.as_view()
+    return view(request)
+
+class LoginView(View):
     """
     Handle user login with username/password authentication.
     Supports 'remember me' functionality to control session expiry.
     """
-    # Redirect already logged-in users to dashboard
-    if request.user.is_authenticated:
-        return redirect(reverse('dashboardmanager:index'))
+    # Constants
+    SESSION_EXPIRY_NEVER = 1209600  # 2 weeks in seconds
+    SESSION_EXPIRY_BROWSER = 0  # Session ends when browser closes
     
-    # For GET requests, redirect to the unified auth page with login tab active
-    if request.method == 'GET':
+    def dispatch(self, request, *args, **kwargs):
+        # Redirect already logged-in users to dashboard
+        if request.user.is_authenticated:
+            return redirect(reverse('dashboardmanager:index'))
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get(self, request):
+        # For GET requests, redirect to the unified auth page with login tab active
         return redirect(reverse('landing:auth') + '?tab=login')
     
-    # Get the active tab from query parameters or set to login by default
-    active_tab = 'login'
-        
-    if request.method == 'POST':
+    def post(self, request):
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '')
         remember_me = request.POST.get('remember_me') == 'on'
@@ -124,9 +182,9 @@ def login_view(request):
             
             # Set session expiry based on remember me checkbox
             if remember_me:
-                request.session.set_expiry(SESSION_EXPIRY_NEVER)
+                request.session.set_expiry(self.SESSION_EXPIRY_NEVER)
             else:
-                request.session.set_expiry(SESSION_EXPIRY_BROWSER)
+                request.session.set_expiry(self.SESSION_EXPIRY_BROWSER)
                 
             # Update last login time in user profile
             if hasattr(user, 'profile'):
@@ -134,61 +192,42 @@ def login_view(request):
                 user.profile.save(update_fields=['last_activity'])
                 
             # Redirect to next URL or dashboard
+            messages.success(request, f'Welcome back SmartLife, {user.username}!.')
             return redirect(next_url)
         else:
             messages.error(request, 'Invalid username or password')
             return render(request, 'landing/auth.html', {'active_tab': 'login', 'next': next_url})
-    
-    # Get the 'next' parameter if present
-    next_url = request.GET.get('next', '')
-    return render(request, 'landing/auth.html', {'active_tab': active_tab, 'next': next_url})
 
-def register_view(request):
+# Function-based view for backward compatibility
+def login_view(request):
+    """Redirect to class-based view"""
+    view = LoginView.as_view()
+    return view(request)
+
+class RegisterView(View):
     """
     Handle user registration with form validation.
     Creates a new user account and automatically logs in the user upon successful registration.
     """
-    # Redirect already logged-in users to dashboard
-    if request.user.is_authenticated:
-        return redirect(reverse('dashboardmanager:index'))
+    def dispatch(self, request, *args, **kwargs):
+        # Redirect already logged-in users to dashboard
+        if request.user.is_authenticated:
+            return redirect(reverse('dashboardmanager:index'))
+        return super().dispatch(request, *args, **kwargs)
     
-    # For GET requests, redirect to the unified auth page with register tab active
-    if request.method == 'GET':
+    def get(self, request):
+        # For GET requests, redirect to the unified auth page with register tab active
         return redirect(reverse('landing:auth') + '?tab=register')
     
-    # For POST requests, process the registration form
-        
-    if request.method == 'POST':
-        # Process the form data manually since we're using a custom form in the template
-        username = request.POST.get('username', '').strip()
-        email = request.POST.get('email', '').strip()
-        password1 = request.POST.get('password1', '')
-        password2 = request.POST.get('password2', '')
-        first_name = request.POST.get('first_name', '').strip()
-        last_name = request.POST.get('last_name', '').strip()
-        
+    def post(self, request):
         # Create a form instance with the POST data
         form = CustomUserCreationForm(request.POST)
         
         if form.is_valid():
-            # Create the user account but don't save yet
-            user = form.save(commit=False)
-            
-            # Clean and normalize the username and email
-            user.username = form.cleaned_data['username'].lower()
-            user.email = form.cleaned_data['email'].lower()
-            
-            # Set first and last name if provided
-            if first_name:
-                user.first_name = first_name
-            if last_name:
-                user.last_name = last_name
-            
-            # Save the user
-            user.save()
+            # Save the user - our form.save() method handles password hashing
+            user = form.save()
             
             # Create a UserProfile for the new user
-            from dashboardmanager.models import UserProfile
             UserProfile.objects.create(user=user)
             
             # Log in the user
@@ -196,7 +235,6 @@ def register_view(request):
             
             # Set a welcome message
             messages.success(request, f'Welcome to SmartLife, {user.username}! Your account has been created successfully.')
-            
             return redirect(reverse('dashboardmanager:index'))
         else:
             # Format and display form errors
@@ -209,23 +247,34 @@ def register_view(request):
                 'active_tab': 'register',
                 'form_data': request.POST,  # Pass back the submitted data
             })
-    
-    # For GET requests, just render the template with the register tab active
-    return render(request, 'landing/auth.html', {'active_tab': active_tab})
 
-def contact_view(request):
+# Function-based view for backward compatibility
+def register_view(request):
+    """Redirect to class-based view"""
+    view = RegisterView.as_view()
+    return view(request)
+
+class ContactView(View):
     """
     Handle contact form submissions and display the contact page.
     Saves messages to the database and displays a success message.
     """
-    if request.method == 'POST':
+    def get(self, request):
+        # Pre-fill email if user is logged in
+        initial = {}
+        if request.user.is_authenticated:
+            initial['email'] = request.user.email
+            initial['name'] = request.user.get_full_name() or request.user.username
+        form = ContactForm(initial=initial)
+        return render(request, 'landing/contact.html', {'form': form})
+    
+    def post(self, request):
         form = ContactForm(request.POST)
         if form.is_valid():
             # Save the contact message
             contact_message = form.save()
             
             # Send notification email to admins (in development this will be printed to console)
-            from django.core.mail import mail_admins
             subject = f'New contact message: {contact_message.subject}'
             message = f'''
 Name: {contact_message.name}
@@ -245,23 +294,58 @@ View in admin: {request.build_absolute_uri('/admin/landing/contactmessage/')}'''
         else:
             # Show error message
             messages.error(request, 'Please correct the errors below.')
-    else:
-        # Pre-fill email if user is logged in
-        initial = {}
-        if request.user.is_authenticated:
-            initial['email'] = request.user.email
-            initial['name'] = request.user.get_full_name() or request.user.username
-        form = ContactForm(initial=initial)
-    
-    return render(request, 'landing/contact.html', {'form': form})
+            return render(request, 'landing/contact.html', {'form': form})
 
-def faq_view(request):
+# Function-based view for backward compatibility
+def contact_view(request):
+    """Redirect to class-based view"""
+    view = ContactView.as_view()
+    return view(request)
+
+class FAQView(View):
     """
-    View function for the FAQ page with category support.
+    View for the FAQ page with category support.
     Allows users to browse FAQs by category and submit new questions.
     """
-    # Handle form submission for new FAQ questions
-    if request.method == 'POST':
+    def get(self, request):
+        form = FAQForm()
+        
+        # Get the selected category from the query parameters
+        category = request.GET.get('category', None)
+        search_query = request.GET.get('q', None)
+        
+        # Start with all active FAQs
+        faqs_query = FAQ.objects.filter(is_active=True)
+        
+        # Apply category filter if provided
+        if category:
+            faqs_query = faqs_query.filter(category=category)
+            
+        # Apply search filter if provided
+        if search_query:
+            faqs_query = faqs_query.filter(
+                Q(question__icontains=search_query) | 
+                Q(answer__icontains=search_query)
+            )
+        
+        # Get the final ordered queryset
+        faqs = faqs_query.order_by('category', 'order')
+        
+        # Get all unique categories for the filter dropdown
+        categories = FAQ.objects.filter(is_active=True).exclude(category='').values_list('category', flat=True).distinct()
+        
+        context = {
+            'form': form,
+            'faqs': faqs,
+            'categories': categories,
+            'selected_category': category,
+            'search_query': search_query,
+            'faq_count': faqs.count()
+        }
+        
+        return render(request, 'landing/faq.html', context)
+    
+    def post(self, request):
         # Only allow authenticated users to submit questions
         if not request.user.is_authenticated:
             messages.warning(request, 'Please log in to submit a question.')
@@ -283,7 +367,6 @@ def faq_view(request):
             faq.save()
             
             # Notify admins about the new question
-            from django.core.mail import mail_admins
             subject = 'New FAQ question submitted'
             message = f'''
 A new FAQ question has been submitted and needs review:
@@ -299,83 +382,85 @@ View in admin: {request.build_absolute_uri('/admin/landing/faq/')}'''
             return redirect('landing:faq')
         else:
             messages.error(request, 'Please correct the errors below.')
-    else:
-        form = FAQForm()
-    
-    # Get the selected category from the query parameters
-    category = request.GET.get('category', None)
-    search_query = request.GET.get('q', None)
-    
-    # Start with all active FAQs
-    faqs_query = FAQ.objects.filter(is_active=True)
-    
-    # Apply category filter if provided
-    if category:
-        faqs_query = faqs_query.filter(category=category)
-        
-    # Apply search filter if provided
-    if search_query:
-        from django.db.models import Q
-        faqs_query = faqs_query.filter(
-            Q(question__icontains=search_query) | 
-            Q(answer__icontains=search_query)
-        )
-    
-    # Get the final ordered queryset
-    faqs = faqs_query.order_by('category', 'order')
-    
-    # Get all unique categories for the filter dropdown
-    categories = FAQ.objects.filter(is_active=True).exclude(category='').values_list('category', flat=True).distinct()
-    
-    context = {
-        'form': form,
-        'faqs': faqs,
-        'categories': categories,
-        'selected_category': category,
-        'search_query': search_query,
-        'faq_count': faqs.count()
-    }
-    
-    return render(request, 'landing/faq.html', context)
+            
+            # Get the context data for rendering the page with form errors
+            category = request.GET.get('category', None)
+            search_query = request.GET.get('q', None)
+            faqs_query = FAQ.objects.filter(is_active=True)
+            
+            if category:
+                faqs_query = faqs_query.filter(category=category)
+                
+            if search_query:
+                faqs_query = faqs_query.filter(
+                    Q(question__icontains=search_query) | 
+                    Q(answer__icontains=search_query)
+                )
+            
+            faqs = faqs_query.order_by('category', 'order')
+            categories = FAQ.objects.filter(is_active=True).exclude(category='').values_list('category', flat=True).distinct()
+            
+            context = {
+                'form': form,
+                'faqs': faqs,
+                'categories': categories,
+                'selected_category': category,
+                'search_query': search_query,
+                'faq_count': faqs.count()
+            }
+            
+            return render(request, 'landing/faq.html', context)
 
-def logout_view(request):
+# Function-based view for backward compatibility
+def faq_view(request):
+    """Redirect to class-based view"""
+    view = FAQView.as_view()
+    return view(request)
+
+class LogoutView(View):
     """
     Handle user logout and redirect to the landing page.
     Clears session data and logs the user out.
     """
-    # Log the user out
-    logout(request)
-    
-    # Clear any session data
-    request.session.flush()
-    
-    # Set a success message
-    messages.success(request, 'You have been successfully logged out.')
-    
-    # Redirect to the landing page
-    return redirect('landing:index')
+    def get(self, request):
+        # Log the user out
+        logout(request)
+        
+        # Clear any session data
+        request.session.flush()
+        
+        # Set a success message
+        messages.success(request, 'You have been successfully logged out.')
+        
+        # Redirect to the landing page
+        return redirect('landing:index')
 
-def forgot_password_view(request):
+# Function-based view for backward compatibility
+def logout_view(request):
+    """Redirect to class-based view"""
+    view = LogoutView.as_view()
+    return view(request)
+
+class ForgotPasswordView(View):
     """
     Handle password reset requests.
     Validates email, generates a secure token, and sends reset instructions.
     """
-    # Redirect already logged-in users to dashboard
-    if request.user.is_authenticated:
-        messages.info(request, 'You are already logged in. If you want to change your password, please use the profile settings.')
-        return redirect(reverse('dashboardmanager:index'))
+    def dispatch(self, request, *args, **kwargs):
+        # Redirect already logged-in users to dashboard
+        if request.user.is_authenticated:
+            messages.info(request, 'You are already logged in. If you want to change your password, please use the profile settings.')
+            return redirect(reverse('dashboardmanager:index'))
+        return super().dispatch(request, *args, **kwargs)
     
-    # For GET requests, redirect to the unified auth page with forgot tab active
-    if request.method == 'GET':
+    def get(self, request):
+        # For GET requests, redirect to the unified auth page with forgot tab active
         return redirect(reverse('landing:auth') + '?tab=forgot')
-        
-    if request.method == 'POST':
+    
+    def post(self, request):
         email = request.POST.get('email', '').strip().lower()
         
         # Basic email validation
-        from django.core.validators import validate_email
-        from django.core.exceptions import ValidationError
-        
         try:
             validate_email(email)
             valid_email = True
@@ -390,11 +475,6 @@ def forgot_password_view(request):
         try:
             user = User.objects.get(email=email)
             
-            # Generate a secure token (using Django's built-in token generator)
-            from django.contrib.auth.tokens import default_token_generator
-            from django.utils.http import urlsafe_base64_encode
-            from django.utils.encoding import force_bytes
-            
             # Create a token that expires after a certain time
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -402,12 +482,10 @@ def forgot_password_view(request):
             # Build the reset URL
             reset_link = f'{request.scheme}://{request.get_host()}/reset-password/{uid}/{token}/'
             
-            # In a production environment, send an email with the reset link
-            # For development, just print the link to the console
-            print(f"Reset link for {user.username}: {reset_link}")
+            # In a production environment, this will use the configured email backend
+            # For development with console backend, the email will be printed to the console
             
             # Send the reset email
-            from django.core.mail import send_mail
             subject = 'Password Reset Request'
             message = f'''
 Hello {user.username},
@@ -443,37 +521,23 @@ The SmartLife Team
             
         # Redirect to login tab after password reset request
         return redirect(reverse('landing:login') + '?tab=login')
-    
-    # For GET requests, render the auth template with the forgot tab active
-    return render(request, 'landing/auth.html', {'active_tab': active_tab})
 
-# Custom error views
-def custom_404_view(request, exception):
-    """Custom 404 page not found error view"""
-    return render(request, 'landing/errors/404.html', status=404)
+# Function-based view for backward compatibility
+def forgot_password_view(request):
+    """Redirect to class-based view"""
+    view = ForgotPasswordView.as_view()
+    return view(request)
 
-def custom_500_view(request):
-    """Custom 500 server error view"""
-    return render(request, 'landing/errors/500.html', status=500)
-
-def custom_403_view(request, exception):
-    """Custom 403 permission denied error view"""
-    return render(request, 'landing/errors/403.html', status=403)
-
-
-def newsletter_subscribe(request):
+class NewsletterSubscribeView(View):
     """
     Handle newsletter subscription form submissions.
     Validates email, creates subscription record, and sends confirmation email.
     """
-    if request.method == 'POST':
+    def post(self, request):
         email = request.POST.get('email', '').strip().lower()
         source = request.POST.get('source', 'website')  # Track where the subscription came from
         
         # Basic email validation
-        from django.core.validators import validate_email
-        from django.core.exceptions import ValidationError
-        
         try:
             validate_email(email)
             valid_email = True
@@ -482,7 +546,6 @@ def newsletter_subscribe(request):
             
         if valid_email:
             # Check if the email already exists
-            from .models import Newsletter
             newsletter, created = Newsletter.objects.get_or_create(
                 email=email,
                 defaults={
@@ -493,7 +556,6 @@ def newsletter_subscribe(request):
             
             if created:
                 # Send confirmation email
-                from django.core.mail import send_mail
                 subject = 'Welcome to SmartLife Newsletter'
                 message = f'''
 Thank you for subscribing to the SmartLife newsletter!
@@ -525,6 +587,33 @@ The SmartLife Team
                     messages.info(request, 'You are already subscribed to our newsletter.')
         else:
             messages.error(request, 'Please provide a valid email address.')
-    
-    # Redirect back to the referring page or home page
-    return redirect(request.META.get('HTTP_REFERER', 'landing:index'))
+        
+        # Redirect back to the referring page or home page
+        return redirect(request.META.get('HTTP_REFERER', reverse('landing:index')))
+
+# Function-based view for backward compatibility
+def newsletter_subscribe(request):
+    """Redirect to class-based view"""
+    view = NewsletterSubscribeView.as_view()
+    return view(request)
+
+
+def custom_404_view(request, exception=None):
+    """
+    Custom 404 error handler that renders a user-friendly page not found template.
+    """
+    return render(request, 'landing/errors/404.html', status=404)
+
+
+def custom_500_view(request, exception=None):
+    """
+    Custom 500 error handler that renders a user-friendly server error template.
+    """
+    return render(request, 'landing/errors/500.html', status=500)
+
+
+def custom_403_view(request, exception=None):
+    """
+    Custom 403 error handler that renders a user-friendly permission denied template.
+    """
+    return render(request, 'landing/errors/403.html', status=403)

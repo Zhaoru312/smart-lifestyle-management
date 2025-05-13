@@ -99,7 +99,6 @@
                             <span class="input-group-text"><i class="bi bi-person"></i></span>
                             <input type="text" name="username" id="id_username" class="form-control" placeholder="Username" required>
                         </div>
-                        <div class="invalid-feedback">Please enter your username.</div>
                     </div>
                     
                     <div class="mb-3">
@@ -111,7 +110,6 @@
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
-                        <div class="invalid-feedback">Please enter your password.</div>
                     </div>
                     
                     <div class="mb-3 form-check">
@@ -134,7 +132,6 @@
                             <input type="text" name="username" id="id_username_register" class="form-control" placeholder="Username" required>
                         </div>
                         <div class="form-text">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
-                        <div class="invalid-feedback">Please choose a username.</div>
                     </div>
                     
                     <div class="mb-3">
@@ -153,14 +150,13 @@
                             <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                             <input type="email" name="email" id="id_email" class="form-control" placeholder="Email" required>
                         </div>
-                        <div class="invalid-feedback">Please enter a valid email address.</div>
                     </div>
                     
                     <div class="mb-3">
-                        <label for="id_password1" class="form-label">Password</label>
+                        <label for="id_password" class="form-label">Password</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                            <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Password" required>
+                            <input type="password" name="password" id="id_password" class="form-control" placeholder="Password" required>
                             <button class="btn btn-outline-secondary toggle-password" type="button" tabindex="-1">
                                 <i class="bi bi-eye"></i>
                             </button>
@@ -182,15 +178,14 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="id_password2" class="form-label">Confirm Password</label>
+                        <label for="id_confirm_password" class="form-label">Confirm Password</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-                            <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Confirm Password" required>
+                            <input type="password" name="confirm_password" id="id_confirm_password" class="form-control" placeholder="Confirm Password" required>
                             <button class="btn btn-outline-secondary toggle-password" type="button" tabindex="-1">
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
-                        <div class="invalid-feedback">Passwords do not match.</div>
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100 mb-3">Register</button>
@@ -208,7 +203,6 @@
                             <input type="email" name="email" id="id_email_forgot" class="form-control" placeholder="Email" required>
                         </div>
                         <div class="form-text">Enter the email address associated with your account, and we'll send you a link to reset your password.</div>
-                        <div class="invalid-feedback">Please enter a valid email address.</div>
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100 mb-3">Reset Password</button>
@@ -303,7 +297,7 @@
         });
         
         // Password strength meter
-        const passwordInput = document.getElementById('id_password1');
+        const passwordInput = document.getElementById('id_password');
         const strengthMeter = document.querySelector('.password-strength');
         
         if (passwordInput && strengthMeter) {
@@ -318,9 +312,9 @@
         }
         
         // Password confirmation validation
-        const password2Input = document.getElementById('id_password2');
-        if (passwordInput && password2Input) {
-            password2Input.addEventListener('input', function() {
+        const confirm_passwordInput = document.getElementById('id_confirm_password');
+        if (passwordInput && confirm_passwordInput) {
+            confirm_passwordInput.addEventListener('input', function() {
                 if (this.value !== passwordInput.value) {
                     this.setCustomValidity('Passwords do not match');
                 } else {
