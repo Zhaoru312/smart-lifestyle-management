@@ -1,61 +1,142 @@
-// Hero section functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const heroItems = document.querySelectorAll('.hero-item');
-    const navDots = document.querySelectorAll('.hero-nav-dot');
+// Hero Section Module
+const HeroSection = (function() {
     let currentSlide = 0;
     let isTransitioning = false;
+    let autoAdvanceTimer = null;
+    const TRANSITION_DURATION = 500; // ms
+    const AUTO_ADVANCE_INTERVAL = 5000; // ms
 
-    // Initialize background images
-    heroItems.forEach(item => {
-        const backgroundImage = item.getAttribute('data-background');
-        if (backgroundImage) {
-            // Set background image using CSS variable
-            item.style.setProperty('--background-image', `url('${backgroundImage}')`);
-            // Also set it directly for better compatibility
-            item.style.backgroundImage = `url('${backgroundImage}')`;
-        } else {
-            // Add a default background gradient
-            item.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    function init() {
+        const heroItems = document.querySelectorAll('.hero-item');
+        const navDots = document.querySelectorAll('.hero-nav-dot');
+
+        if (heroItems.length === 0) {
+            console.log('No hero items found, hero section initialization skipped');
+            return;
         }
-    });
 
-    // Auto-advance slides every 5 seconds
-    setInterval(advanceSlide, 5000);
+        // Initialize first slide
+        if (heroItems.length > 0) {
+            heroItems[0].classList.add('active');
+        }
+        
+        // Initialize background images
+        initializeBackgrounds(heroItems);
+        
+        // Set up navigation if nav dots exist
+        if (navDots.length > 0) {
+            setupNavigation(navDots);
+            navDots[0].classList.add('active');
+        }
+        
+        // Start auto-advancing slides if more than one slide
+        if (heroItems.length > 1) {
+            startAutoAdvance(heroItems);
+        }
+    }
 
-    // Click handler for navigation dots
-    navDots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-            if (!isTransitioning) {
-                goToSlide(index);
+    function initializeBackgrounds(items) {
+        items.forEach(item => {
+            const backgroundImage = item.getAttribute('data-background');
+            if (backgroundImage) {
+                // Set background image
+                item.style.backgroundImage = `url('${backgroundImage}')`;
+                item.style.backgroundSize = 'cover';
+                item.style.backgroundPosition = 'center';
+                item.style.backgroundRepeat = 'no-repeat';
+            } else {
+                // Add a default background gradient
+                item.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
             }
         });
-    });
+    }
+
+    function setupNavigation(dots) {
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                if (!isTransitioning) {
+                    // Reset auto-advance timer when manually navigating
+                    if (autoAdvanceTimer) {
+                        clearInterval(autoAdvanceTimer);
+                    }
+                    goToSlide(index);
+                    startAutoAdvance(document.querySelectorAll('.hero-item'));
+                }
+            });
+        });
+    }
+
+    function startAutoAdvance(items) {
+        // Clear any existing timer
+        if (autoAdvanceTimer) {
+            clearInterval(autoAdvanceTimer);
+        }
+        
+        // Set new timer
+        autoAdvanceTimer = setInterval(() => {
+            const nextSlide = (currentSlide + 1) % items.length;
+            goToSlide(nextSlide);
+        }, AUTO_ADVANCE_INTERVAL);
+    }
 
     function goToSlide(index) {
         if (isTransitioning || index === currentSlide) return;
         
         isTransitioning = true;
         
+        const heroItems = document.querySelectorAll('.hero-item');
+        const navDots = document.querySelectorAll('.hero-nav-dot');
+        
         // Fade out current slide
-        heroItems[currentSlide].classList.add('d-none');
+        heroItems[currentSlide].classList.remove('active');
         
         // Show next slide
-        heroItems[index].classList.remove('d-none');
+        heroItems[index].classList.add('active');
         
-        // Update navigation dots
-        navDots[currentSlide].classList.remove('active');
-        navDots[index].classList.add('active');
+        // Update navigation dots if they exist
+        if (navDots.length > 0) {
+            navDots[currentSlide].classList.remove('active');
+            navDots[index].classList.add('active');
+        }
         
         currentSlide = index;
         
         // Reset transition flag after animation
         setTimeout(() => {
             isTransitioning = false;
-        }, 500);
+        }, TRANSITION_DURATION);
     }
 
-    function advanceSlide() {
-        const nextSlide = (currentSlide + 1) % heroItems.length;
-        goToSlide(nextSlide);
+    return {
+        init: init
+    };
+})();
+
+// Form validation
+const FormValidation = (function() {
+    function init() {
+        // Enable Bootstrap form validation
+        const forms = document.querySelectorAll('.needs-validation');
+        
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                
+                form.classList.add('was-validated');
+            }, false);
+        });
     }
+    
+    return {
+        init: init
+    };
+})();
+
+// Initialize all modules when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    HeroSection.init();
+    FormValidation.init();
 });

@@ -1,0 +1,33 @@
+{% extends 'landing/base.html' %}
+
+{% block title %}Access Denied - SmartLife{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="error-template">
+                <h1 class="display-1">403</h1>
+                <h2 class="mb-4">Access Denied</h2>
+                <div class="error-details mb-4">
+                    Sorry, you don't have permission to access this page.
+                </div>
+                <div class="error-actions">
+                    <a href="{% url 'landing:index' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-house-door"></i> Back to Home
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboardmanager:index' %}" class="btn btn-outline-secondary btn-lg ms-2">
+                            <i class="bi bi-speedometer2"></i> Go to Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{% url 'landing:login' %}" class="btn btn-outline-secondary btn-lg ms-2">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'landing/base.html' %}
+
+{% block title %}Server Error - SmartLife{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="error-template">
+                <h1 class="display-1">500</h1>
+                <h2 class="mb-4">Server Error</h2>
+                <div class="error-details mb-4">
+                    Sorry, something went wrong on our end. We're working to fix the issue.
+                </div>
+                <div class="error-actions">
+                    <a href="{% url 'landing:index' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-house-door"></i> Back to Home
+                    </a>
+                    <a href="{% url 'landing:contact' %}" class="btn btn-outline-secondary btn-lg ms-2">
+                        <i class="bi bi-envelope"></i> Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

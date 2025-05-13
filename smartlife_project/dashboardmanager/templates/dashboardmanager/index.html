@@ -12,53 +12,11 @@
             </ol>
         </div>
     </div>
-    <div class="row mb-2">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Layout Manager</h3>
-                    <div class="card-tools">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-default" onclick="window.location.href='{% url 'dashboardmanager:list_layouts' %}'">
-                                <i class="fas fa-list"></i> Manage Layouts
-                            </button>
-                            <button type="button" class="btn btn-default" onclick="window.location.href='{% url 'dashboardmanager:create_layout' %}'">
-                                <i class="fas fa-plus"></i> New Layout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="form-group">
-                                <label>Current Layout</label>
-                                <select class="custom-select" id="layout-selector">
-                                    <option value="">Select a layout...</option>
-                                    {% for layout in layouts %}
-                                    <option value="{{ layout.pk }}" {% if layout.is_default %}selected{% endif %}>
-                                        {{ layout.name }}
-                                        {% if layout.is_default %}
-                                        <span class="badge badge-success">Default</span>
-                                        {% endif %}
-                                        {% if layout.is_public %}
-                                        <span class="badge badge-info">Public</span>
-                                        {% endif %}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 {% endblock %}
 
 {% block content %}
-    <!-- Stats Cards -->
     <div class="row">
+        <!-- Stats Cards -->
         <div class="col-xl-3 col-md-6 mb-4">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
@@ -132,6 +90,127 @@
         </div>
     </div>
 
+    <!-- Quick Access Tools -->
+    <div class="row">
+        <!-- Bookmarks -->
+        <div class="col-lg-6 col-xl-3 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Bookmarks</h6>
+                    <a href="{% url 'dashboardmanager:bookmark_list' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-bookmark"></i> View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for bookmark in bookmarks|slice:':3' %}
+                        <a href="{{ bookmark.url }}" target="_blank" class="list-group-item list-group-item-action">
+                            {% if bookmark.is_favorite %}<i class="fas fa-star text-warning mr-2"></i>{% endif %}
+                            {{ bookmark.title|truncatechars:25 }}
+                        </a>
+                        {% empty %}
+                        <div class="text-center py-3">
+                            <p class="text-muted mb-0">No bookmarks yet</p>
+                            <a href="{% url 'dashboardmanager:add_bookmark' %}" class="btn btn-sm btn-primary mt-2">
+                                <i class="fas fa-plus"></i> Add Bookmark
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notes -->
+        <div class="col-lg-6 col-xl-3 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-success">Notes</h6>
+                    <a href="{% url 'dashboardmanager:note_list' %}" class="btn btn-sm btn-success">
+                        <i class="fas fa-sticky-note"></i> View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for note in notes|slice:':3' %}
+                        <a href="{% url 'dashboardmanager:edit_note' note.id %}" class="list-group-item list-group-item-action">
+                            {% if note.is_pinned %}<i class="fas fa-thumbtack text-success mr-2"></i>{% endif %}
+                            {{ note.title|truncatechars:25 }}
+                        </a>
+                        {% empty %}
+                        <div class="text-center py-3">
+                            <p class="text-muted mb-0">No notes yet</p>
+                            <a href="{% url 'dashboardmanager:add_note' %}" class="btn btn-sm btn-success mt-2">
+                                <i class="fas fa-plus"></i> Add Note
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reminders -->
+        <div class="col-lg-6 col-xl-3 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-info">Reminders</h6>
+                    <a href="{% url 'dashboardmanager:reminder_list' %}" class="btn btn-sm btn-info">
+                        <i class="fas fa-bell"></i> View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for reminder in reminders|slice:':3' %}
+                        <a href="{% url 'dashboardmanager:edit_reminder' reminder.id %}" class="list-group-item list-group-item-action {% if reminder.is_completed %}text-muted{% endif %}">
+                            {% if reminder.is_completed %}<i class="fas fa-check-circle text-success mr-2"></i>{% else %}<i class="far fa-clock text-info mr-2"></i>{% endif %}
+                            {{ reminder.title|truncatechars:25 }}
+                            <small class="d-block text-muted">{{ reminder.due_date|date:"M d, Y" }}</small>
+                        </a>
+                        {% empty %}
+                        <div class="text-center py-3">
+                            <p class="text-muted mb-0">No reminders yet</p>
+                            <a href="{% url 'dashboardmanager:add_reminder' %}" class="btn btn-sm btn-info mt-2">
+                                <i class="fas fa-plus"></i> Add Reminder
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Shortcuts -->
+        <div class="col-lg-6 col-xl-3 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-warning">Shortcuts</h6>
+                    <a href="{% url 'dashboardmanager:shortcut_list' %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-keyboard"></i> View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for shortcut in shortcuts|slice:':3' %}
+                        <a href="{{ shortcut.action }}" class="list-group-item list-group-item-action {% if not shortcut.is_active %}text-muted{% endif %}">
+                            <i class="{{ shortcut.icon }} mr-2"></i>
+                            {{ shortcut.title|truncatechars:20 }}
+                            <span class="badge badge-light float-right">{{ shortcut.shortcut_key }}</span>
+                        </a>
+                        {% empty %}
+                        <div class="text-center py-3">
+                            <p class="text-muted mb-0">No shortcuts yet</p>
+                            <a href="{% url 'dashboardmanager:add_shortcut' %}" class="btn btn-sm btn-warning mt-2">
+                                <i class="fas fa-plus"></i> Add Shortcut
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Recent Activity -->
     <div class="row">
         <div class="col-lg-8">
@@ -182,14 +261,8 @@
                         <a href="/habit/" class="list-group-item list-group-item-action">
                             <i class="fas fa-check-circle me-2"></i> Check Habit
                         </a>
-                        <a href="/meal/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-utensils me-2"></i> Log Meal
-                        </a>
-                        <a href="/mental/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-brain me-2"></i> Track Mood
-                        </a>
                         <a href="/tasks/" class="list-group-item list-group-item-action">
-                            <i class="fas fa-tasks me-2"></i> View Tasks
+                            <i class="fas fa-tasks me-2"></i> Add Task
                         </a>
                     </div>
                 </div>
@@ -197,25 +270,26 @@
         </div>
     </div>
 
-    <!-- Stats Modal -->
-    <div class="modal fade" id="statsModal" tabindex="-1" aria-labelledby="statsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="statsModalLabel">Dashboard Statistics</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+    <!-- Charts -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Monthly Expenses</h6>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <canvas id="expenseChart"></canvas>
-                        </div>
-                        <div class="col-md-6">
-                            <canvas id="habitChart"></canvas>
-                        </div>
-                    </div>
+                <div class="card-body">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Habit Progress</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="habitChart"></canvas>
                 </div>
             </div>
         </div>
@@ -224,94 +298,53 @@
 
 {% block extra_js %}
 <script>
-// Layout selection
 $(document).ready(function() {
-    $('#layout-selector').change(function() {
-        var layoutId = $(this).val();
-        if (layoutId) {
-            var url = '{% url "dashboardmanager:set_default_layout" 0 %}'.replace('0', layoutId);
-            $.ajax({
-                url: url,
-                type: 'POST',
-                data: {
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('Error: ' + response.message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    try {
-                        var errorData = JSON.parse(xhr.responseText);
-                        alert('Error: ' + errorData.error);
-                    } catch (e) {
-                        alert('Error setting layout: ' + error);
-                    }
-                }
-            });
-        }
-    });
-});
+    // Initialize expense and habit charts
+    const expenseData = {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+            label: 'Monthly Expenses',
+            data: [1200, 1900, 1500, 1700, 1800, 2100],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    };
 
-// Sample data for charts
-const expenseData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [{
-        label: 'Monthly Expenses',
-        data: [1200, 1900, 1500, 1700, 1800, 2100],
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-    }]
-};
+    const habitData = {
+        labels: ['Meditation', 'Reading', 'Exercise', 'Coding'],
+        datasets: [{
+            data: [85, 92, 78, 95],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)'
+            ],
+            borderWidth: 1
+        }]
+    };
 
-const habitData = {
-    labels: ['Meditation', 'Reading', 'Exercise', 'Coding'],
-    datasets: [{
-        data: [85, 92, 78, 95],
-        backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)'
-        ],
-        borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)'
-        ],
-        borderWidth: 1
-    }]
-};
-
-// Initialize charts
-const expenseChart = new Chart(document.getElementById('expenseChart'), {
-    type: 'line',
-    data: expenseData,
-    options: {
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
+    if (document.getElementById('expenseChart')) {
+        new Chart(document.getElementById('expenseChart'), {
+            type: 'line',
+            data: expenseData,
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
     }
-});
 
-const habitChart = new Chart(document.getElementById('habitChart'), {
-    type: 'bar',
-    data: habitData,
-    options: {
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
+    if (document.getElementById('habitChart')) {
+        new Chart(document.getElementById('habitChart'), {
+            type: 'bar',
+            data: habitData,
+            options: { responsive: true, scales: { y: { beginAtZero: true } } }
+        });
     }
 });
 </script>

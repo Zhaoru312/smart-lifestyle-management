@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Feature, Testimonial, FAQ, ContactMessage, HeroSection
+from .models import Feature, Testimonial, FAQ, ContactMessage, HeroSection, Newsletter
 
 @admin.register(HeroSection)
 class HeroSectionAdmin(admin.ModelAdmin):
@@ -28,7 +28,22 @@ class ContactMessageAdmin(admin.ModelAdmin):
 
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
-    list_display = ('question', 'order', 'is_active', 'created_at')
+    list_display = ('question', 'category', 'answer_preview_admin', 'order', 'is_active', 'created_at')
+    list_filter = ('is_active', 'category', 'created_at')
+    search_fields = ('question', 'answer', 'category')
+    ordering = ('category', 'order')
+    list_editable = ('category', 'order', 'is_active')
+    
+    def answer_preview_admin(self, obj):
+        """Display a preview of the answer in the admin list view"""
+        if len(obj.answer) > 50:
+            return f"{obj.answer[:50]}..."
+        return obj.answer
+    answer_preview_admin.short_description = 'Answer Preview'
+
+@admin.register(Newsletter)
+class NewsletterAdmin(admin.ModelAdmin):
+    list_display = ('email', 'is_active', 'created_at')
     list_filter = ('is_active',)
-    search_fields = ('question', 'answer')
-    ordering = ('order',)
+    search_fields = ('email',)
+    date_hierarchy = 'created_at'

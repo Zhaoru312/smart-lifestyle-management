@@ -61,7 +61,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="mt-3">
                         <h4>Social Media</h4>
                         <div class="social-media-list">
@@ -86,32 +85,24 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                     <strong><i class="fas fa-book mr-1"></i> Bio</strong>
-
                     <p class="text-muted">
                         {{ profile.bio|default:"No bio available" }}
                     </p>
-
                     <hr>
-
                     <strong><i class="fas fa-map-marker-alt mr-1"></i> Location</strong>
-
                     <p class="text-muted">{{ profile.address|default:"-" }}</p>
-
                     <hr>
-
                     <strong><i class="fas fa-phone mr-1"></i> Phone</strong>
-
                     <p class="text-muted">{{ profile.phone_number|default:"-" }}</p>
-
                     <hr>
-
                     <strong><i class="fas fa-dollar-sign mr-1"></i> Preferred Currency</strong>
-
                     <p class="text-muted">{{ profile.get_preferred_currency_display }}</p>
                 </div>
                 <!-- /.card-body -->
             </div>
-            <!-- Settings card initially below About Me -->
+        </div>
+        <!-- Settings card -->
+        <div class="col-md-9 mt-3">
             <div class="card settings-card">
                 <div class="card-header p-2">
                     <h3 class="card-title">
@@ -234,12 +225,7 @@
         </div><!-- /.col -->
     </div><!-- /.row -->
 
-    <!-- Full-width row for expanded settings -->
-    <div id="settings-row" class="row d-none">
-        <div class="col-12">
-            <!-- Settings card will be moved here when expanded -->
-        </div>
-    </div>
+
 
 {% block extra_js %}
 <script>
@@ -247,46 +233,35 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Get all elements
         const settingsCard = document.querySelector('.settings-card');
-        const colMd9 = document.querySelector('.col-md-9');
-        const settingsRow = document.getElementById('settings-row');
-        const settingsRowCol = settingsRow ? settingsRow.querySelector('.col-12') : null;
+        const settingsCardContainer = document.querySelector('.col-md-9.mt-3');
         const collapseButton = settingsCard ? settingsCard.querySelector('[data-card-widget="collapse"]') : null;
 
         // Check if all required elements exist
-        if (!settingsCard || !colMd9 || !settingsRow || !settingsRowCol || !collapseButton) {
+        if (!settingsCard || !settingsCardContainer || !collapseButton) {
             console.error('One or more required elements not found');
             return;
         }
 
-        // Make sure settings card is visible
-        settingsCard.style.display = 'block';
-
-        // Move settings card to initial position
-        colMd9.appendChild(settingsCard);
-        settingsRow.classList.add('d-none');
-
-        function moveSettingsCard() {
-            const isCollapsed = settingsCard.classList.contains('collapsed-card');
-            
-            if (isCollapsed) {
-                // Collapsed: move to below about me
-                settingsRowCol.appendChild(settingsCard);
-                settingsRow.classList.remove('d-none');
-                
-            } else {
-                // Expanded: move to full-width
-                colMd9.appendChild(settingsCard);
-                settingsRow.classList.add('d-none');
-            }
-        }
-
-        // Listen for collapse/expand by click
-        collapseButton.addEventListener('click', function() {
-            setTimeout(moveSettingsCard, 300); // Wait for collapse animation
+        // Initialize Bootstrap tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+        
+        // Initialize the file input plugin
+        $('.custom-file-input').on('change', function() {
+            let fileName = $(this).val().split('\\').pop();
+            $(this).next('.custom-file-label').addClass('selected').html(fileName);
         });
 
-        // On page load, ensure settings card is in correct place
-        moveSettingsCard();
+        // Toggle settings card body visibility
+        collapseButton.addEventListener('click', function() {
+            const cardBody = settingsCard.querySelector('.card-body');
+            if (cardBody.style.display === 'none') {
+                cardBody.style.display = 'block';
+                collapseButton.querySelector('i').classList.replace('fa-plus', 'fa-minus');
+            } else {
+                cardBody.style.display = 'none';
+                collapseButton.querySelector('i').classList.replace('fa-minus', 'fa-plus');
+            }
+        });
 
         // Handle social media form
         $('#add_social_media').click(function() {

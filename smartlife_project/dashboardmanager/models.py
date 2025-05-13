@@ -2,17 +2,17 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 
-# Define widget types
-WIDGET_TYPES = (
-    ('stats', 'Statistics'),
-    ('chart', 'Chart'),
-    ('list', 'List'),
-    ('custom', 'Custom')
-)
-
 # User Profile Model
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    CURRENCY_CHOICES = [
+        ('USD', 'US Dollar'),
+        ('EUR', 'Euro'),
+        ('GBP', 'British Pound'),
+        ('JPY', 'Japanese Yen'),
+        ('IDR', 'Indonesian Rupiah')
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     avatar = models.ImageField(upload_to='profile_avatars/', null=True, blank=True)
     bio = models.TextField(blank=True, help_text='Tell us about yourself')
     birth_date = models.DateField(null=True, blank=True, help_text='Your date of birth')
@@ -24,19 +24,15 @@ class UserProfile(models.Model):
     profession = models.CharField(max_length=100, blank=True, help_text='Your current profession or job title')
     company = models.CharField(max_length=100, blank=True, help_text='Your current company or organization')
     location = models.CharField(max_length=100, blank=True, help_text='Your current location/city')
-    preferred_currency = models.CharField(max_length=3, default='USD', choices=[
-        ('USD', 'US Dollar'),
-        ('EUR', 'Euro'),
-        ('GBP', 'British Pound'),
-        ('JPY', 'Japanese Yen'),
-        ('IDR', 'Indonesian Rupiah')
-    ])
-    notification_email = models.BooleanField(default=True)
-    notification_sms = models.BooleanField(default=False)
-    notification_push = models.BooleanField(default=True)
+    preferred_currency = models.CharField(max_length=3, default='USD', choices=CURRENCY_CHOICES)
     last_activity = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'User Profile'
+        verbose_name_plural = 'User Profiles'
+        ordering = ['-last_activity']
 
     def __str__(self):
         return f"Profile for {self.user.username}"
@@ -46,83 +42,155 @@ class UserProfile(models.Model):
             today = timezone.now().date()
             return today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
         return None
+        
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('dashboardmanager:profile')
+        
+    def get_full_name(self):
+        return self.user.get_full_name() or self.user.username
 
-# Dashboard Widget Model
-class DashboardWidget(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+# Dashboard Bookmarks
+class DashboardBookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
+    title = models.CharField(max_length=200)
+    url = models.URLField()
+    description = models.TextField(blank=True)
+    category = models.CharField(max_length=50, blank=True)
+    tags = models.CharField(max_length=200, blank=True, help_text='Comma-separated tags')
+    is_favorite = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Dashboard Bookmark'
+        verbose_name_plural = 'Dashboard Bookmarks'
+        ordering = ['-is_favorite', '-created_at']
+    
+    def __str__(self):
+        return self.title
+        
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('dashboardmanager:edit_bookmark', kwargs={'pk': self.pk})
+        
+    def get_tag_list(self):
+        """Return tags as a list"""
+        if not self.tags:
+            return []
+        return [tag.strip() for tag in self.tags.split(',')]
+
+# Dashboard Notes
+class DashboardNote(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notes')
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    category = models.CharField(max_length=50, blank=True)
+    tags = models.CharField(max_length=200, blank=True, help_text='Comma-separated tags')
+    is_pinned = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Dashboard Note'
+        verbose_name_plural = 'Dashboard Notes'
+        ordering = ['-is_pinned', '-created_at']
+    
+    def __str__(self):
+        return self.title
+        
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('dashboardmanager:edit_note', kwargs={'pk': self.pk})
+        
+    def get_tag_list(self):
+        """Return tags as a list"""
+        if not self.tags:
+            return []
+        return [tag.strip() for tag in self.tags.split(',')]
+        
+    def get_summary(self, chars=100):
+        """Return a summary of the content"""
+        if len(self.content) <= chars:
+            return self.content
+        return self.content[:chars] + '...'
+
+# Dashboard Reminders
+class DashboardReminder(models.Model):
+    REMINDER_TYPES = [
+        ('one_time', 'One Time'),
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly')
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reminders')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    reminder_type = models.CharField(max_length=20, choices=REMINDER_TYPES)
+    due_date = models.DateTimeField()
+    repeat_interval = models.IntegerField(null=True, blank=True, help_text='Interval in days for repeating reminders')
+    is_completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Dashboard Reminder'
+        verbose_name_plural = 'Dashboard Reminders'
+        ordering = ['is_completed', 'due_date']
+    
+    def __str__(self):
+        return self.title
+        
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('dashboardmanager:edit_reminder', kwargs={'pk': self.pk})
+        
+    def is_overdue(self):
+        """Check if the reminder is overdue"""
+        if self.is_completed:
+            return False
+        return timezone.now() > self.due_date
+        
+    def get_next_occurrence(self):
+        """Calculate the next occurrence based on reminder type and repeat interval"""
+        if self.reminder_type == 'one_time' or not self.repeat_interval:
+            return None
+            
+        if self.is_completed:
+            base_date = timezone.now()
+        else:
+            base_date = self.due_date
+            
+        if self.reminder_type == 'daily':
+            return base_date + timezone.timedelta(days=self.repeat_interval)
+        elif self.reminder_type == 'weekly':
+            return base_date + timezone.timedelta(weeks=self.repeat_interval)
+        elif self.reminder_type == 'monthly':
+            # Simple approximation for monthly
+            return base_date + timezone.timedelta(days=30 * self.repeat_interval)
+        return None
+
+# Dashboard Shortcuts
+class DashboardShortcut(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shortcuts')
     title = models.CharField(max_length=100)
-    widget_type = models.CharField(max_length=20, choices=WIDGET_TYPES)
-    position_x = models.IntegerField()
-    position_y = models.IntegerField()
-    width = models.IntegerField(default=6)
-    height = models.IntegerField(default=4)
-    config = models.JSONField(default=dict)
+    icon = models.CharField(max_length=50, help_text='FontAwesome icon class (e.g., fa-home)')
+    shortcut_key = models.CharField(max_length=20, help_text='Keyboard shortcut (e.g., Ctrl+H)')
+    action = models.CharField(max_length=200, help_text='URL or action to perform')
+    description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     class Meta:
-        ordering = ['position_y', 'position_x']
-
+        verbose_name = 'Dashboard Shortcut'
+        verbose_name_plural = 'Dashboard Shortcuts'
+        ordering = ['shortcut_key']
+    
     def __str__(self):
-        return f"{self.title} ({self.get_widget_type_display()})"
-
-# User Preferences Model
-class UserPreference(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    theme = models.CharField(max_length=20, default='light')
-    layout = models.CharField(max_length=20, default='grid')
-    notifications_enabled = models.BooleanField(default=True)
-    last_seen_dashboard = models.DateTimeField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Preferences for {self.user.username}"
-
-# Dashboard Notification Model
-class DashboardNotification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
-    message = models.TextField()
-    category = models.CharField(max_length=20, choices=[
-        ('info', 'Information'),
-        ('warning', 'Warning'),
-        ('error', 'Error'),
-        ('success', 'Success')
-    ])
-    is_read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"{self.title} for {self.user.username}"
-
-# Dashboard Layout Model
-class DashboardLayout(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    layout_data = models.JSONField()
-    is_default = models.BooleanField(default=False)
-    is_public = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ('user', 'name')
-        ordering = ['-is_default', '-created_at']
-
-    def __str__(self):
-        return f"{self.name} for {self.user.username}"
-
-    def save(self, *args, **kwargs):
-        # Ensure only one layout per user can be default
-        if self.is_default:
-            DashboardLayout.objects.filter(
-                user=self.user,
-                is_default=True
-            ).exclude(pk=self.pk).update(is_default=False)
-        super().save(*args, **kwargs)
+        return f"{self.title} ({self.shortcut_key})"
+        
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('dashboardmanager:edit_shortcut', kwargs={'pk': self.pk})

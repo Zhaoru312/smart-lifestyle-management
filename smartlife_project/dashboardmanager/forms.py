@@ -1,5 +1,6 @@
 from django import forms
-from .models import HeroSection, Feature, Testimonial, FAQ, UserProfile
+from .models import UserProfile, DashboardBookmark, DashboardNote, DashboardReminder, DashboardShortcut
+from landing.models import HeroSection, Feature, Testimonial, FAQ
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -15,9 +16,7 @@ class ProfileForm(forms.ModelForm):
             'profession',
             'company',
             'location',
-            'notification_email',
-            'notification_sms',
-            'notification_push'
+            'preferred_currency'
         ]
         widgets = {
             'avatar': forms.ClearableFileInput(attrs={'class': 'form-control'}),
@@ -30,9 +29,7 @@ class ProfileForm(forms.ModelForm):
             'profession': forms.TextInput(attrs={'class': 'form-control'}),
             'company': forms.TextInput(attrs={'class': 'form-control'}),
             'location': forms.TextInput(attrs={'class': 'form-control'}),
-            'notification_email': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'notification_sms': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'notification_push': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'preferred_currency': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class HeroForm(forms.ModelForm):
@@ -48,15 +45,15 @@ class HeroForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'subtitle': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'required': True}),
-            'call_to_action_text': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
-            'background_image': forms.ClearableFileInput(attrs={'class': 'form-control', 'required': True}),
+            'call_to_action_text': forms.TextInput(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'background_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
 class FeatureForm(forms.ModelForm):
     class Meta:
         model = Feature
-        fields = ['title', 'icon', 'description', 'order', 'is_active',]
+        fields = ['title', 'icon', 'description', 'order', 'is_active']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'icon': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
@@ -75,7 +72,7 @@ class TestimonialForm(forms.ModelForm):
             'rating': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 5, 'required': True}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'required': True}),
-            'image': forms.ClearableFileInput(attrs={'class': 'form-control', 'required': True}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
 class FAQForm(forms.ModelForm):
@@ -88,3 +85,57 @@ class FAQForm(forms.ModelForm):
             'order': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+# Forms for new dashboard models
+class BookmarkForm(forms.ModelForm):
+    class Meta:
+        model = DashboardBookmark
+        fields = ['title', 'url', 'description', 'category', 'tags', 'is_favorite']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'url': forms.URLInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'category': forms.TextInput(attrs={'class': 'form-control'}),
+            'tags': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_favorite': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class NoteForm(forms.ModelForm):
+    class Meta:
+        model = DashboardNote
+        fields = ['title', 'content', 'category', 'tags', 'is_pinned']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
+            'category': forms.TextInput(attrs={'class': 'form-control'}),
+            'tags': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_pinned': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class ReminderForm(forms.ModelForm):
+    class Meta:
+        model = DashboardReminder
+        fields = ['title', 'description', 'reminder_type', 'due_date', 'repeat_interval', 'is_completed']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'reminder_type': forms.Select(attrs={'class': 'form-control'}),
+            'due_date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'repeat_interval': forms.NumberInput(attrs={'class': 'form-control'}),
+            'is_completed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class ShortcutForm(forms.ModelForm):
+    class Meta:
+        model = DashboardShortcut
+        fields = ['title', 'icon', 'shortcut_key', 'action', 'description', 'is_active']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'icon': forms.TextInput(attrs={'class': 'form-control'}),
+            'shortcut_key': forms.TextInput(attrs={'class': 'form-control'}),
+            'action': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+

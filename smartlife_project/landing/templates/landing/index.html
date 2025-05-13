@@ -6,13 +6,13 @@
     <div class="hero-section">
         <div class="hero-content">
             {% for hero in hero_sections %}
-            <div class="hero-item {% if not forloop.first %}d-none{% endif %}" data-background="{% if hero.background_image %}{{ hero.background_image.url }}{% endif %}">
+            <div class="hero-item{% if forloop.first %} active{% endif %}" data-background="{% if hero.background_image %}{{ hero.background_image.url }}{% endif %}">
                 <div class="hero-content-overlay">
                     <div class="hero-content-inner">
                         <h2 class="hero-title">{{ hero.title }}</h2>
                         <p class="hero-subtitle">{{ hero.subtitle }}</p>
                         {% if hero.call_to_action_text and hero.call_to_action_url %}
-                            <a href="{{ hero.call_to_action_url }}" class="hero-btn">
+                            <a href="{{ hero.call_to_action_url }}" class="btn btn-primary">
                                 {{ hero.call_to_action_text }}
                             </a>
                         {% endif %}
@@ -23,7 +23,7 @@
         </div>
         <div class="hero-nav">
             {% for hero in hero_sections %}
-            <button class="hero-nav-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></button>
+            <button class="hero-nav-dot{% if forloop.first %} active{% endif %}" data-index="{{ forloop.counter0 }}"></button>
             {% endfor %}
         </div>
     </div>
@@ -54,10 +54,10 @@
     </section>
 
     <!-- Testimonials -->
-    <section class="testimonials-section">
+    <section class="testimonials-section py-5">
         <div class="container">
-            <h2>What Our Users Say</h2>
-            <div class="row">
+            <h2 class="text-center mb-5">What Our Users Say</h2>
+            <div class="row g-4">
                 {% for testimonial in testimonials %}
                 <div class="col-md-4 mb-4">
                     <div class="testimonial-card">
@@ -77,10 +77,10 @@
     </section>
 
     <!-- FAQ Section -->
-    <section class="faq-section py-5">
+    <section class="faq-section py-5 bg-light">
         <div class="container">
             <h2 class="text-center mb-5">Frequently Asked Questions</h2>
-            <div class="row">
+            <div class="row g-4">
                 {% for faq in faqs %}
                 <div class="col-md-4 mb-4">
                     <div class="card h-100">
@@ -107,8 +107,6 @@
                     <div class="card shadow-sm">
                         <div class="card-body">
                             <h3 class="card-title text-center mb-4">Get in Touch</h3>
-                            
-
 
                             <form method="post" action="{% url 'landing:contact' %}" class="needs-validation" novalidate>
                                 {% csrf_token %}

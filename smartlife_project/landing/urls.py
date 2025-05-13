@@ -10,4 +10,5 @@ urlpatterns = [
     path('contact/', views.contact_view, name='contact'),
     path('faq/', views.faq_view, name='faq'),
     path('forgot-password/', views.forgot_password_view, name='forgot_password'),
+    path('newsletter-subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'),
 ]
