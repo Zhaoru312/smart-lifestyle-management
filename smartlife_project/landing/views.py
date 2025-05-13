@@ -13,9 +13,9 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.tokens import default_token_generator
 
 # Local imports
-from dashboardmanager.models import Feature, HeroSection, Testimonial, FAQ, Newsletter, UserProfile, ContactMessage
-from .forms import ContactForm, FAQForm, CustomUserCreationForm
+from dashboardmanager.models import Feature, HeroSection, Testimonial, FAQ, Newsletter, UserProfile
 from dashboardmanager.forms import HeroForm, FeatureForm, TestimonialForm, dashboardFAQForm
+from .forms import ContactForm, FAQForm, CustomUserCreationForm
 
 # Custom error views
 def custom_404_view(request, exception):

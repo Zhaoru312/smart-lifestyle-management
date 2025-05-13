@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Feature, Testimonial, FAQ, ContactMessage, HeroSection, Newsletter
+from dashboardmanager.models import Feature, Testimonial, FAQ, ContactMessage, HeroSection, Newsletter
 
 @admin.register(HeroSection)
 class HeroSectionAdmin(admin.ModelAdmin):
