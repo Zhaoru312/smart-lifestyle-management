@@ -105,17 +105,17 @@ class Command(BaseCommand):
 
         # Create Features
         features = [
-            {'title': 'Task Management', 'description': 'Manage your daily tasks and to-do list.',
+            {'title': 'task', 'description': 'Manage your daily tasks and to-do list.',
              'icon': 'fa-tasks', 'order': 1, 'is_active': True},
-            {'title': 'Financial Tracking', 'description': 'Manage your finances and track expenses.',
+            {'title': 'finance', 'description': 'Manage your finances and track expenses.',
              'icon': 'fa-chart-line', 'order': 2, 'is_active': True},
-            {'title': 'Fitness Tracking', 'description': 'Track your workouts and fitness goals.',
+            {'title': 'fitness', 'description': 'Track your workouts and fitness goals.',
              'icon': 'fa-dumbbell', 'order': 3, 'is_active': True},
-            {'title': 'Habit Building', 'description': 'Build and track your habits.',
+            {'title': 'habit', 'description': 'Build and track your habits.',
              'icon': 'fa-check-circle', 'order': 4, 'is_active': True},
-            {'title': 'Meal Planning', 'description': 'Log and plan your meals.',
+            {'title': 'meal', 'description': 'Log and plan your meals.',
              'icon': 'fa-utensils', 'order': 5, 'is_active': True},
-            {'title': 'Mental Health', 'description': 'Track your mental health and mood.',
+            {'title': 'mental', 'description': 'Track your mental health and mood.',
              'icon': 'fa-brain', 'order': 6, 'is_active': True}
         ]
         for feature_data in features:

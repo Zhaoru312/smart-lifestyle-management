@@ -82,7 +82,7 @@ class DashboardReminderAdmin(admin.ModelAdmin):
         
         if obj.is_completed:
             return format_html('<span style="background-color: #28a745; color: white; padding: 3px 8px; border-radius: 10px;">Completed</span>')
-        elif obj.due_date and obj.due_date < timezone.now().date():
+        elif obj.due_date and obj.due_date < timezone.now():
             return format_html('<span style="background-color: #dc3545; color: white; padding: 3px 8px; border-radius: 10px;">Overdue</span>')
         else:
             return format_html('<span style="background-color: #17a2b8; color: white; padding: 3px 8px; border-radius: 10px;">Pending</span>')

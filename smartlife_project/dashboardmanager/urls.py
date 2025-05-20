@@ -21,26 +21,26 @@ urlpatterns = [
     path('landing/faq/<int:pk>/delete/', views.delete_faq, name='delete_faq'),
     
     # Bookmark management
-    path('bookmarks/', views.bookmark_list, name='bookmark_list'),
+    path('bookmarks/', views.bookmarks, name='bookmarks'),
     path('bookmarks/add/', views.add_bookmark, name='add_bookmark'),
     path('bookmarks/<int:pk>/edit/', views.edit_bookmark, name='edit_bookmark'),
     path('bookmarks/<int:pk>/delete/', views.delete_bookmark, name='delete_bookmark'),
     
     # Note management
-    path('notes/', views.note_list, name='note_list'),
+    path('notes/', views.notes, name='notes'),
     path('notes/add/', views.add_note, name='add_note'),
     path('notes/<int:pk>/edit/', views.edit_note, name='edit_note'),
     path('notes/<int:pk>/delete/', views.delete_note, name='delete_note'),
     
     # Reminder management
-    path('reminders/', views.reminder_list, name='reminder_list'),
+    path('reminders/', views.reminders, name='reminders'),
     path('reminders/add/', views.add_reminder, name='add_reminder'),
     path('reminders/<int:pk>/edit/', views.edit_reminder, name='edit_reminder'),
     path('reminders/<int:pk>/delete/', views.delete_reminder, name='delete_reminder'),
     path('reminders/<int:pk>/complete/', views.toggle_reminder_complete, name='toggle_reminder_complete'),
     
     # Shortcut management
-    path('shortcuts/', views.shortcut_list, name='shortcut_list'),
+    path('shortcuts/', views.shortcuts, name='shortcuts'),
     path('shortcuts/add/', views.add_shortcut, name='add_shortcut'),
     path('shortcuts/<int:pk>/edit/', views.edit_shortcut, name='edit_shortcut'),
     path('shortcuts/<int:pk>/delete/', views.delete_shortcut, name='delete_shortcut'),

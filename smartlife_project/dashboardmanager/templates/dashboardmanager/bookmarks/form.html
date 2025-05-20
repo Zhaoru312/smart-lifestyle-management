@@ -8,7 +8,7 @@
     <div class="col-sm-6">
         <ol class="breadcrumb float-sm-right">
             <li class="breadcrumb-item"><a href="{% url 'dashboardmanager:index' %}">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'dashboardmanager:bookmark_list' %}">Bookmarks</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboardmanager:bookmarks' %}">Bookmarks</a></li>
             <li class="breadcrumb-item active">{{ title }}</li>
         </ol>
     </div>
@@ -84,7 +84,7 @@
                         
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">Save</button>
-                            <a href="{% url 'dashboardmanager:bookmark_list' %}" class="btn btn-secondary">Cancel</a>
+                            <a href="{% url 'dashboardmanager:bookmarks' %}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

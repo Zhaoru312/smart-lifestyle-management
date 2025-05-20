@@ -477,3 +477,232 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize animation effects
     AnimationEffects.init();
 });
+
+    
+// Newsletter form validation 
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all newsletter forms on the page
+    const newsletterForms = document.querySelectorAll('.newsletter-form');
+    
+    newsletterForms.forEach(form => {
+        // Add input event listener to clear errors on typing
+        const emailInput = form.querySelector('input[type="email"]');
+        if (emailInput) {
+            emailInput.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+                const errorMsg = form.querySelector('.invalid-feedback');
+                if (errorMsg) {
+                    errorMsg.style.display = 'none';
+                }
+                const successMsg = form.querySelector('.valid-feedback');
+                if (successMsg) {
+                    successMsg.style.display = 'none';
+                }
+            });
+        }
+        
+        form.addEventListener('submit', function(event) {
+            const emailInput = form.querySelector('input[type="email"]');
+            if (!emailInput || !emailInput.value.trim() || !isValidEmail(emailInput.value)) {
+                event.preventDefault();
+                // Create or update validation message
+                let errorMsg = form.querySelector('.invalid-feedback');
+                if (!errorMsg) {
+                    errorMsg = document.createElement('div');
+                    errorMsg.className = 'invalid-feedback d-block';
+                    emailInput.parentNode.appendChild(errorMsg);
+                } else {
+                    errorMsg.style.display = 'block';
+                }
+                
+                if (!emailInput.value.trim()) {
+                    errorMsg.textContent = 'Please enter your email address';
+                } else {
+                    errorMsg.textContent = 'Please enter a valid email address';
+                }
+                
+                emailInput.classList.add('is-invalid');
+            } else {
+                // Check for common disposable email domains
+                const disposableDomains = ['mailinator.com', 'tempmail.com', 'throwawaymail.com', 'yopmail.com', 'guerrillamail.com'];
+                const emailDomain = emailInput.value.split('@')[1];
+                
+                if (disposableDomains.includes(emailDomain)) {
+                    event.preventDefault();
+                    let errorMsg = form.querySelector('.invalid-feedback');
+                    if (!errorMsg) {
+                        errorMsg = document.createElement('div');
+                        errorMsg.className = 'invalid-feedback d-block';
+                        emailInput.parentNode.appendChild(errorMsg);
+                    } else {
+                        errorMsg.style.display = 'block';
+                    }
+                    errorMsg.textContent = 'Please use a non-disposable email address';
+                    emailInput.classList.add('is-invalid');
+                }
+            }
+        });
+        
+        // Function to validate email format
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabs = document.querySelectorAll('.auth-tab');
+    const forms = document.querySelectorAll('.auth-form');
+    let currentTab = document.querySelector('.auth-tab.active').dataset.tab;
+    
+    // Function to update URL with tab parameter
+    function updateUrlWithTab(tabName) {
+        const url = new URL(window.location);
+        url.searchParams.set('tab', tabName);
+        window.history.pushState({}, '', url);
+    }
+    
+    // Handle direct navigation via URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam) {
+        const tabToActivate = document.querySelector(`.auth-tab[data-tab="${tabParam}"]`);
+        if (tabToActivate && !tabToActivate.classList.contains('active')) {
+            // Simulate a click on the tab
+            tabToActivate.click();
+        }
+    }
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(event) {
+            // Prevent default link behavior
+            event.preventDefault();
+            
+            const tabName = this.dataset.tab;
+            const href = this.getAttribute('href');
+            
+            // Skip if already active
+            if (tabName === currentTab) return;
+            
+            // Update tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Update forms with animation
+            forms.forEach(form => {
+                form.classList.remove('active', 'prev');
+                
+                if (form.id === `${tabName}-form-container`) {
+                    form.classList.add('active');
+                } else if (form.id === `${currentTab}-form-container`) {
+                    form.classList.add('prev');
+                }
+            });
+            
+            // Update URL with the new tab
+            updateUrlWithTab(tabName);
+            
+            // Update current tab
+            currentTab = tabName;
+            
+            // Update URL without reloading page
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', tabName);
+            window.history.pushState({}, '', url);
+        });
+    });
+    
+    // Password visibility toggle
+    const toggleButtons = document.querySelectorAll('.toggle-password');
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const input = this.parentNode.querySelector('input');
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+    });
+    
+    // Password strength meter
+    const passwordInput = document.getElementById('id_password1');
+    const strengthMeter = document.querySelector('.password-strength');
+    
+    if (passwordInput && strengthMeter) {
+        passwordInput.addEventListener('input', function() {
+            if (this.value) {
+                strengthMeter.classList.remove('d-none');
+                updatePasswordStrength(this.value, strengthMeter);
+            } else {
+                strengthMeter.classList.add('d-none');
+            }
+        });
+    }
+    
+    // Password confirmation validation
+    const confirm_passwordInput = document.getElementById('id_confirm_password');
+    if (passwordInput && confirm_passwordInput) {
+        confirm_passwordInput.addEventListener('input', function() {
+            if (this.value !== passwordInput.value) {
+                this.setCustomValidity('Passwords do not match');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+    
+    // Form validation
+    const formss = document.querySelectorAll('.needs-validation');
+    Array.from(formss).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+    
+    function updatePasswordStrength(password, meterElement) {
+        // Simple password strength algorithm
+        let strength = 0;
+        
+        if (password.length >= 8) strength += 25;
+        if (password.match(/[a-z]+/)) strength += 25;
+        if (password.match(/[A-Z]+/)) strength += 25;
+        if (password.match(/[0-9]+/)) strength += 25;
+        if (password.match(/[^a-zA-Z0-9]+/)) strength += 25;
+        
+        // Cap at 100%
+        strength = Math.min(100, strength);
+        
+        // Update UI
+        const progressBar = meterElement.querySelector('.progress-bar');
+        const strengthText = meterElement.querySelector('span');
+        
+        progressBar.style.width = strength + '%';
+        progressBar.setAttribute('aria-valuenow', strength);
+        
+        // Set color based on strength
+        if (strength < 30) {
+            progressBar.className = 'progress-bar bg-danger';
+            strengthText.textContent = 'Weak';
+        } else if (strength < 70) {
+            progressBar.className = 'progress-bar bg-warning';
+            strengthText.textContent = 'Medium';
+        } else {
+            progressBar.className = 'progress-bar bg-success';
+            strengthText.textContent = 'Strong';
+        }
+    }
+});

@@ -1,7 +1,6 @@
 from django.contrib import admin
 from dashboardmanager.models import Feature, Testimonial, FAQ, ContactMessage, HeroSection, Newsletter
 
-@admin.register(HeroSection)
 class HeroSectionAdmin(admin.ModelAdmin):
     list_display = ('title', 'subtitle_preview', 'has_image', 'has_cta', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at')
@@ -67,7 +66,6 @@ class HeroSectionAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} hero section(s) deactivated.')
     deactivate_hero_sections.short_description = 'Deactivate selected hero sections'
 
-@admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin):
     list_display = ('title', 'description_preview', 'icon', 'order', 'is_active', 'created_at')
     list_filter = ('is_active', 'created_at')
@@ -112,7 +110,6 @@ class FeatureAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} feature(s) deactivated.')
     deactivate_features.short_description = 'Deactivate selected features'
 
-@admin.register(Testimonial)
 class TestimonialAdmin(admin.ModelAdmin):
     list_display = ('name', 'role', 'content_preview', 'rating', 'has_image', 'is_active', 'created_at')
     list_filter = ('is_active', 'rating', 'created_at')
@@ -172,7 +169,6 @@ class TestimonialAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} testimonial(s) deactivated.')
     deactivate_testimonials.short_description = 'Deactivate selected testimonials'
 
-@admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'subject', 'is_read', 'responded_at', 'created_at')
     list_filter = ('is_read', 'created_at')
@@ -223,14 +219,13 @@ class ContactMessageAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} message(s) marked as responded.')
     mark_as_responded.short_description = 'Mark selected messages as responded'
 
-@admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
-    list_display = ('question', 'category', 'answer_preview_admin', 'submitted_by', 'order', 'is_active', 'created_at')
+    list_display = ('question', 'category', 'answer_preview_admin', 'order', 'is_active', 'created_at')
     list_filter = ('is_active', 'category', 'created_at')
-    search_fields = ('question', 'answer', 'category', 'submitted_by')
+    search_fields = ('question', 'answer', 'category')
     ordering = ('category', 'order')
     list_editable = ('category', 'order', 'is_active')
-    readonly_fields = ('submitted_by', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
     actions = ['approve_faqs', 'unapprove_faqs']
     
     fieldsets = (
@@ -243,8 +238,8 @@ class FAQAdmin(admin.ModelAdmin):
         ('Status', {
             'fields': ('is_active',)
         }),
-        ('Submission Information', {
-            'fields': ('submitted_by', 'created_at', 'updated_at'),
+        ('Metadata', {
+            'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
@@ -268,7 +263,6 @@ class FAQAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} FAQ(s) unapproved and hidden from the site.')
     unapprove_faqs.short_description = 'Unapprove selected FAQs'
 
-@admin.register(Newsletter)
 class NewsletterAdmin(admin.ModelAdmin):
     list_display = ('email', 'is_active', 'subscription_source', 'last_sent_at', 'created_at')
     list_filter = ('is_active', 'subscription_source', 'created_at')
@@ -308,3 +302,11 @@ class NewsletterAdmin(admin.ModelAdmin):
         updated = queryset.update(last_sent_at=timezone.now())
         self.message_user(request, f'Last sent date updated for {updated} subscription(s).')
     update_last_sent.short_description = 'Update last sent date to now'
+
+# Register models with their admin classes
+admin.site.register(HeroSection, HeroSectionAdmin)
+admin.site.register(Feature, FeatureAdmin)
+admin.site.register(Testimonial, TestimonialAdmin)
+admin.site.register(ContactMessage, ContactMessageAdmin)
+admin.site.register(FAQ, FAQAdmin)
+admin.site.register(Newsletter, NewsletterAdmin)

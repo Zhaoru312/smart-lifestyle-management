@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator
 # Import models from dashboardmanager instead of local models
@@ -76,40 +75,6 @@ class ContactForm(forms.ModelForm):
                 )
                 
         return message
-
-class FAQForm(forms.ModelForm):
-    """
-    Form for handling FAQ submissions.
-    Allows users to submit questions that will be reviewed by admins.
-    """
-    question = forms.CharField(
-        min_length=10,
-        max_length=200,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Your Question',
-        }),
-        help_text='Be specific and clear with your question'
-    )
-    class Meta:
-        model = FAQ
-        fields = ['question', 'answer', 'category']
-        
-    def clean_question(self):
-        """Ensure the question ends with a question mark and isn't a duplicate"""
-        question = self.cleaned_data['question']
-        
-        # Add a question mark if not present
-        if not question.strip().endswith('?'):
-            question = question.strip() + '?'
-            
-        # Check for duplicates
-        if FAQ.objects.filter(question__iexact=question).exists():
-            raise forms.ValidationError(
-                'This question has already been asked. Please check the existing FAQs.'
-            )
-            
-        return question
 
 class CustomUserCreationForm(forms.ModelForm):
     """

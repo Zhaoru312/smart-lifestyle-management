@@ -1,0 +1,102 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-0">Update Testimonial</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboardmanager:landing_page' %}">Landing Page</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Update Testimonial</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="{{ form.name.id_for_label }}">Name</label>
+                                    {{ form.name }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="{{ form.role.id_for_label }}">Role</label>
+                                    {{ form.role }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.role.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="{{ form.rating.id_for_label }}">Rating</label>
+                                    {{ form.rating }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.rating.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="form-check mt-3">
+                                    {{ form.is_active }}
+                                    <label class="form-label" for="{{ form.is_active.id_for_label }}">Active</label>
+                                    <div class="invalid-feedback">
+                                        {% for error in form.is_active.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label" for="{{ form.content.id_for_label }}">Content</label>
+                                    {{ form.content }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.content.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.image.id_for_label }}" class="form-label">Image</label>
+                                    {{ form.image }}
+                                    {% if form.image.errors %}
+                                    <div class="text-danger">{{ form.image.errors }}</div>
+                                    {% endif %}
+                                    {% if testimonial.image %}
+                                    <div class="mt-2">
+                                        <img src="{{ testimonial.image.url }}" alt="Current Image" class="img-fluid" style="max-height: 200px;">
+                                    </div>
+                                    {% endif %}
+                                    {% if form.image.initial %}
+                                    <div class="form-check mt-2">
+                                        <input type="checkbox" name="clear_image" id="clear_image" class="form-check-input">
+                                        <label for="clear_image" class="form-check-label">Clear image</label>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="{% url 'dashboardmanager:landing_page' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

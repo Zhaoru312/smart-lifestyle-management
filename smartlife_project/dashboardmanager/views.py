@@ -4,10 +4,11 @@ import uuid
 # Django imports
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.utils import timezone
-from django.http import JsonResponse
+from django.http.response import HttpResponseBase 
 
 # Local application imports
 from .models import UserProfile, DashboardBookmark, DashboardNote, DashboardReminder, DashboardShortcut
@@ -42,7 +43,7 @@ def process_form(request, form_class, instance=None, success_url=None, success_m
         form = form_class(instance=instance)
     return form
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def index(request):
     
     # Get dashboard statistics
@@ -99,7 +100,7 @@ def index(request):
     
     return render(request, 'dashboardmanager/index.html', context)
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def applist(request):
     
     apps = [
@@ -126,9 +127,7 @@ def applist(request):
     
     return render(request, 'dashboardmanager/applist.html', context)
 
-# Additional imports
-
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def profile(request):
     
     # Get or create user profile
@@ -188,7 +187,7 @@ def profile(request):
         'today': today,
     })
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def landing_page(request):
     if not request.user.is_superuser:
         return redirect('dashboardmanager:index')
@@ -259,7 +258,7 @@ def landing_page(request):
     
     return render(request, 'dashboardmanager/landing_page.html', context)
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def update_hero_section(request, pk):
     if not request.user.is_superuser:
         return redirect('dashboardmanager:index')
@@ -283,9 +282,9 @@ def update_hero_section(request, pk):
         'hero_section': hero_section,
         'form': form
     }
-    return render(request, 'dashboardmanager/update_hero_section.html', context)
+    return render(request, 'dashboardmanager/update/update_hero_section.html', context)
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def update_feature(request, pk):
     if not request.user.is_superuser:
         return redirect('dashboardmanager:index')
@@ -309,9 +308,9 @@ def update_feature(request, pk):
         'feature': feature,
         'form': form
     }
-    return render(request, 'dashboardmanager/update_feature.html', context)
+    return render(request, 'dashboardmanager/update/update_feature.html', context)
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def update_testimonial(request, pk):
     if not request.user.is_superuser:
         return redirect('dashboardmanager:index')
@@ -319,7 +318,18 @@ def update_testimonial(request, pk):
     testimonial = get_object_or_404(Testimonial, pk=pk)
     
     if request.method == 'POST':
+        # Handle clear checkbox
+        clear_image = request.POST.get('clear_image')
+        if clear_image:
+            testimonial.image.delete()
+            testimonial.image = None
+            testimonial.save()
+            messages.success(request, 'Image cleared successfully')
+            return redirect('dashboardmanager:update_testimonial', pk=pk)
+        
         form = TestimonialForm(request.POST, request.FILES, instance=testimonial)
+        # Explicitly set initial value for image field to ensure clear checkbox appears
+        form.fields['image'].initial = testimonial.image if testimonial.image else None
         if form.is_valid():
             form.save()
             messages.success(request, 'Testimonial updated successfully')
@@ -335,9 +345,9 @@ def update_testimonial(request, pk):
         'testimonial': testimonial,
         'form': form
     }
-    return render(request, 'dashboardmanager/update_testimonial.html', context)
+    return render(request, 'dashboardmanager/update/update_testimonial.html', context)
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def update_faq(request, pk):
     if not request.user.is_superuser:
         return redirect('dashboardmanager:index')
@@ -361,9 +371,9 @@ def update_faq(request, pk):
         'faq': faq,
         'form': form
     }
-    return render(request, 'dashboardmanager/update_faq.html', context)
+    return render(request, 'dashboardmanager/update/update_faq.html', context)
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def delete_hero_section(request, pk):
     if not request.user.is_superuser:
         return redirect('dashboardmanager:index')
@@ -375,7 +385,7 @@ def delete_hero_section(request, pk):
         return redirect('dashboardmanager:landing_page')
     return redirect('dashboardmanager:landing_page')
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def delete_feature(request, pk):
     if not request.user.is_superuser:
         return redirect('dashboardmanager:index')
@@ -387,7 +397,7 @@ def delete_feature(request, pk):
         return redirect('dashboardmanager:landing_page')
     return redirect('dashboardmanager:landing_page')
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def delete_testimonial(request, pk):
     if not request.user.is_superuser:
         return redirect('dashboardmanager:index')
@@ -399,7 +409,7 @@ def delete_testimonial(request, pk):
         return redirect('dashboardmanager:landing_page')
     return redirect('dashboardmanager:landing_page')
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def delete_faq(request, pk):
     if not request.user.is_superuser:
         return redirect('dashboardmanager:index')
@@ -409,240 +419,285 @@ def delete_faq(request, pk):
     messages.success(request, 'FAQ deleted successfully')
     return redirect('dashboardmanager:landing_page')
 
-
-# Bookmark Views
-@login_required
-def bookmark_list(request):
+# Bookmark views
+@login_required(login_url=settings.LOGIN_URL)
+def bookmarks(request):
     bookmarks = DashboardBookmark.objects.filter(user=request.user).order_by('-is_favorite', '-created_at')
-    return render(request, 'dashboardmanager/bookmarks/list.html', {
-        'bookmarks': bookmarks
-    })
+    form = process_form(
+        request=request,
+        form_class=BookmarkForm,
+        success_url='dashboardmanager:bookmarks',
+        success_message='Bookmark added successfully'
+    )
 
-@login_required
+    if isinstance(form, HttpResponseBase):
+        return form
+
+    context = {
+        'bookmarks': bookmarks,
+        'form': form
+    }
+    return render(request, 'dashboardmanager/bookmarks/list.html', context)
+
+@login_required(login_url=settings.LOGIN_URL)
 def add_bookmark(request):
     form = process_form(
         request=request,
         form_class=BookmarkForm,
-        success_url='dashboardmanager:bookmark_list',
+        success_url='dashboardmanager:bookmarks',
         success_message='Bookmark added successfully'
     )
-    
-    # If form processing returned a redirect response, return it
-    if isinstance(form, (redirect, JsonResponse)):
+
+    if isinstance(form, HttpResponseBase):
         return form
-    
+
     return render(request, 'dashboardmanager/bookmarks/form.html', {
         'form': form,
         'title': 'Add Bookmark'
     })
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def edit_bookmark(request, pk):
     bookmark = get_object_or_404(DashboardBookmark, pk=pk, user=request.user)
-    
+
     form = process_form(
         request=request,
         form_class=BookmarkForm,
         instance=bookmark,
-        success_url='dashboardmanager:bookmark_list',
+        success_url='dashboardmanager:bookmarks',
         success_message='Bookmark updated successfully'
     )
-    
-    # If form processing returned a redirect response, return it
-    if isinstance(form, (redirect, JsonResponse)):
+
+    if isinstance(form, HttpResponseBase):
         return form
-    
+
     return render(request, 'dashboardmanager/bookmarks/form.html', {
         'form': form,
         'bookmark': bookmark,
         'title': 'Edit Bookmark'
     })
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def delete_bookmark(request, pk):
     bookmark = get_object_or_404(DashboardBookmark, pk=pk, user=request.user)
-    bookmark.delete()
-    messages.success(request, 'Bookmark deleted successfully')
-    return redirect('dashboardmanager:bookmark_list')
+    if request.method == 'POST':
+        bookmark.delete()
+        messages.success(request, 'Bookmark deleted successfully')
+        return redirect('dashboardmanager:bookmarks')
+    return redirect('dashboardmanager:bookmarks')
 
-
-# Note Views
-@login_required
-def note_list(request):
+# Note views
+@login_required(login_url=settings.LOGIN_URL)
+def notes(request):
     notes = DashboardNote.objects.filter(user=request.user).order_by('-is_pinned', '-created_at')
-    return render(request, 'dashboardmanager/notes/list.html', {
-        'notes': notes
-    })
+    form = process_form(
+        request=request,
+        form_class=NoteForm,
+        success_url='dashboardmanager:notes',
+        success_message='Note added successfully'
+    )
 
-@login_required
+    if isinstance(form, HttpResponseBase):
+        return form
+
+    context = {
+        'notes': notes,
+        'form': form
+    }
+    return render(request, 'dashboardmanager/notes/list.html', context)
+
+@login_required(login_url=settings.LOGIN_URL)
 def add_note(request):
     form = process_form(
         request=request,
         form_class=NoteForm,
-        success_url='dashboardmanager:note_list',
+        success_url='dashboardmanager:notes',
         success_message='Note added successfully'
     )
-    
-    # If form processing returned a redirect response, return it
-    if isinstance(form, (redirect, JsonResponse)):
+
+    if isinstance(form, HttpResponseBase):
         return form
-    
+
     return render(request, 'dashboardmanager/notes/form.html', {
         'form': form,
         'title': 'Add Note'
     })
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def edit_note(request, pk):
     note = get_object_or_404(DashboardNote, pk=pk, user=request.user)
-    
+
     form = process_form(
         request=request,
         form_class=NoteForm,
         instance=note,
-        success_url='dashboardmanager:note_list',
+        success_url='dashboardmanager:notes',
         success_message='Note updated successfully'
     )
-    
-    # If form processing returned a redirect response, return it
-    if isinstance(form, (redirect, JsonResponse)):
+
+    if isinstance(form, HttpResponseBase):
         return form
-    
+
     return render(request, 'dashboardmanager/notes/form.html', {
         'form': form,
         'note': note,
         'title': 'Edit Note'
     })
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def delete_note(request, pk):
     note = get_object_or_404(DashboardNote, pk=pk, user=request.user)
-    note.delete()
-    messages.success(request, 'Note deleted successfully')
-    return redirect('dashboardmanager:note_list')
+    if request.method == 'POST':
+        note.delete()
+        messages.success(request, 'Note deleted successfully')
+        return redirect('dashboardmanager:notes')
+    return redirect('dashboardmanager:notes')
 
-
-# Reminder Views
-@login_required
-def reminder_list(request):
+# Reminder views
+@login_required(login_url=settings.LOGIN_URL)
+def reminders(request):
     reminders = DashboardReminder.objects.filter(user=request.user).order_by('is_completed', 'due_date')
-    return render(request, 'dashboardmanager/reminders/list.html', {
-        'reminders': reminders
-    })
+    form = process_form(
+        request=request,
+        form_class=ReminderForm,
+        success_url='dashboardmanager:reminders',
+        success_message='Reminder added successfully'
+    )
 
-@login_required
+    if isinstance(form, HttpResponseBase):
+        return form
+
+    context = {
+        'reminders': reminders,
+        'form': form,
+        'current_time': timezone.now()
+    }
+    return render(request, 'dashboardmanager/reminders/list.html', context)
+
+@login_required(login_url=settings.LOGIN_URL)
 def add_reminder(request):
     form = process_form(
         request=request,
         form_class=ReminderForm,
-        success_url='dashboardmanager:reminder_list',
+        success_url='dashboardmanager:reminders',
         success_message='Reminder added successfully'
     )
-    
-    # If form processing returned a redirect response, return it
-    if isinstance(form, (redirect, JsonResponse)):
+
+    if isinstance(form, HttpResponseBase):
         return form
-    
+
     return render(request, 'dashboardmanager/reminders/form.html', {
         'form': form,
         'title': 'Add Reminder'
     })
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def edit_reminder(request, pk):
     reminder = get_object_or_404(DashboardReminder, pk=pk, user=request.user)
-    
+
     form = process_form(
         request=request,
         form_class=ReminderForm,
         instance=reminder,
-        success_url='dashboardmanager:reminder_list',
+        success_url='dashboardmanager:reminders',
         success_message='Reminder updated successfully'
     )
-    
-    # If form processing returned a redirect response, return it
-    if isinstance(form, (redirect, JsonResponse)):
+
+    if isinstance(form, HttpResponseBase):
         return form
-    
+
     return render(request, 'dashboardmanager/reminders/form.html', {
         'form': form,
         'reminder': reminder,
         'title': 'Edit Reminder'
     })
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def delete_reminder(request, pk):
     reminder = get_object_or_404(DashboardReminder, pk=pk, user=request.user)
-    reminder.delete()
-    messages.success(request, 'Reminder deleted successfully')
-    return redirect('dashboardmanager:reminder_list')
+    if request.method == 'POST':
+        reminder.delete()
+        messages.success(request, 'Reminder deleted successfully')
+        return redirect('dashboardmanager:reminders')
+    return redirect('dashboardmanager:reminders')
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def toggle_reminder_complete(request, pk):
     reminder = get_object_or_404(DashboardReminder, pk=pk, user=request.user)
     reminder.is_completed = not reminder.is_completed
     reminder.save()
     status = 'completed' if reminder.is_completed else 'reopened'
     messages.success(request, f'Reminder {status} successfully')
-    return redirect('dashboardmanager:reminder_list')
+    return redirect('dashboardmanager:reminders')
 
-
-# Shortcut Views
-@login_required
-def shortcut_list(request):
+# Shortcut views
+@login_required(login_url=settings.LOGIN_URL)
+def shortcuts(request):
     shortcuts = DashboardShortcut.objects.filter(user=request.user).order_by('shortcut_key')
-    return render(request, 'dashboardmanager/shortcuts/list.html', {
-        'shortcuts': shortcuts
-    })
+    form = process_form(
+        request=request,
+        form_class=ShortcutForm,
+        success_url='dashboardmanager:shortcuts',
+        success_message='Shortcut added successfully'
+    )
 
-@login_required
+    if isinstance(form, HttpResponseBase):
+        return form
+
+    context = {
+        'shortcuts': shortcuts,
+        'form': form
+    }
+    return render(request, 'dashboardmanager/shortcuts/list.html', context)
+
+@login_required(login_url=settings.LOGIN_URL)
 def add_shortcut(request):
     form = process_form(
         request=request,
         form_class=ShortcutForm,
-        success_url='dashboardmanager:shortcut_list',
+        success_url='dashboardmanager:shortcuts',
         success_message='Shortcut added successfully'
     )
-    
-    # If form processing returned a redirect response, return it
-    if isinstance(form, (redirect, JsonResponse)):
+
+    if isinstance(form, HttpResponseBase):
         return form
-    
+
     return render(request, 'dashboardmanager/shortcuts/form.html', {
         'form': form,
         'title': 'Add Shortcut'
     })
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def edit_shortcut(request, pk):
     shortcut = get_object_or_404(DashboardShortcut, pk=pk, user=request.user)
-    
+
     form = process_form(
         request=request,
         form_class=ShortcutForm,
         instance=shortcut,
-        success_url='dashboardmanager:shortcut_list',
+        success_url='dashboardmanager:shortcuts',
         success_message='Shortcut updated successfully'
     )
-    
-    # If form processing returned a redirect response, return it
-    if isinstance(form, (redirect, JsonResponse)):
+
+    if isinstance(form, HttpResponseBase):
         return form
-    
+
     return render(request, 'dashboardmanager/shortcuts/form.html', {
         'form': form,
         'shortcut': shortcut,
         'title': 'Edit Shortcut'
     })
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def delete_shortcut(request, pk):
     shortcut = get_object_or_404(DashboardShortcut, pk=pk, user=request.user)
-    shortcut.delete()
-    messages.success(request, 'Shortcut deleted successfully')
-    return redirect('dashboardmanager:shortcut_list')
+    if request.method == 'POST':
+        shortcut.delete()
+        messages.success(request, 'Shortcut deleted successfully')
+        return redirect('dashboardmanager:shortcuts')
+    return redirect('dashboardmanager:shortcuts')
 
-@login_required
+@login_required(login_url=settings.LOGIN_URL)
 def toggle_shortcut_active(request, pk):
     shortcut = get_object_or_404(DashboardShortcut, pk=pk, user=request.user)
     shortcut.is_active = not shortcut.is_active

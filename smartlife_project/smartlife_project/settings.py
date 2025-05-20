@@ -147,7 +147,7 @@ STATICFILES_DIRS = [
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'static/media'
+MEDIA_ROOT = BASE_DIR / 'static/images'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -155,8 +155,10 @@ MEDIA_ROOT = BASE_DIR / 'static/media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication settings
+LOGIN_URL = '/auth/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
+AUTH_USER_MODEL = 'auth.User'  # Using Django's built-in User model
 
 # Security settings
 # In production, these should be set to True when using HTTPS

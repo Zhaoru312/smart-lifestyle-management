@@ -244,11 +244,11 @@ class HeroSection(models.Model):
         null=True, 
         help_text='Text for the call-to-action button (optional)'
     )
-    call_to_action_url = models.URLField(
+    call_to_action_url = models.CharField(
         max_length=200, 
         blank=True, 
         null=True, 
-        help_text='URL for the call-to-action button (optional)'
+        help_text='URL for the call-to-action button (can be internal path like /register or external URL)'
     )
     is_active = models.BooleanField(default=True, help_text='Whether this hero section is currently displayed')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -317,7 +317,6 @@ class FAQ(models.Model):
     question = models.CharField(max_length=200)
     answer = models.TextField(help_text='You can use basic HTML tags for formatting')
     category = models.CharField(max_length=100, blank=True, help_text='Optional category for grouping FAQs')
-    submitted_by = models.CharField(max_length=150, blank=True, help_text='Username of the person who submitted this question')
     order = models.IntegerField(default=0, help_text='Controls the display order (lower numbers appear first)')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

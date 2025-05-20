@@ -37,15 +37,8 @@ urlpatterns = [
     # Django admin interface
     path('admin/', admin.site.urls),
     
-    # Django built-in authentication URLs (login, logout, password reset, etc.)
-    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 # Serve media files in development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    
-# Error handlers - these are only used in production
-handler404 = 'landing.views.custom_404_view'
-handler500 = 'landing.views.custom_500_view'
-handler403 = 'landing.views.custom_403_view'

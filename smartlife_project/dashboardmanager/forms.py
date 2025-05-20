@@ -33,12 +33,6 @@ class ProfileForm(forms.ModelForm):
         }
 
 class HeroForm(forms.ModelForm):
-    call_to_action_url = forms.URLField(
-        required=False,
-        widget=forms.URLInput(attrs={'class': 'form-control'}),
-        help_text='Optional: Enter a valid URL for the call to action button'
-    )
-
     class Meta:
         model = HeroSection
         fields = ['title', 'subtitle', 'call_to_action_text', 'call_to_action_url', 'is_active', 'background_image']
@@ -46,6 +40,7 @@ class HeroForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'subtitle': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'required': True}),
             'call_to_action_text': forms.TextInput(attrs={'class': 'form-control'}),
+            'call_to_action_url': forms.TextInput(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'background_image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
@@ -76,13 +71,27 @@ class TestimonialForm(forms.ModelForm):
         }
 
 class dashboardFAQForm(forms.ModelForm):
+    # Define predefined categories
+    CATEGORY_CHOICES = [
+        ('feature', 'Feature Details'),
+        ('support', 'Support & Help'),
+        ('usage', 'How to Use'),
+        ('troubleshooting', 'Troubleshooting'),
+        ('', 'Other')  # Empty value for no category
+    ]
+
+    category = forms.ChoiceField(
+        choices=CATEGORY_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = FAQ
         fields = ['question', 'answer', 'category', 'order', 'is_active']
         widgets = {
             'question': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'answer': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'required': True}),
-            'category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Optional category'}),
             'order': forms.NumberInput(attrs={'class': 'form-control', 'required': True}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
