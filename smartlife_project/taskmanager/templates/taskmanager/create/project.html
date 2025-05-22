@@ -1,0 +1,783 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+/* Progress Steps */
+.progress-steps {
+    margin: 2rem 0;
+}
+
+.step-indicator {
+    font-size: 0.85rem;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 0 1rem;
+}
+
+.step-indicator.active {
+    color: #0d6efd;
+    font-weight: 500;
+}
+
+.step-indicator i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.step-indicators {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
+.step-indicators::before {
+    content: '';
+    position: absolute;
+    top: 0.75rem;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+.step-indicator {
+    position: relative;
+    z-index: 2;
+    background: white;
+    padding: 0 1rem;
+}
+
+.progress {
+    height: 8px !important;
+    background-color: #e9ecef;
+    overflow: visible;
+    margin: 2rem 0;
+}
+
+.progress-bar {
+    background-color: #0d6efd;
+    position: relative;
+    overflow: visible;
+}
+
+/* Form Styling */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    padding: 1.25rem 1.5rem;
+}
+
+.form-floating > label {
+    padding: 1rem 0.75rem;
+}
+
+.form-control, .form-select {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid #dee2e6;
+}
+
+.btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #dee2e6;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .step-indicators {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .step-indicator {
+        margin-bottom: 1.5rem;
+        text-align: left;
+        flex-direction: row;
+        align-items: center;
+        padding: 0.5rem 0;
+        width: 100%;
+    }
+    
+    .step-indicator i {
+        margin-right: 0.75rem;
+        margin-bottom: 0;
+    }
+}
+
+/* Project Form Specific Styles */
+.icon-wrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    margin-right: 1rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+}
+
+.form-section h5 {
+    color: #344767;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Form Floating Labels */
+.form-floating > label {
+    padding: 1rem 0.75rem;
+    color: #7b809a;
+    font-size: 0.875rem;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+    opacity: 0.8;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #82b1ff;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Date Picker Customization */
+.flatpickr-input {
+    background-color: #fff !important;
+}
+
+/* Status Toggle */
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Character Counter */
+.char-counter {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.char-counter.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Color Picker Styles */
+.color-picker {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.color-option .btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.color-option .btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.color-option .btn-check:checked + .btn {
+    border-color: #212529;
+    transform: scale(1.1);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Predefined color classes */
+.btn-color-primary { background-color: #0d6efd; }
+.btn-color-success { background-color: #198754; }
+.btn-color-info { background-color: #0dcaf0; }
+.btn-color-warning { background-color: #ffc107; }
+.btn-color-danger { background-color: #dc3545; }
+.btn-color-purple { background-color: #6f42c1; }
+.btn-color-pink { background-color: #d63384; }
+.btn-color-orange { background-color: #fd7e14; }
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .form-section {
+        padding: 1rem;
+    }
+    
+    .icon-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Progress Bar -->
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-body p-4">
+                    <h1 class="h3 text-center mb-4 text-primary">{{ current_title }}</h1>
+                        <div class="step-indicators">
+                            <div class="step-indicator {% if step >= 1 %}active{% endif %}">
+                                <i class="fas {% if step >= 1 %}fa-check-circle{% else %}fa-circle{% endif %}" aria-hidden="true"></i>
+                                <span>Project Setup</span>
+                            </div>
+                            <div class="step-indicator {% if step >= 2 %}active{% endif %}">
+                                <i class="fas {% if step >= 2 %}fa-check-circle{% else %}fa-circle{% endif %}" aria-hidden="true"></i>
+                                <span>Add Tasks</span>
+                            </div>
+                            <div class="step-indicator {% if step >= 3 %}active{% endif %}">
+                                <i class="fas {% if step >= 3 %}fa-check-circle{% else %}fa-circle{% endif %}" aria-hidden="true"></i>
+                                <span>Add Subtasks</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Messages -->
+                    {% if messages %}
+                    <div class="mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                                <div>{{ message }}</div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}                 
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <form id="main-form" method="post" class="needs-validation" novalidate>
+                                {% csrf_token %}
+                                
+                                {% if form.non_field_errors %}
+                                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <div>
+                                        {% for error in form.non_field_errors %}
+                                            <div class="small">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                {% endif %}
+
+                                <div class="form-section">
+                                    <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                                    <div class="row g-4">
+                                        <!-- Project Name -->
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="{{ form.name.id_for_label }}" class="form-label fw-semibold mb-2 d-flex align-items-center">
+                                                    <span>Project Name</span>
+                                                    <span class="text-danger ms-1">*</span>
+                                                    <i class="fas fa-info-circle text-muted ms-2" data-bs-toggle="tooltip" title="Enter a unique name for your project (3-100 characters)"></i>
+                                                </label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="fas fa-project-diagram"></i></span>
+                                                    {{ form.name }}
+                                                </div>
+                                                {% if form.name.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        <i class="fas fa-exclamation-circle me-1"></i> {{ form.name.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="form-text text-muted mt-1">A clear, concise name helps identify your project</div>
+                                            </div>
+                                        </div>
+        
+                                        <!-- Description -->
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="{{ form.description.id_for_label }}" class="form-label fw-semibold mb-2 d-flex align-items-center">
+                                                    <span>Description</span>
+                                                    <i class="fas fa-info-circle text-muted ms-2" data-bs-toggle="tooltip" title="Provide details about your project (optional)"></i>
+                                                </label>
+                                                <div class="position-relative">
+                                                    {{ form.description }}
+                                                    <div class="position-absolute bottom-0 end-0 p-2"></div>
+                                                </div>
+                                                {% if form.description.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        <i class="fas fa-exclamation-circle me-1"></i> {{ form.description.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="form-text text-muted mt-1">Add details about goals, requirements, or any important notes</div>
+                                            </div>
+                                        </div>
+            
+                                        <!-- Start Date -->            
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="{{ form.start_date.id_for_label }}" class="form-label fw-semibold mb-2 d-flex align-items-center">
+                                                    <span>Start Date</span>
+                                                    <i class="fas fa-info-circle text-muted ms-2" data-bs-toggle="tooltip" title="When do you want to start working on this project?"></i>
+                                                </label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                                    {{ form.start_date }}
+                                                </div>
+                                                {% if form.start_date.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        <i class="fas fa-exclamation-circle me-1"></i> {{ form.start_date.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="form-text text-muted mt-1">When do you want to start this project?</div>
+                                            </div>
+                                        </div>
+            
+                                        <!-- Due Date -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="{{ form.due_date.id_for_label }}" class="form-label fw-semibold mb-2 d-flex align-items-center">
+                                                    <span>Due Date</span>
+                                                    <i class="fas fa-info-circle text-muted ms-2" data-bs-toggle="tooltip" title="When do you want to finish this project?"></i>
+                                                </label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                                    {{ form.due_date }}
+                                                </div>
+                                                {% if form.due_date.errors %}
+                                                    <div class="invalid-feedback d-block">
+                                                        <i class="fas fa-exclamation-circle me-1"></i> {{ form.due_date.errors.0 }}
+                                                    </div>
+                                                {% endif %}
+                                                <div class="form-text text-muted mt-1">When do you want to finish this project?</div>
+                                            </div>
+                                        </div>
+            
+                                        <!-- Project Status -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label fw-semibold mb-2 d-flex align-items-center">
+                                                    <span>Project Status</span>
+                                                    <i class="fas fa-info-circle text-muted ms-2" data-bs-toggle="tooltip" title="Active projects are visible to all team members"></i>
+                                                </label>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="form-check form-switch me-3">
+                                                        <input class="form-check-input" type="checkbox" role="switch" id="status-toggle" name="is_active" checked>
+                                                        <label class="form-check-label" for="status-toggle" id="status-label">Active</label>
+                                                    </div>
+                                                    <span class="badge bg-success" id="status-badge">
+                                                        <i class="fas fa-check-circle me-1"></i> Active
+                                                    </span>
+                                                </div>
+                                                <div class="form-text text-muted mt-1">Active projects are visible to all team members</div>
+                                            </div>
+                                        </div>
+            
+                                        <!-- Project Color -->
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="form-label fw-semibold mb-2 d-flex align-items-center">
+                                                    <span>Project Color</span>
+                                                    <i class="fas fa-info-circle text-muted ms-2" data-bs-toggle="tooltip" title="Choose a color to easily identify your project"></i>
+                                                </label>
+                                                <div class="color-picker-container">
+                                                    <div class="d-flex flex-wrap align-items-center gap-3">
+                                                        <div class="color-preview d-flex align-items-center justify-content-center rounded-3" style="width: 60px; height: 60px; background-color: #4e73df;">
+                                                            <i class="fas fa-check text-white"></i>
+                                                        </div>
+                                                        <div class="color-options d-flex flex-wrap gap-2">
+                                                            {% for color in color_choices %}
+                                                                <input type="radio" class="btn-check" name="color" id="color-{{ color.0 }}" value="{{ color.0 }}" {% if forloop.first %}checked{% endif %}>
+                                                                <label class="btn btn-sm rounded-circle color-option {% if forloop.first %}active{% endif %}" 
+                                                                    style="width: 32px; height: 32px; background-color: {{ color.1 }};" 
+                                                                    for="color-{{ color.0 }}" 
+                                                                    data-bs-toggle="tooltip" 
+                                                                    title="{{ color.0|title }}"
+                                                                    data-color="{{ color.1 }}">
+                                                                </label>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-text text-muted mt-2">Select a color that best represents your project</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 pt-3 border-top">
+                <div class="mb-3 mb-md-0">
+                    <a href="{% url 'taskmanager:dashboard' %}" 
+                        class="btn btn-outline-secondary px-4" 
+                        id="cancel-btn">
+                        <i class="fas fa-arrow-left me-2"></i>Back
+                    </a>
+                </div>
+                
+                <div class="d-flex flex-column flex-md-row gap-3">
+                    <button 
+                        type="submit" 
+                        form="main-form" 
+                        class="btn btn-primary px-4" 
+                        id="next-btn">
+                        Next <i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<!-- Flatpickr CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+function handleFormSubmit(formId, nextUrl) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const spinner = submitBtn?.querySelector('.spinner-border');
+    
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            
+            // Scroll to first invalid field
+            const firstInvalid = form.querySelector(':invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
+            return;
+        }
+        
+        if (submitBtn && spinner) {
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+        }
+    });
+    
+    // Add input event listeners for real-time validation
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.checkValidity()) {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            } else {
+                this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+            }
+        });
+    });
+}
+
+// Initialize when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Bootstrap tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'hover focus',
+            placement: 'top',
+            container: 'body'
+        });
+    });
+
+    // Handle save as draft functionality
+    const saveAsDraftBtn = document.getElementById('save-as-draft');
+    if (saveAsDraftBtn) {
+        saveAsDraftBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = document.getElementById('main-form');
+            if (!form) return;
+            
+            // Add draft flag
+            let draftInput = form.querySelector('input[name="save_as_draft"]');
+            if (!draftInput) {
+                draftInput = document.createElement('input');
+                draftInput.type = 'hidden';
+                draftInput.name = 'save_as_draft';
+                form.appendChild(draftInput);
+            }
+            draftInput.value = '1';
+            
+            // Submit form
+            const submitEvent = new Event('submit', { cancelable: true });
+            if (form.dispatchEvent(submitEvent)) {
+                form.submit();
+            }
+        });
+    }
+    
+    // Add character counter for textareas with maxlength
+    document.querySelectorAll('textarea[maxlength]').forEach(textarea => {
+        const maxLength = parseInt(textarea.getAttribute('maxlength'));
+        const counter = document.createElement('div');
+        counter.className = 'form-text text-end text-muted small';
+        counter.textContent = `0/${maxLength} characters`;
+        
+        textarea.parentNode.insertBefore(counter, textarea.nextSibling);
+        
+        textarea.addEventListener('input', function() {
+            const remaining = maxLength - this.value.length;
+            counter.textContent = `${this.value.length}/${maxLength} characters`;
+            counter.className = `form-text text-end small ${remaining < 10 ? 'text-danger' : 'text-muted'}`;
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'hover',
+            container: 'body',
+            boundary: 'viewport',
+            html: true
+        });
+    });
+    
+    // Initialize date pickers
+    const dateConfig = {
+        dateFormat: 'Y-m-d',
+        allowInput: true,
+        altInput: true,
+        altFormat: 'M j, Y',
+        minDate: 'today',
+        static: true
+    };
+    
+    // Initialize start date picker
+    const startDateInput = document.getElementById('{{ form.start_date.id_for_label }}');
+    if (startDateInput) {
+        flatpickr(startDateInput, {
+            ...dateConfig,
+            onChange: function(selectedDates, dateStr) {
+                // Update due date min date when start date changes
+                if (dueDateInput && dueDateInput._flatpickr) {
+                    dueDateInput._flatpickr.set('minDate', dateStr || 'today');
+                }
+            }
+        });
+    }
+    
+    // Initialize due date picker
+    const dueDateInput = document.getElementById('{{ form.due_date.id_for_label }}');
+    if (dueDateInput) {
+        flatpickr(dueDateInput, {
+            ...dateConfig,
+            minDate: startDateInput?.value || 'today'
+        });
+    }
+    
+    // Color picker functionality
+    const colorOptions = document.querySelectorAll('.color-option');
+    const colorPreview = document.querySelector('.color-preview');
+    
+    colorOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove active class from all options
+            colorOptions.forEach(opt => opt.classList.remove('active'));
+            // Add active class to clicked option
+            this.classList.add('active');
+            // Update preview
+            const color = this.getAttribute('data-color');
+            if (colorPreview) {
+                colorPreview.style.backgroundColor = color;
+            }
+        });
+    });
+    
+    // Set initial color preview
+    const initialColor = document.querySelector('input[name="color"]:checked');
+    if (initialColor && colorPreview) {
+        const colorLabel = document.querySelector(`label[for="${initialColor.id}"]`);
+        if (colorLabel) {
+            const color = colorLabel.getAttribute('data-color');
+            colorPreview.style.backgroundColor = color;
+        }
+    }
+    
+    // Status toggle functionality
+    const statusToggle = document.getElementById('status-toggle');
+    const statusLabel = document.getElementById('status-label');
+    const statusBadge = document.getElementById('status-badge');
+    
+    if (statusToggle && statusLabel && statusBadge) {
+        function updateStatusUI(isActive) {
+            if (isActive) {
+                statusLabel.textContent = 'Active';
+                statusBadge.className = 'badge bg-success';
+                statusBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i> Active';
+            } else {
+                statusLabel.textContent = 'Inactive';
+                statusBadge.className = 'badge bg-secondary';
+                statusBadge.innerHTML = '<i class="fas fa-pause-circle me-1"></i> Inactive';
+            }
+        }
+        
+        // Set initial status and add change listener
+        updateStatusUI(statusToggle.checked);
+        statusToggle.addEventListener('change', function() {
+            updateStatusUI(this.checked);
+        });
+    }
+    
+    // Quick date buttons
+    const todayBtn = document.getElementById('today-btn');
+    const weekFromNowBtn = document.getElementById('week-from-now');
+    
+    if (todayBtn && startDateInput) {
+        todayBtn.addEventListener('click', function() {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            if (startDateInput._flatpickr) {
+                startDateInput._flatpickr.setDate(formattedDate, true);
+            }
+        });
+    }
+    
+    if (weekFromNowBtn && dueDateInput) {
+        weekFromNowBtn.addEventListener('click', function() {
+            const weekFromNow = new Date();
+            weekFromNow.setDate(weekFromNow.getDate() + 7);
+            const formattedDate = weekFromNow.toISOString().split('T')[0];
+            if (dueDateInput._flatpickr) {
+                dueDateInput._flatpickr.setDate(formattedDate, true);
+            }
+        });
+    }
+    
+    // Character counter for description
+    const descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+    const charCounter = document.querySelector('.char-counter');
+    
+    if (descriptionInput && charCounter) {
+        function updateCharCount() {
+            const currentLength = descriptionInput.value.length;
+            const maxLength = descriptionInput.getAttribute('maxlength') || 500;
+            charCounter.textContent = `${currentLength}/${maxLength}`;
+            
+            if (currentLength > maxLength * 0.9) {
+                charCounter.classList.add('text-danger');
+            } else {
+                charCounter.classList.remove('text-danger');
+            }
+        }
+        
+        descriptionInput.addEventListener('input', updateCharCount);
+        updateCharCount(); // Initial count
+    }
+    
+    // Form validation
+    const form = document.getElementById('main-form');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // Find first invalid field and scroll to it
+                const firstInvalid = form.querySelector(':invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstInvalid.focus();
+                }
+            }
+            
+            form.classList.add('was-validated');
+        }, false);
+    }
+    
+    // Add loading state to form submission
+    const submitBtn = form?.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        form.addEventListener('submit', function() {
+            if (form.checkValidity()) {
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Saving...';
+                
+                // Revert after 5 seconds if still on page
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }, 5000);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+

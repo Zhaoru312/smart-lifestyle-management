@@ -1,48 +1,57 @@
 from django.urls import path
-from . import views
+from .views import (
+    DashboardView, AppListView, ProfileView, LandingPageView,
+    HeroSectionUpdateView, FeatureUpdateView, TestimonialUpdateView, FAQUpdateView,
+    HeroSectionDeleteView, FeatureDeleteView, TestimonialDeleteView, FAQDeleteView, BookmarkListView, BookmarkCreateView,
+    BookmarkUpdateView, BookmarkDeleteView, NoteListView, NoteCreateView,
+    NoteUpdateView, NoteDeleteView, ReminderListView, ReminderCreateView,
+    ReminderUpdateView, ReminderDeleteView, ToggleReminderCompleteView,
+    ShortcutListView, ShortcutCreateView, ShortcutUpdateView, ShortcutDeleteView,
+    ToggleShortcutActiveView
+)
 
 app_name = 'dashboardmanager'
 
 urlpatterns = [
     # Dashboard main views
-    path('', views.index, name='index'),
-    path('applist/', views.applist, name='applist'),
-    path('profile/', views.profile, name='profile'),
+    path('', DashboardView.as_view(), name='index'),
+    path('applist/', AppListView.as_view(), name='applist'),
+    path('profile/', ProfileView.as_view(), name='profile'),
     
     # Landing page management
-    path('landing/', views.landing_page, name='landing_page'),
-    path('landing/hero/<int:pk>/', views.update_hero_section, name='update_hero_section'),
-    path('landing/feature/<int:pk>/', views.update_feature, name='update_feature'),
-    path('landing/testimonial/<int:pk>/', views.update_testimonial, name='update_testimonial'),
-    path('landing/faq/<int:pk>/', views.update_faq, name='update_faq'),
-    path('landing/hero/<int:pk>/delete/', views.delete_hero_section, name='delete_hero_section'),
-    path('landing/feature/<int:pk>/delete/', views.delete_feature, name='delete_feature'),
-    path('landing/testimonial/<int:pk>/delete/', views.delete_testimonial, name='delete_testimonial'),
-    path('landing/faq/<int:pk>/delete/', views.delete_faq, name='delete_faq'),
+    path('landing/', LandingPageView.as_view(), name='landing_page'),
+    path('landing/hero/<int:pk>/', HeroSectionUpdateView.as_view(), name='update_hero_section'),
+    path('landing/feature/<int:pk>/', FeatureUpdateView.as_view(), name='update_feature'),
+    path('landing/testimonial/<int:pk>/', TestimonialUpdateView.as_view(), name='update_testimonial'),
+    path('landing/faq/<int:pk>/', FAQUpdateView.as_view(), name='update_faq'),
+    path('landing/testimonial/<int:pk>/delete/', TestimonialDeleteView.as_view(), name='delete_testimonial'),
+    path('landing/faq/<int:pk>/delete/', FAQDeleteView.as_view(), name='delete_faq'),
+    path('landing/hero/<int:pk>/delete/', HeroSectionDeleteView.as_view(), name='delete_hero_section'),
+    path('landing/feature/<int:pk>/delete/', FeatureDeleteView.as_view(), name='delete_feature'),
     
     # Bookmark management
-    path('bookmarks/', views.bookmarks, name='bookmarks'),
-    path('bookmarks/add/', views.add_bookmark, name='add_bookmark'),
-    path('bookmarks/<int:pk>/edit/', views.edit_bookmark, name='edit_bookmark'),
-    path('bookmarks/<int:pk>/delete/', views.delete_bookmark, name='delete_bookmark'),
+    path('bookmarks/', BookmarkListView.as_view(), name='bookmarks'),
+    path('bookmarks/add/', BookmarkCreateView.as_view(), name='add_bookmark'),
+    path('bookmarks/<int:pk>/edit/', BookmarkUpdateView.as_view(), name='edit_bookmark'),
+    path('bookmarks/<int:pk>/delete/', BookmarkDeleteView.as_view(), name='delete_bookmark'),
     
     # Note management
-    path('notes/', views.notes, name='notes'),
-    path('notes/add/', views.add_note, name='add_note'),
-    path('notes/<int:pk>/edit/', views.edit_note, name='edit_note'),
-    path('notes/<int:pk>/delete/', views.delete_note, name='delete_note'),
+    path('notes/', NoteListView.as_view(), name='notes'),
+    path('notes/add/', NoteCreateView.as_view(), name='add_note'),
+    path('notes/<int:pk>/edit/', NoteUpdateView.as_view(), name='edit_note'),
+    path('notes/<int:pk>/delete/', NoteDeleteView.as_view(), name='delete_note'),
     
     # Reminder management
-    path('reminders/', views.reminders, name='reminders'),
-    path('reminders/add/', views.add_reminder, name='add_reminder'),
-    path('reminders/<int:pk>/edit/', views.edit_reminder, name='edit_reminder'),
-    path('reminders/<int:pk>/delete/', views.delete_reminder, name='delete_reminder'),
-    path('reminders/<int:pk>/complete/', views.toggle_reminder_complete, name='toggle_reminder_complete'),
+    path('reminders/', ReminderListView.as_view(), name='reminders'),
+    path('reminders/add/', ReminderCreateView.as_view(), name='add_reminder'),
+    path('reminders/<int:pk>/edit/', ReminderUpdateView.as_view(), name='edit_reminder'),
+    path('reminders/<int:pk>/delete/', ReminderDeleteView.as_view(), name='delete_reminder'),
+    path('reminders/<int:pk>/complete/', ToggleReminderCompleteView.as_view(), name='toggle_reminder_complete'),
     
     # Shortcut management
-    path('shortcuts/', views.shortcuts, name='shortcuts'),
-    path('shortcuts/add/', views.add_shortcut, name='add_shortcut'),
-    path('shortcuts/<int:pk>/edit/', views.edit_shortcut, name='edit_shortcut'),
-    path('shortcuts/<int:pk>/delete/', views.delete_shortcut, name='delete_shortcut'),
-    path('shortcuts/<int:pk>/toggle/', views.toggle_shortcut_active, name='toggle_shortcut_active'),
+    path('shortcuts/', ShortcutListView.as_view(), name='shortcuts'),
+    path('shortcuts/add/', ShortcutCreateView.as_view(), name='add_shortcut'),
+    path('shortcuts/<int:pk>/edit/', ShortcutUpdateView.as_view(), name='edit_shortcut'),
+    path('shortcuts/<int:pk>/delete/', ShortcutDeleteView.as_view(), name='delete_shortcut'),
+    path('shortcuts/<int:pk>/toggle/', ToggleShortcutActiveView.as_view(), name='toggle_shortcut_active'),
 ]

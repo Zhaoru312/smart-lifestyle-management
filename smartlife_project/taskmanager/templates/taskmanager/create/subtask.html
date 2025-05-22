@@ -1,0 +1,434 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+/* Progress Steps */
+.progress-steps {
+    margin: 2rem 0;
+}
+
+.step-indicator {
+    font-size: 0.85rem;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 0 1rem;
+}
+
+.step-indicator.active {
+    color: #0d6efd;
+    font-weight: 500;
+}
+
+.step-indicator i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.step-indicators {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+
+.step-indicators::before {
+    content: '';
+    position: absolute;
+    top: 0.75rem;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+.step-indicator {
+    position: relative;
+    z-index: 2;
+    background: white;
+    padding: 0 1rem;
+}
+
+.progress {
+    height: 8px !important;
+    background-color: #e9ecef;
+    overflow: visible;
+    margin: 2rem 0;
+}
+
+.progress-bar {
+    background-color: #0d6efd;
+    position: relative;
+    overflow: visible;
+}
+
+/* Form Styling */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    padding: 1.25rem 1.5rem;
+}
+
+.form-floating > label {
+    padding: 1rem 0.75rem;
+}
+
+.form-control, .form-select {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid #dee2e6;
+}
+
+.btn {
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #dee2e6;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .step-indicators {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .step-indicator {
+        margin-bottom: 1.5rem;
+        text-align: left;
+        flex-direction: row;
+        align-items: center;
+        padding: 0.5rem 0;
+        width: 100%;
+    }
+    
+    .step-indicator i {
+        margin-right: 0.75rem;
+        margin-bottom: 0;
+    }
+}
+
+/* Project Form Specific Styles */
+.icon-wrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    margin-right: 1rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+}
+
+.form-section h5 {
+    color: #344767;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Form Floating Labels */
+.form-floating > label {
+    padding: 1rem 0.75rem;
+    color: #7b809a;
+    font-size: 0.875rem;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+    opacity: 0.8;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #82b1ff;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Date Picker Customization */
+.flatpickr-input {
+    background-color: #fff !important;
+}
+
+/* Status Toggle */
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+/* Character Counter */
+.char-counter {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.char-counter.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Color Picker Styles */
+.color-picker {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.color-option .btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.color-option .btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.color-option .btn-check:checked + .btn {
+    border-color: #212529;
+    transform: scale(1.1);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Predefined color classes */
+.btn-color-primary { background-color: #0d6efd; }
+.btn-color-success { background-color: #198754; }
+.btn-color-info { background-color: #0dcaf0; }
+.btn-color-warning { background-color: #ffc107; }
+.btn-color-danger { background-color: #dc3545; }
+.btn-color-purple { background-color: #6f42c1; }
+.btn-color-pink { background-color: #d63384; }
+.btn-color-orange { background-color: #fd7e14; }
+
+/* Responsive Adjustments */
+@media (max-width: 767.98px) {
+    .form-section {
+        padding: 1rem;
+    }
+    
+    .icon-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Progress Bar -->
+            <div class="card shadow-sm mb-4 border-0">
+                <div class="card-body p-4">
+                    <h1 class="h3 text-center mb-4 text-primary">{{ current_title }}</h1>
+                        <div class="step-indicators">
+                            <div class="step-indicator {% if step >= 1 %}active{% endif %}">
+                                <i class="fas {% if step >= 1 %}fa-check-circle{% else %}fa-circle{% endif %}" aria-hidden="true"></i>
+                                <span>Project Setup</span>
+                            </div>
+                            <div class="step-indicator {% if step >= 2 %}active{% endif %}">
+                                <i class="fas {% if step >= 2 %}fa-check-circle{% else %}fa-circle{% endif %}" aria-hidden="true"></i>
+                                <span>Add Tasks</span>
+                            </div>
+                            <div class="step-indicator {% if step >= 3 %}active{% endif %}">
+                                <i class="fas {% if step >= 3 %}fa-check-circle{% else %}fa-circle{% endif %}" aria-hidden="true"></i>
+                                <span>Add Subtasks</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Messages -->
+                    {% if messages %}
+                    <div class="mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                                <div>{{ message }}</div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}                  
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <form id="main-form" method="post" class="needs-validation" novalidate>
+                                {% csrf_token %}
+                                
+                                {% if form.non_field_errors %}
+                                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <div>
+                                        {% for error in form.non_field_errors %}
+                                            <div class="small">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                {% endif %}
+
+                                <div class="form-section">
+
+                                <!-- Main Form -->
+                                <div class="card border-0 shadow-sm mb-4">
+                                    <div class="card-body p-4">
+                                        <div class="card mb-4">
+                                            <div class="card-header">
+                                                <h5 class="mb-0">Task: {{ task.title }}</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p class="card-text">{{ task.description|truncatewords:30 }}</p>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="badge bg-{{ task.get_priority_display|lower }}">
+                                                        {{ task.get_priority_display }}
+                                                    </span>
+                                                    <small class="text-muted">
+                                                        Due: {{ task.deadline|date:"M d, Y" }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5 class="mb-0">Add Subtasks</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            {% if subtasks %}
+                                            <div class="mb-4">
+                                                <h6>Current Subtasks:</h6>
+                                                <ul class="list-group">
+                                                    {% for subtask in subtasks %}
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        {{ subtask.title }}
+                                                        <span class="badge bg-{% if subtask.is_completed %}success{% else %}secondary{% endif %}">
+                                                            {% if subtask.is_completed %}Completed{% else %}Pending{% endif %}
+                                                        </span>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                            {% endif %}
+
+                                            <form method="post" class="needs-validation" novalidate>
+                                                {% csrf_token %}
+                                                <div class="input-group mb-3">
+                                                    <input type="text" 
+                                                    name="title" 
+                                                    class="form-control" 
+                                                    placeholder="Add a subtask..." 
+                                                    required>
+                                                    <button class="btn btn-outline-secondary" type="submit" name="add_another">
+                                                        <i class="fas fa-plus"></i> Add
+                                                    </button>
+                                                    <div class="invalid-feedback">
+                                                        Please provide a title for the subtask.
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- Navigation Buttons -->
+                                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 pt-3 border-top">
+                                        <div class="mb-3 mb-md-0">
+                                            <a href="{% url 'taskmanager:create_task_workflow' task.project.id %}" class="btn btn-outline-secondary">
+                                                <i class="fas fa-arrow-left me-2"></i>Back to Task
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <form method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="fas fa-check me-2"></i>Finish
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        const forms = document.querySelectorAll('.needs-validation');
+        
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    });
+</script>
+{% endblock %}

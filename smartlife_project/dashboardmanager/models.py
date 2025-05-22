@@ -286,8 +286,7 @@ class Feature(models.Model):
         return self.title
 
 class Testimonial(models.Model):
-    """
-    Model for testimonials displayed on the landing page.
+    """Model for testimonials displayed on the landing page.
     Each testimonial includes a person's name, role, content, image, and rating.
     """
     name = models.CharField(max_length=100, help_text='Name of the person giving the testimonial')
@@ -301,6 +300,10 @@ class Testimonial(models.Model):
         choices=[(i, str(i)) for i in range(1, 6)],
         help_text='Rating from 1 to 5 stars'
     )
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text='Display order (lower numbers appear first)'
+    )
     is_active = models.BooleanField(default=True, help_text='Whether this testimonial is currently displayed')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -308,9 +311,17 @@ class Testimonial(models.Model):
     class Meta:
         verbose_name = 'Testimonial'
         verbose_name_plural = 'Testimonials'
+        ordering = ['order', '-created_at']
 
     def __str__(self):
         return f"{self.name} - {self.role}"
+        
+    def save(self, *args, **kwargs):
+        # Auto-increment order if not set
+        if not self.order:
+            last = Testimonial.objects.order_by('-order').first()
+            self.order = last.order + 1 if last else 1
+        super().save(*args, **kwargs)
 
 class FAQ(models.Model):
     """Frequently Asked Questions model for the landing page"""

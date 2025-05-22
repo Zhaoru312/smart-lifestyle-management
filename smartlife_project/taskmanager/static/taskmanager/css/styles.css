@@ -1,0 +1,173 @@
+/* Ensure filter controls are always on top and clickable */
+.filter-card {
+    position: relative;
+    z-index: 1000; /* High z-index to ensure it stays on top */
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+.filter-card .card-body {
+    padding: 1.25rem;
+}
+
+/* Ensure form controls are easily clickable */
+.form-select, 
+.form-control {
+    cursor: pointer !important;
+    position: relative;
+    z-index: 10;
+}
+
+/* Fix for dropdown menus */
+.dropdown-menu {
+    z-index: 1050 !important;
+}
+
+/* Custom styles for the task */
+.main-content {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.task-form-container {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.task-filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    background: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.filter-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+.task-list {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.task-item {
+    border-left: 4px solid #ddd;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.task-item.completed {
+    opacity: 0.7;
+    border-left-color: #28a745;
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.task-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.task-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: #6c757d;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: #f8f9fa;
+    color: #0056b3;
+}
+
+.task-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 10px;
+}
+
+.subtasks {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.subtasks ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.subtasks li {
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.meta-item i {
+    width: 16px;
+    text-align: center;
+}
+
+.priority-high { border-left-color: #dc3545 !important; }
+.priority-medium { border-left-color: #ffc107 !important; }
+.priority-low { border-left-color: #28a745 !important; }
+
+.task-description {
+    color: #495057;
+    margin: 10px 0;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+.no-tasks {
+    text-align: center;
+    padding: 30px;
+    color: #6c757d;
+}
+
+.add-task-btn {
+    margin-bottom: 20px;
+}

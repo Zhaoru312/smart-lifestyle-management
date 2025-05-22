@@ -115,71 +115,94 @@
                 <div class="card-body" style="display: none;">
                     <form class="form-horizontal" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        
+                        <!-- Avatar Field -->
                         <div class="form-group row">
-                            <label for="avatar" class="col-sm-2 col-form-label">Avatar</label>
+                            <label for="{{ form.avatar.id_for_label }}" class="col-sm-2 col-form-label">{{ form.avatar.label }}</label>
                             <div class="col-sm-10">
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="avatar" name="avatar">
-                                    <label class="custom-file-label" for="avatar">Choose file</label>
+                                    {{ form.avatar }}
+                                    <label class="custom-file-label" for="{{ form.avatar.id_for_label }}">Choose file</label>
                                 </div>
+                                {{ form.avatar.errors }}
                             </div>
                         </div>
+                        <!-- Bio Field -->
                         <div class="form-group row">
-                            <label for="bio" class="col-sm-2 col-form-label">Bio</label>
+                            <label for="{{ form.bio.id_for_label }}" class="col-sm-2 col-form-label">{{ form.bio.label }}</label>
                             <div class="col-sm-10">
-                                <textarea class="form-control" id="bio" name="bio" rows="3">{{ profile.bio|default:"" }}</textarea>
+                                {{ form.bio }}
+                                {{ form.bio.errors }}
                             </div>
                         </div>
+                        <!-- Birth Date Field -->
                         <div class="form-group row">
-                            <label for="birth_date" class="col-sm-2 col-form-label">Birth Date</label>
+                            <label for="{{ form.birth_date.id_for_label }}" class="col-sm-2 col-form-label">{{ form.birth_date.label }}</label>
                             <div class="col-sm-10">
-                                <input type="date" class="form-control" id="birth_date" name="birth_date" value="{{ profile.birth_date|date:"Y-m-d"|default:"" }}" max="{{ today|date:"Y-m-d" }}">
+                                {{ form.birth_date }}
+                                {{ form.birth_date.errors }}
                             </div>
                         </div>
+                        <!-- Phone Number Field -->
                         <div class="form-group row">
-                            <label for="phone_number" class="col-sm-2 col-form-label">Phone Number</label>
+                            <label for="{{ form.phone_number.id_for_label }}" class="col-sm-2 col-form-label">{{ form.phone_number.label }}</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="phone_number" name="phone_number" value="{{ profile.phone_number|default:"" }}">
+                                {{ form.phone_number }}
+                                {{ form.phone_number.errors }}
                             </div>
                         </div>
+                        <!-- Address Field -->
                         <div class="form-group row">
-                            <label for="address" class="col-sm-2 col-form-label">Address</label>
+                            <label for="{{ form.address.id_for_label }}" class="col-sm-2 col-form-label">{{ form.address.label }}</label>
                             <div class="col-sm-10">
-                                <textarea class="form-control" id="address" name="address" rows="2">{{ profile.address|default:"" }}</textarea>
+                                {{ form.address }}
+                                {{ form.address.errors }}
                             </div>
                         </div>
+                        <!-- Website Field -->
                         <div class="form-group row">
-                            <label for="website" class="col-sm-2 col-form-label">Website</label>
+                            <label for="{{ form.website.id_for_label }}" class="col-sm-2 col-form-label">{{ form.website.label }}</label>
                             <div class="col-sm-10">
-                                <input type="url" class="form-control" id="website" name="website" value="{{ profile.website|default:"" }}">
+                                {{ form.website }}
+                                {{ form.website.errors }}
                             </div>
                         </div>
+                        <!-- Interests Field -->
                         <div class="form-group row">
-                            <label for="interests" class="col-sm-2 col-form-label">Interests</label>
+                            <label for="{{ form.interests.id_for_label }}" class="col-sm-2 col-form-label">{{ form.interests.label }}</label>
                             <div class="col-sm-10">
-                                <textarea class="form-control" id="interests" name="interests" rows="2">{{ profile.interests|default:"" }}</textarea>
+                                {{ form.interests }}
+                                {{ form.interests.errors }}
                             </div>
                         </div>
+                        <!-- Profession Field -->
                         <div class="form-group row">
-                            <label for="profession" class="col-sm-2 col-form-label">Profession</label>
+                            <label for="{{ form.profession.id_for_label }}" class="col-sm-2 col-form-label">{{ form.profession.label }}</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="profession" name="profession" value="{{ profile.profession|default:"" }}">
+                                {{ form.profession }}
+                                {{ form.profession.errors }}
                             </div>
                         </div>
+                        <!-- Company Field -->
                         <div class="form-group row">
-                            <label for="company" class="col-sm-2 col-form-label">Company</label>
+                            <label for="{{ form.company.id_for_label }}" class="col-sm-2 col-form-label">{{ form.company.label }}</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="company" name="company" value="{{ profile.company|default:"" }}">
+                                {{ form.company }}
+                                {{ form.company.errors }}
                             </div>
                         </div>
+                        <!-- Location Field -->
                         <div class="form-group row">
-                            <label for="location" class="col-sm-2 col-form-label">Location</label>
+                            <label for="{{ form.location.id_for_label }}" class="col-sm-2 col-form-label">{{ form.location.label }}</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="location" name="location" value="{{ profile.location|default:"" }}">
+                                {{ form.location }}
+                                {{ form.location.errors }}
                             </div>
                         </div>
+                        <!-- Social Media Section (Handled by the view) -->
                         <div class="form-group row">
-                            <label for="social_media" class="col-sm-2 col-form-label">Social Media</label>
+                            <label class="col-sm-2 col-form-label">Social Media</label>
                             <div class="col-sm-10">
                                 <div class="form-group">
                                     <select class="form-control" id="social_media_platform" name="social_media_platform">
@@ -197,25 +220,18 @@
                                 </button>
                             </div>
                         </div>
+                        <!-- Preferred Currency Field -->
                         <div class="form-group row">
-                            <label for="preferred_currency" class="col-sm-2 col-form-label">Preferred Currency</label>
+                            <label for="{{ form.preferred_currency.id_for_label }}" class="col-sm-2 col-form-label">{{ form.preferred_currency.label }}</label>
                             <div class="col-sm-10">
-                                <select class="form-control" id="preferred_currency" name="preferred_currency">
-                                    <option value="USD">US Dollar (USD)</option>
-                                    <option value="EUR">Euro (EUR)</option>
-                                    <option value="GBP">British Pound (GBP)</option>
-                                    <option value="JPY">Japanese Yen (JPY)</option>
-                                    <option value="AUD">Australian Dollar (AUD)</option>
-                                    <option value="CAD">Canadian Dollar (CAD)</option>
-                                    <option value="CHF">Swiss Franc (CHF)</option>
-                                    <option value="CNY">Chinese Yuan (CNY)</option>
-                                    <option value="IDR">Indonesian Rupiah (IDR)</option>
-                                </select>
+                                {{ form.preferred_currency }}
+                                {{ form.preferred_currency.errors }}
                             </div>
                         </div>
-
+                        
+                        <!-- Submit Button -->
                         <div class="form-group row">
-                            <div class="offset-sm-2 col-sm-10">
+                            <div class="col-sm-10 offset-sm-2">
                                 <button type="submit" class="btn btn-primary">Save Changes</button>
                             </div>
                         </div>

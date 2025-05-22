@@ -1,0 +1,25 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load format_filters %}
+
+{% block content %}
+<div class="card mt-4">
+  <div class="card-header bg-danger text-white">
+    <h4>Hapus Financial Goal</h4>
+  </div>
+  <div class="card-body">
+    <p>Apakah Anda yakin ingin menghapus financial goal berikut?</p>
+    <ul class="list-group mb-3">
+      <li class="list-group-item"><strong>Nama:</strong> {{ goal.name }}</li>
+      <li class="list-group-item"><strong>Target:</strong> Rp {{ goal.target_amount|currency_idr }}</li>
+      <li class="list-group-item"><strong>Saat Ini:</strong> Rp {{ goal.current_amount|currency_idr }}</li>
+      <li class="list-group-item"><strong>Jatuh Tempo:</strong> {{ goal.due_date }}</li>
+      <li class="list-group-item"><strong>Catatan:</strong> {{ goal.notes|default:"-" }}</li>
+    </ul>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+      <a href="{% url 'financialgoal_list' %}" class="btn btn-secondary">Batal</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

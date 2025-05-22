@@ -1,0 +1,154 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-ban text-primary mr-2"></i>Daftar Hindaran
+                </h1>
+                <a href="{% url 'mealtracker:avoiditem_list' %}" class="btn btn-info">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Daftar Hindaran
+                </a>
+            </div>
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'mealtracker:dashboard' %}">Meal Tracker</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'mealtracker:avoiditem_list' %}">Daftar Hindaran</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Tambah Hindaran</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas {{ form.instance.pk|yesno:'fa-edit,fa-plus-circle' }} mr-2"></i>
+                        {{ form.instance.pk|yesno:"Edit Hindaran, Tambah Hindaran Baru" }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                
+                                {{ field }}
+                                
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                
+                                {% if field.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        
+                        <div class="form-group mt-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                        <i class="fas fa-save mr-2"></i>Simpan
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="{% url 'mealtracker:avoiditem_list' %}" class="btn btn-outline-secondary btn-block">
+                                        <i class="fas fa-arrow-left mr-2"></i>Kembali
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        border-radius: 0;
+        padding: 1.25rem;
+    }
+    
+    .form-control, .custom-file-input, .form-control-file {
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .btn {
+        border-radius: 25px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #ff5252, #ff7b7b);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+    }
+    
+    /* Custom file input styling */
+    .custom-file-label::after {
+        content: "Pilih";
+        background-color: #e9ecef;
+        border-left: 1px solid #ced4da;
+        border-radius: 0 4px 4px 0;
+    }
+    
+    /* Make the form more compact on mobile */
+    @media (max-width: 576px) {
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .btn {
+            padding: 0.4rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}

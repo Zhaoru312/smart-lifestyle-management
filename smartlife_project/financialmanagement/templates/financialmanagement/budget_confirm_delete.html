@@ -1,0 +1,24 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load format_filters %}
+
+{% block content %}
+<div class="card mt-4">
+  <div class="card-header bg-danger text-white">
+    <h4>Hapus Budget</h4>
+  </div>
+  <div class="card-body">
+    <p>Apakah Anda yakin ingin menghapus budget berikut?</p>
+    <ul class="list-group mb-3">
+      <li class="list-group-item"><strong>Nama:</strong> {{ budget.name }}</li>
+      <li class="list-group-item"><strong>Jumlah:</strong> Rp {{ budget.amount|currency_idr }}</li>
+      <li class="list-group-item"><strong>Periode:</strong> {{ budget.start_date }} - {{ budget.end_date }}</li>
+      <li class="list-group-item"><strong>Catatan:</strong> {{ budget.notes|default:"-" }}</li>
+    </ul>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+      <a href="{% url 'budget_list' %}" class="btn btn-secondary">Batal</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

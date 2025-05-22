@@ -1,0 +1,75 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm rounded">
+    <div class="card-header bg-dark text-white">
+      <h4 class="mb-0">{{ form.instance.pk|yesno:"Edit Budget,Tambah Budget Baru" }}</h4>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label for="{{ form.name.id_for_label }}" class="form-label">Nama Budget</label>
+          {{ form.name }}
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ form.start_date.id_for_label }}" class="form-label">Tanggal Mulai</label>
+          {{ form.start_date }}
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ form.end_date.id_for_label }}" class="form-label">Tanggal Berakhir</label>
+          {{ form.end_date }}
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ form.notes.id_for_label }}" class="form-label">Catatan</label>
+          {{ form.notes }}
+        </div>
+
+        <div class="mb-3">
+          <label for="id_amount_formatted" class="form-label">Jumlah (Rp)</label>
+          <div class="input-group">
+            <span class="input-group-text">Rp</span>
+            <input type="text" id="id_amount_formatted" name="amount_display" class="form-control" placeholder="Contoh: 100.000" oninput="formatRupiah(this)" />
+          </div>
+          <input type="hidden" name="amount" id="id_amount" />
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-dark">💾 Simpan</button>
+          <a href="{% url 'budget_list' %}" class="btn btn-secondary">Batal</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const rawAmount = document.getElementById('id_amount').value;
+    if (rawAmount) {
+      const formatted = new Intl.NumberFormat('id-ID').format(rawAmount);
+      document.getElementById('id_amount_formatted').value = formatted;
+    }
+  });
+
+  function formatRupiah(el) {
+    let raw = el.value.replace(/\D/g, '');
+    let formatted = '';
+    let reverse = raw.split('').reverse().join('');
+    for (let i = 0; i < reverse.length; i++) {
+      formatted += reverse[i];
+      if ((i + 1) % 3 === 0 && i + 1 !== reverse.length) {
+        formatted += '.';
+      }
+    }
+    formatted = formatted.split('').reverse().join('');
+    el.value = formatted;
+    document.getElementById('id_amount').value = raw;
+  }
+</script>
+{% endblock %}

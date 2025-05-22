@@ -104,11 +104,13 @@
         <!-- Bookmarks -->
         <div class="col-lg-6 col-xl-3 mb-4">
             <div class="card shadow h-100">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Bookmarks</h6>
-                    <a href="{% url 'dashboardmanager:bookmarks' %}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-bookmark"></i> View All
-                    </a>
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Bookmarks</h6>
+                        <a href="{% url 'dashboardmanager:bookmarks' %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-bookmark"></i> View All
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
@@ -133,11 +135,13 @@
         <!-- Notes -->
         <div class="col-lg-6 col-xl-3 mb-4">
             <div class="card shadow h-100">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-success">Notes</h6>
-                    <a href="{% url 'dashboardmanager:notes' %}" class="btn btn-sm btn-success">
-                        <i class="fas fa-sticky-note"></i> View All
-                    </a>
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-success">Notes</h6>
+                        <a href="{% url 'dashboardmanager:notes' %}" class="btn btn-sm btn-success">
+                            <i class="fas fa-sticky-note"></i> View All
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
@@ -162,11 +166,13 @@
         <!-- Reminders -->
         <div class="col-lg-6 col-xl-3 mb-4">
             <div class="card shadow h-100">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-info">Reminders</h6>
-                    <a href="{% url 'dashboardmanager:reminders' %}" class="btn btn-sm btn-info">
-                        <i class="fas fa-bell"></i> View All
-                    </a>
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-info">Reminders</h6>
+                        <a href="{% url 'dashboardmanager:reminders' %}" class="btn btn-sm btn-info">
+                            <i class="fas fa-bell"></i> View All
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
@@ -192,11 +198,13 @@
         <!-- Shortcuts -->
         <div class="col-lg-6 col-xl-3 mb-4">
             <div class="card shadow h-100">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-warning">Shortcuts</h6>
-                    <a href="{% url 'dashboardmanager:shortcuts' %}" class="btn btn-sm btn-warning">
-                        <i class="fas fa-keyboard"></i> View All
-                    </a>
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-warning">Shortcuts</h6>
+                        <a href="{% url 'dashboardmanager:shortcuts' %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-keyboard"></i> View All
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
@@ -225,7 +233,9 @@
         <div class="col-lg-8">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -257,7 +267,9 @@
         <div class="col-lg-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="list-group">
@@ -284,7 +296,9 @@
         <div class="col-md-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Monthly Expenses</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Monthly Expenses</h6>
+                    </div>
                 </div>
                 <div class="card-body">
                     <canvas id="expenseChart"></canvas>
@@ -295,7 +309,9 @@
         <div class="col-md-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Habit Progress</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Habit Progress</h6>
+                    </div>
                 </div>
                 <div class="card-body">
                     <canvas id="habitChart"></canvas>

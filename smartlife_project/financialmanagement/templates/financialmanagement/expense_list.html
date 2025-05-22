@@ -1,0 +1,59 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load format_filters %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4">Daftar Pengeluaran</h2>
+
+        <!-- Tombol Aksi -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="{% url 'financial_home' %}" class="btn btn-outline-dark">
+                ← Kembali
+            </a>
+            <a href="{% url 'expense_create' %}" class="btn btn-dark">
+                <i class="fas fa-plus-circle"></i> Tambah Pengeluaran Baru
+            </a>
+        </div>
+
+        <!-- Tabel atau Pesan -->
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                {% if expenses %}
+                <table class="table table-hover text-nowrap table-bordered mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nama</th>
+                            <th>Jumlah</th>
+                            <th>Tanggal</th>
+                            <th>Catatan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                        <tr>
+                            <td>{{ expense.name }}</td>
+                            <td>Rp {{ expense.amount|currency_idr }}</td>
+                            <td>{{ expense.date }}</td>
+                            <td>{{ expense.notes|default:"-" }}</td>
+                            <td>
+                                <a href="{% url 'expense_update' expense.pk %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'expense_delete' expense.pk %}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="p-3 mb-0">Belum ada pengeluaran yang tercatat.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

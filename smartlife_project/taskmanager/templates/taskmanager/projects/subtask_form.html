@@ -1,0 +1,174 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .subtask-form-card {
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .form-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0,0,0,.125);
+        padding: 1.25rem 1.5rem;
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
+    
+    .form-body {
+        padding: 1.5rem;
+    }
+    
+    .form-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid rgba(0,0,0,.125);
+        padding: 1rem 1.5rem;
+        border-radius: 0 0 0.5rem 0.5rem;
+    }
+    
+    .assignee-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{% if form_action == 'update' %}{% url 'taskmanager:subtask_detail' subtask.id %}{% else %}{% url 'taskmanager:task_detail' task.id %}{% endif %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to {% if form_action == 'update' %}Subtask{% else %}Task{% endif %}
+        </a>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card subtask-form-card">
+                <div class="form-header">
+                    <h2 class="h4 mb-0">
+                        <i class="fas fa-tasks me-2"></i>{{ title }}
+                    </h2>
+                </div>
+                
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-body">
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if form_action == 'update' %}
+                            <input type="hidden" name="task" value="{{ subtask.task.id }}">
+                        {% else %}
+                            <input type="hidden" name="task" value="{{ task.id }}">
+                        {% endif %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                Title <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                name="{{ form.title.name }}" 
+                                id="{{ form.title.id_for_label }}" 
+                                class="form-control {% if form.title.errors %}is-invalid{% endif %}" 
+                                value="{{ form.title.value|default:'' }}" 
+                                required
+                                maxlength="200"
+                                placeholder="Enter subtask title">
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.title.errors.0 }}
+                                </div>
+                            {% else %}
+                                <div class="form-text">
+                                    {{ form.title.help_text|default:"A clear description of this step (3-200 characters)" }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-check form-switch mb-4">
+                            {{ form.is_completed }}
+                            <label class="form-check-label" for="{{ form.is_completed.id_for_label }}">
+                                Mark as completed
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-footer d-flex justify-content-between">
+                        {% if form_action == 'update' %}
+                            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteSubtaskModal">
+                                <i class="fas fa-trash-alt me-1"></i> Delete
+                            </button>
+                        {% else %}
+                            <div></div> <!-- Empty div for flex spacing -->
+                        {% endif %}
+                        <div>
+                            <a href="{% if form_action == 'update' %}{% url 'taskmanager:subtask_detail' subtask.id %}{% else %}{% url 'taskmanager:task_detail' task.id %}{% endif %}" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> {% if form_action == 'update' %}Update{% else %}Create{% endif %} Subtask
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if form_action == 'update' %}
+<!-- Delete Subtask Modal -->
+<div class="modal fade" id="deleteSubtaskModal" tabindex="-1" aria-labelledby="deleteSubtaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSubtaskModalLabel">Delete Subtask</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the subtask "{{ subtask.title }}"? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{% url 'taskmanager:subtask_delete' subtask.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-1"></i> Delete Subtask
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,232 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .card-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    .card-header::after {
+        display: none !important;
+    }
+</style>
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Financial Dashboard</h1>
+        <div>
+            <a href="{% url 'income_create' %}" class="btn btn-success btn-icon-split">
+                <span class="icon text-white-50">
+                    <i class="fas fa-plus"></i>
+                </span>
+                <span class="text">Add Income</span>
+            </a>
+            <a href="{% url 'expense_create' %}" class="btn btn-danger btn-icon-split ml-2">
+                <span class="icon text-white-50">
+                    <i class="fas fa-minus"></i>
+                </span>
+                <span class="text">Add Expense</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Total Balance Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Balance</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ total_balance|default:0|floatformat:2 }}</div>
+                            <div class="mt-2 text-xs">
+                                <span class="text-success mr-2">
+                                    <i class="fas fa-arrow-up"></i> Rp {{ total_income|default:0|floatformat:2 }}
+                                </span>
+                                <span class="text-danger">
+                                    <i class="fas fa-arrow-down"></i> Rp {{ total_expense|default:0|floatformat:2 }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-wallet fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Income Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Income</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ total_income|default:0|floatformat:2 }}</div>
+                            <div class="mt-2">
+                                <a href="{% url 'income_list' %}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-list"></i> View All
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-arrow-up fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Total Expenses</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">Rp {{ total_expense|default:0|floatformat:2 }}</div>
+                            <div class="mt-2">
+                                <a href="{% url 'expense_list' %}" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-list"></i> View All
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Overview Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Budget Overview</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if budget_usage %}{{ budget_usage|floatformat:2 }}%{% else %}0%{% endif %} Used
+                            </div>
+                            <div class="mt-2">
+                                <a href="{% url 'budget_list' %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-list"></i> View Budgets
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-pie fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budgets & Financial Goals -->
+    <div class="row">
+        <!-- Budgets -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Your Budgets</h6>
+                    <a href="{% url 'budget_create' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> New Budget
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="budgetTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Used</th>
+                                    <th>Remaining</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for budget in budgets|slice:":5" %}
+                                <tr>
+                                    <td>{{ budget.name }}</td>
+                                    <td>{{ budget.category.name|default:"-" }}</td>
+                                    <td>Rp {{ budget.amount|floatformat:2 }}</td>
+                                    <td>Rp {{ budget.used_amount|default:0|floatformat:2 }}</td>
+                                    <td class="{% if budget.remaining_amount < 0 %}text-danger{% else %}text-success{% endif %}">
+                                        Rp {{ budget.remaining_amount|default:budget.amount|floatformat:2 }}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'budget_update' budget.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'budget_delete' budget.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No budgets found. <a href="{% url 'budget_create' %}">Create your first budget</a>.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="text-right mt-2">
+                            <a href="{% url 'budget_list' %}" class="btn btn-sm btn-link">View All Budgets</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Goals -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-warning">Financial Goals</h6>
+                    <a href="{% url 'financialgoal_create' %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-plus"></i> New Goal
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% for goal in financial_goals|slice:":3" %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-sm">{{ goal.name }}</span>
+                            <span class="text-xs">{{ goal.progress|floatformat:2 }}%</span>
+                        </div>
+                        <div class="progress progress-sm">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: {{ goal.progress }}%" 
+                                 aria-valuenow="{{ goal.progress }}" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                        <div class="text-xs text-muted mt-1">
+                            Rp {{ goal.current_amount|floatformat:2 }} of Rp {{ goal.target_amount|floatformat:2 }}
+                            <span class="float-right">Due: {{ goal.target_date|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted">No financial goals set. <a href="{% url 'financialgoal_create' %}">Create one now</a>.</p>
+                    {% endfor %}
+                    {% if financial_goals.count > 3 %}
+                    <div class="text-center mt-2">
+                        <a href="{% url 'financialgoal_list' %}" class="btn btn-sm btn-link">View All Goals</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

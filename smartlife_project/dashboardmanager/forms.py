@@ -60,15 +60,33 @@ class FeatureForm(forms.ModelForm):
 class TestimonialForm(forms.ModelForm):
     class Meta:
         model = Testimonial
-        fields = ['name', 'role', 'rating', 'is_active', 'content', 'image']
+        fields = ['name', 'role', 'rating', 'order', 'is_active', 'content', 'image']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
             'role': forms.TextInput(attrs={'class': 'form-control', 'required': True}),
-            'rating': forms.NumberInput(attrs={'class': 'form-control', 'min': 1, 'max': 5, 'required': True}),
+            'rating': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'min': '1', 
+                'max': '5', 
+                'required': True,
+                'oninput': 'this.value = Math.max(1, Math.min(5, Math.round(this.value)))'
+            }),
+            'order': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'step': '1',
+                'placeholder': 'Leave blank to auto-increment'
+            }),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'required': True}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
+    
+    def clean_rating(self):
+        rating = self.cleaned_data.get('rating')
+        if rating is not None and (rating < 1 or rating > 5):
+            raise forms.ValidationError('Rating must be between 1 and 5')
+        return rating
 
 class dashboardFAQForm(forms.ModelForm):
     # Define predefined categories

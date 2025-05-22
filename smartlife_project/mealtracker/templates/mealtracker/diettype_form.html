@@ -1,0 +1,255 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-utensils text-primary me-2"></i>
+                    {{ form.instance.pk|yesno:"Edit Tipe Diet,Tambah Tipe Diet Baru" }}
+                </h1>
+            </div>
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'mealtracker:dashboard' %}">Meal Tracker</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'mealtracker:diettype_list' %}">Daftar Tipe Diet</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ form.instance.pk|yesno:"Edit,Tambah" }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm border-0 rounded-lg">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas {{ form.instance.pk|yesno:'fa-edit,fa-plus-circle' }} text-primary me-2"></i>
+                        {{ form.instance.pk|yesno:"Edit Data Tipe Diet,Tambah Tipe Diet Baru" }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <!-- Nama Tipe Diet -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">
+                                    <i class="fas fa-tag text-primary me-1"></i>Nama Tipe Diet <span class="text-danger">*</span>
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Contoh: Diet Keto, Diet Vegan, dll.</div>
+                            </div>
+
+                            <!-- Kalori Harian yang Direkomendasikan -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.recommended_calories.id_for_label }}" class="form-label">
+                                    <i class="fas fa-fire text-danger me-1"></i>Kalori Harian (kkal) <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    {{ form.recommended_calories }}
+                                    <span class="input-group-text">kkal/hari</span>
+                                </div>
+                                {% if form.recommended_calories.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.recommended_calories.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Jumlah kalori harian yang direkomendasikan</div>
+                            </div>
+                        </div>
+
+                        <!-- Deskripsi -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="fas fa-align-left text-primary me-1"></i>Deskripsi
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.description.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Penjelasan singkat tentang tipe diet ini</div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Cocok Untuk -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.suitable_for.id_for_label }}" class="form-label">
+                                    <i class="fas fa-check-circle text-success me-1"></i>Cocok Untuk
+                                </label>
+                                {{ form.suitable_for }}
+                                {% if form.suitable_for.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.suitable_for.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Kondisi atau tujuan yang cocok untuk diet ini</div>
+                            </div>
+
+                            <!-- Tidak Cocok Untuk -->
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.not_suitable_for.id_for_label }}" class="form-label">
+                                    <i class="fas fa-times-circle text-danger me-1"></i>Tidak Cocok Untuk
+                                </label>
+                                {{ form.not_suitable_for }}
+                                {% if form.not_suitable_for.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.not_suitable_for.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Kondisi yang tidak disarankan untuk diet ini</div>
+                            </div>
+                        </div>
+
+                        <!-- Tips dan Catatan -->
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label">
+                                <i class="fas fa-sticky-note text-warning me-1"></i>Tips & Catatan Tambahan
+                            </label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.notes.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Tips atau catatan penting lainnya tentang diet ini</div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4 pt-3 border-top">
+                            <a href="{% url 'mealtracker:diettype_list' %}" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-times me-1"></i>Batal
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Simpan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    .form-control, .form-select, .form-control:focus {
+        border-radius: 8px;
+        padding: 10px 15px;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+    
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .input-group-text {
+        border-top-right-radius: 8px !important;
+        border-bottom-right-radius: 8px !important;
+    }
+    
+    .input-group .form-control:not(:last-child) {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-text {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    textarea.form-control {
+        min-height: 100px;
+    }
+</style>
+
+<!-- Form Validation Script -->
+<script>
+    // Enable Bootstrap form validation
+    (function() {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+    
+    // Character counter for textareas
+    document.addEventListener('DOMContentLoaded', function() {
+        const textareas = document.querySelectorAll('textarea[maxlength]');
+        
+        textareas.forEach(function(textarea) {
+            const maxLength = parseInt(textarea.getAttribute('maxlength'));
+            const formGroup = textarea.closest('.mb-3');
+            
+            if (formGroup) {
+                const counter = document.createElement('div');
+                counter.className = 'form-text text-end';
+                counter.textContent = `0/${maxLength} karakter`;
+                formGroup.appendChild(counter);
+                
+                textarea.addEventListener('input', function() {
+                    const currentLength = this.value.length;
+                    counter.textContent = `${currentLength}/${maxLength} karakter`;
+                    
+                    if (currentLength > maxLength * 0.8) {
+                        counter.classList.add('text-warning');
+                    } else {
+                        counter.classList.remove('text-warning');
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

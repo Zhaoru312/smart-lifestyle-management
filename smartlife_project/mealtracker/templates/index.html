@@ -1,0 +1,205 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .card-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    .card-header::after {
+        display: none !important;
+    }
+</style>
+<div class="row mb-2">
+    <div class="col-sm-6">
+        <h1 class="m-0">Meal Tracker Dashboard</h1>
+    </div>
+    <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">MealTracker</li>
+        </ol>
+    </div>
+</div>
+<div class="container-fluid">
+    <!-- Content Row -->
+    <div class="row">
+        <!-- Meals Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Meals</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ meals|length }} Meals</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-utensils fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'mealtracker:meal_list' %}" class="btn btn-sm btn-primary btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-list"></i>
+                            </span>
+                            <span class="text">View All</span>
+                        </a>
+                        <a href="{% url 'mealtracker:meal_create' %}" class="btn btn-sm btn-primary btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                            <span class="text">Add New</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drinks Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Drinks</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ drinks|length }} Drinks</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-coffee fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'mealtracker:drink_list' %}" class="btn btn-sm btn-success btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-list"></i>
+                            </span>
+                            <span class="text">View All</span>
+                        </a>
+                        <a href="{% url 'mealtracker:drink_create' %}" class="btn btn-sm btn-success btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                            <span class="text">Add New</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diet Types Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Diet Types</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ diettypes|length }} Types</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'mealtracker:diettype_list' %}" class="btn btn-sm btn-info btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-list"></i>
+                            </span>
+                            <span class="text">View All</span>
+                        </a>
+                        <a href="{% url 'mealtracker:diettype_create' %}" class="btn btn-sm btn-info btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                            <span class="text">Add New</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplements Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Supplements</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ supplements|length }} Items</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-pills fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'mealtracker:supplement_list' %}" class="btn btn-sm btn-warning btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-list"></i>
+                            </span>
+                            <span class="text">View All</span>
+                        </a>
+                        <a href="{% url 'mealtracker:supplement_create' %}" class="btn btn-sm btn-warning btn-icon-split">
+                            <span class="icon text-white-50">
+                                <i class="fas fa-plus"></i>
+                            </span>
+                            <span class="text">Add New</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Avoid Items Row -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-danger">Avoid Items</h6>
+                    <a href="{% url 'mealtracker:avoiditem_list' %}" class="btn btn-sm btn-danger">
+                        <i class="fas fa-plus"></i> View Avoid Item
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="avoidItemsTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Reason</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for avoiditem in avoiditems|slice:":5" %}
+                                <tr>
+                                    <td>{{ avoiditem.name }}</td>
+                                    <td>{{ avoiditem.reason|truncatechars:50 }}</td>
+                                    <td>
+                                        <a href="{% url 'mealtracker:avoiditem_update' avoiditem.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'mealtracker:avoiditem_delete' avoiditem.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">No avoid items found. <a href="{% url 'mealtracker:avoiditem_create' %}">Add one now</a>.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

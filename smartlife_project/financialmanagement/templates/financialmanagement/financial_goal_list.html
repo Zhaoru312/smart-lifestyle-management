@@ -1,0 +1,43 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load format_filters %}
+
+{% block content %}
+<div class="container mt-4">
+  <!-- Tombol kembali dan tambah -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="{% url 'financial_home' %}" class="btn btn-outline-dark">← Kembali</a>
+    <a href="{% url 'financialgoal_create' %}" class="btn btn-dark">+ Tambah Goal</a>
+  </div>
+
+  <h4 class="mb-4">🎯 Daftar Financial Goals</h4>
+
+  {% if goals %}
+    <div class="list-group">
+      {% for goal in goals %}
+        <div class="list-group-item mb-3 border rounded shadow-sm">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-1">{{ goal.name }} 
+                <small class="text-muted">({{ goal.get_type_display }})</small>
+              </h5>
+              <p class="mb-1">
+                🎯 Target: Rp {{ goal.target_amount|currency_idr }}<br>
+                💰 Saat Ini: Rp {{ goal.current_amount|currency_idr }}<br>
+                📅 Jatuh Tempo: {{ goal.due_date|date:"d M Y" }}
+              </p>
+            </div>
+            <div class="text-end">
+              <a href="{% url 'financialgoal_edit' goal.pk %}" class="btn btn-sm btn-warning mb-1">✏️ Edit</a><br>
+              <a href="{% url 'financialgoal_delete' goal.pk %}" class="btn btn-sm btn-danger">🗑️ Hapus</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info" role="alert">
+      Belum ada financial goal ditambahkan.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

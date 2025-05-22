@@ -1,106 +1,317 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Meal Plan List</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #121212;
-      color: #eee;
-      margin: 0;
-      padding: 0 20px;
-    }
-    h1 {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 3rem;
-      color: #ff3c00; /* gym vibes merah apinya */
-      text-shadow: 0 0 10px #ff3c00;
-    }
-    a.button {
-      display: inline-block;
-      background: #ff3c00;
-      color: white;
-      padding: 12px 24px;
-      margin: 20px 0;
-      text-decoration: none;
-      border-radius: 25px;
-      font-weight: 700;
-      transition: background 0.3s ease;
-    }
-    a.button:hover {
-      background: #ff5e2c;
-    }
-    ul {
-      list-style-type: none;
-      padding: 0;
-      max-width: 800px;
-      margin: 0 auto 50px auto;
-    }
-    li {
-      background: #1f1f1f;
-      margin-bottom: 20px;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(255, 60, 0, 0.3);
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    li img {
-      border-radius: 12px;
-      width: 120px;
-      height: 80px;
-      object-fit: cover;
-      box-shadow: 0 0 10px #ff3c00;
-    }
-    .meal-info {
-      flex-grow: 1;
-    }
-    .meal-info strong {
-      font-size: 1.5rem;
-      color: #ff6f3c;
-      text-shadow: 0 0 5px #ff6f3c;
-    }
-    .meal-details {
-      font-size: 1rem;
-      margin: 8px 0;
-      color: #ddd;
-    }
-    .actions a {
-      color: #ff3c00;
-      text-decoration: none;
-      margin-right: 12px;
-      font-weight: 600;
-      transition: color 0.3s ease;
-    }
-    .actions a:hover {
-      color: #ff8050;
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <h1>Daftar Meal Plan</h1>
-  <a href="{% url 'meal_create' %}" class="button">➕ Tambah Makanan</a>
-  <ul>
-    {% for meal in meals %}
-      <li>
-        {% if meal.image %}
-          <img src="{{ meal.image.url }}" alt="{{ meal.name }}">
-        {% endif %}
-        <div class="meal-info">
-          <strong>{{ meal.name }}</strong>
-          <div class="meal-details">
-            {{ meal.category }} | {{ meal.calories|floatformat:"0" }} kalori | {{ meal.protein|floatformat:"0" }}g protein
-          </div>
-          <div class="actions">
-            <a href="{% url 'meal_update' meal.pk %}">Edit</a> |
-            <a href="{% url 'meal_delete' meal.pk %}">Hapus</a>
-          </div>
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% url 'mealtracker:dashboard' %}" class="btn btn-info">
+                    <i class="fas fa-arrow-left"></i> Kembali ke mealplan
+                </a>
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-utensils text-primary me-2"></i>Daftar Makanan
+                </h1>
+                <div class="btn-group">
+                    <a href="{% url 'mealtracker:meal_create' %}" class="btn btn-primary me-2">
+                        <i class="fas fa-plus-circle me-1"></i>Tambah Makanan
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#categoryModal">
+                                <i class="fas fa-tags me-2"></i>Kategori
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#exportModal">
+                                <i class="fas fa-file-export me-2"></i>Ekspor Data
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <nav aria-label="breadcrumb" class="mt-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'mealtracker:dashboard' %}">Meal Tracker</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Daftar Makanan</li>
+                </ol>
+            </nav>
         </div>
-      </li>
-    {% endfor %}
-  </ul>
-</body>
-</html>
+    </div>
+
+    <!-- Search Section -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-search text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Cari makanan...">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="fas fa-search me-1"></i>Cari
+                </button>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" id="categoryFilter">
+                <option value="" selected>Semua Kategori</option>
+                {% for category in categories %}
+                    <option value="{{ category.name }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" id="sortBy">
+                <option value="name_asc" selected>Nama (A-Z)</option>
+                <option value="name_desc">Nama (Z-A)</option>
+                <option value="calories_asc">Kalori (Rendah-Tinggi)</option>
+                <option value="calories_desc">Kalori (Tinggi-Rendah)</option>
+                <option value="protein_desc">Protein (Tertinggi)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Meal Cards -->
+    <div class="row" id="mealContainer">
+        {% if meals %}
+            {% for meal in meals %}
+            <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                <div class="card h-100 shadow-sm border-0 meal-card">
+                    <div class="position-relative">
+                        {% if meal.image %}
+                            <img src="{{ meal.image.url }}" class="card-img-top" alt="{{ meal.name }}" style="height: 180px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
+                                <i class="fas fa-utensils fa-4x text-muted"></i>
+                            </div>
+                        {% endif %}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-primary">
+                                {{ meal.category }}
+                            </span>
+                        </div>
+                        <div class="position-absolute bottom-0 start-0 p-3">
+                            <div class="d-flex gap-2">
+                                <span class="badge bg-success">
+                                    <i class="fas fa-carrot me-1"></i>
+                                    {{ meal.carbs|floatformat:"0" }}g
+                                </span>
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-leaf me-1"></i>
+                                    {{ meal.fat|floatformat:"0" }}g
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title mb-2">{{ meal.name }}</h5>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between text-muted small mb-1">
+                                <span><i class="fas fa-fire text-danger me-1"></i> Kalori</span>
+                                <span class="fw-bold">{{ meal.calories|floatformat:"0" }} kkal</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 6px;">
+                                {% widthratio meal.calories 1000 100 as calories_percent %}
+                                <div class="progress-bar bg-danger" role="progressbar" 
+                                     style="width: {{ calories_percent|default:'50' }}%" 
+                                     aria-valuenow="{{ calories_percent }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between text-muted small mb-1">
+                                <span><i class="fas fa-dumbbell text-primary me-1"></i> Protein</span>
+                                <span class="fw-bold">{{ meal.protein|floatformat:"1" }}g</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 6px;">
+                                {% widthratio meal.protein 50 100 as protein_percent %}
+                                <div class="progress-bar bg-primary" role="progressbar" 
+                                     style="width: {{ protein_percent|default:'50' }}%" 
+                                     aria-valuenow="{{ protein_percent }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-auto d-flex justify-content-between align-items-center">
+                            <div class="btn-group">
+                                <a href="{% url 'mealtracker:meal_update' meal.pk %}" 
+                                   class="btn btn-sm btn-outline-primary"
+                                   data-bs-toggle="tooltip" 
+                                   title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'mealtracker:meal_delete' meal.pk %}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   data-bs-toggle="tooltip" 
+                                   title="Hapus">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-utensils fa-4x text-muted mb-3"></i>
+                        <h5 class="text-muted">Belum ada makanan yang tercatat</h5>
+                        <p class="text-muted">Mulai dengan menambahkan makanan Anda</p>
+                        <a href="{% url 'mealtracker:meal_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-2"></i>Tambah Makanan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div class="modal fade" id="categoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-tags me-2"></i>Kategori Makanan
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action active">
+                        Semua Kategori
+                    </a>
+                    {% for category in categories %}
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="fas fa-circle me-2" style="color: {{ category.color }}"></i>
+                        {{ category.name }}
+                        <span class="badge bg-primary float-end">{{ category.meal_count }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_css %}
+<style>
+    .meal-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .meal-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    
+    .card-img-top {
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    
+    .progress {
+        border-radius: 3px;
+        background-color: #f0f0f0;
+    }
+    
+    .btn-group .btn {
+        border-radius: 8px !important;
+        margin-right: 5px;
+    }
+    
+    .modal .list-group-item {
+        border: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .modal .list-group-item:hover {
+        background-color: rgba(0,0,0,0.05);
+    }
+    
+    .modal .list-group-item.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+    
+    @media (max-width: 768px) {
+        .card-img-top {
+            height: 160px !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortBy = document.getElementById('sortBy');
+        const mealContainer = document.getElementById('mealContainer');
+        
+        function filterMeals() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCategory = categoryFilter.value.toLowerCase();
+            const sortMethod = sortBy.value;
+            const mealCards = mealContainer.getElementsByClassName('meal-card');
+            
+            const filteredMeals = Array.from(mealCards).filter(card => {
+                const mealName = card.querySelector('.card-title').textContent.toLowerCase();
+                const mealCategory = card.querySelector('.badge').textContent.toLowerCase();
+                return (mealName.includes(searchTerm) || mealCategory.includes(searchTerm)) &&
+                        (selectedCategory === '' || mealCategory === selectedCategory);
+            });
+            
+            // Sort the filtered meals
+            filteredMeals.sort((a, b) => {
+                const aName = a.querySelector('.card-title').textContent.toLowerCase();
+                const bName = b.querySelector('.card-title').textContent.toLowerCase();
+                const aCalories = parseFloat(a.querySelector('.fw-bold').textContent);
+                const bCalories = parseFloat(b.querySelector('.fw-bold').textContent);
+                const aProtein = parseFloat(a.querySelector('.progress-bar.bg-primary').getAttribute('aria-valuenow'));
+                const bProtein = parseFloat(b.querySelector('.progress-bar.bg-primary').getAttribute('aria-valuenow'));
+                
+                switch(sortMethod) {
+                    case 'name_asc': return aName.localeCompare(bName);
+                    case 'name_desc': return bName.localeCompare(aName);
+                    case 'calories_asc': return aCalories - bCalories;
+                    case 'calories_desc': return bCalories - aCalories;
+                    case 'protein_desc': return bProtein - aProtein;
+                    default: return 0;
+                }
+            });
+            
+            // Update the DOM
+            mealContainer.innerHTML = '';
+            filteredMeals.forEach(card => mealContainer.appendChild(card));
+        }
+        
+        searchButton.addEventListener('click', filterMeals);
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') filterMeals();
+        });
+        categoryFilter.addEventListener('change', filterMeals);
+        sortBy.addEventListener('change', filterMeals);
+    });
+    
+</script>
+{% endblock %}

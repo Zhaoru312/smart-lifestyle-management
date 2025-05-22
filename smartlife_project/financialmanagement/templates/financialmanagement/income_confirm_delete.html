@@ -1,0 +1,24 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load format_filters %}
+
+{% block content %}
+<div class="card mt-4">
+  <div class="card-header bg-danger text-white">
+    <h4>Hapus Pemasukan</h4>
+  </div>
+  <div class="card-body">
+    <p>Apakah Anda yakin ingin menghapus pemasukan berikut?</p>
+    <ul class="list-group mb-3">
+      <li class="list-group-item"><strong>Nama:</strong> {{ income.name }}</li>
+      <li class="list-group-item"><strong>Jumlah:</strong> Rp {{ income.amount|currency_idr }}</li>
+      <li class="list-group-item"><strong>Tanggal:</strong> {{ income.date }}</li>
+      <li class="list-group-item"><strong>Catatan:</strong> {{ income.notes|default:"-" }}</li>
+    </ul>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+      <a href="{% url 'income_list' %}" class="btn btn-secondary">Batal</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

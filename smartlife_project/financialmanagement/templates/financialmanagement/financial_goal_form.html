@@ -1,0 +1,90 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm rounded">
+    <div class="card-header bg-dark text-white">
+      <h4 class="mb-0">{{ form.instance.pk|yesno:"Edit Financial Goal,Tambah Financial Goal Baru" }}</h4>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- Nama Goal -->
+        <div class="mb-3">
+          <label for="{{ form.name.id_for_label }}" class="form-label">Nama Goal</label>
+          {{ form.name }}
+        </div>
+
+        <!-- Target Amount -->
+        <div class="mb-3">
+          <label for="id_target_amount_formatted" class="form-label">Target Amount (Rp)</label>
+          <div class="input-group">
+            <span class="input-group-text">Rp</span>
+            <input type="text" id="id_target_amount_formatted" class="form-control" placeholder="000000" oninput="formatRupiah(this, 'id_target_amount')" />
+          </div>
+          <input type="hidden" name="target_amount" id="id_target_amount" />
+        </div>
+
+        <!-- Current Amount -->
+        <div class="mb-3">
+          <label for="id_current_amount_formatted" class="form-label">Current Amount (Rp)</label>
+          <div class="input-group">
+            <span class="input-group-text">Rp</span>
+            <input type="text" id="id_current_amount_formatted" class="form-control" placeholder="000000" oninput="formatRupiah(this, 'id_current_amount')" />
+          </div>
+          <input type="hidden" name="current_amount" id="id_current_amount" />
+        </div>
+
+        <!-- Tanggal Jatuh Tempo -->
+        <div class="mb-3">
+          <label for="{{ form.due_date.id_for_label }}" class="form-label">Tanggal Jatuh Tempo</label>
+          <input type="date" name="{{ form.due_date.name }}" id="{{ form.due_date.id_for_label }}" class="form-control" value="{{ form.due_date.value|date:'Y-m-d' }}">
+        </div>
+
+        <!-- Catatan -->
+        <div class="mb-3">
+          <label for="{{ form.notes.id_for_label }}" class="form-label">Catatan</label>
+          {{ form.notes }}
+        </div>
+
+        <!-- Tombol -->
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-dark">💾 Simpan</button>
+          <a href="{% url 'financialgoal_list' %}" class="btn btn-secondary">Batal</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Script Format Rupiah -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const rawTarget = document.getElementById('id_target_amount').value;
+    const rawCurrent = document.getElementById('id_current_amount').value;
+
+    if (rawTarget) {
+      document.getElementById('id_target_amount_formatted').value = new Intl.NumberFormat('id-ID').format(rawTarget);
+    }
+
+    if (rawCurrent && parseInt(rawCurrent) > 0) {
+      document.getElementById('id_current_amount_formatted').value = new Intl.NumberFormat('id-ID').format(rawCurrent);
+    }
+  });
+
+  function formatRupiah(el, hiddenId) {
+    let raw = el.value.replace(/\D/g, '');
+    let formatted = '';
+    let reverse = raw.split('').reverse().join('');
+    for (let i = 0; i < reverse.length; i++) {
+      formatted += reverse[i];
+      if ((i + 1) % 3 === 0 && i + 1 !== reverse.length) {
+        formatted += '.';
+      }
+    }
+    el.value = formatted.split('').reverse().join('');
+    document.getElementById(hiddenId).value = raw;
+  }
+</script>
+{% endblock %}

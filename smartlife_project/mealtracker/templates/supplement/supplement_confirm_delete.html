@@ -1,0 +1,52 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-lg border-0 rounded-lg">
+        <div class="card-header bg-primary text-white py-3">
+          <h3 class="text-center mb-0">
+            <i class="fas fa-trash-alt me-2"></i>Hapus Suplemen
+          </h3>
+        </div>
+        <div class="card-body p-5">
+          <div class="alert alert-warning" role="alert">
+            <h4 class="alert-heading">Peringatan!</h4>
+            <p class="mb-0">Anda akan menghapus suplemen <strong>"{{ supplement.name }}"</strong>. Tindakan ini tidak dapat dibatalkan.</p>
+          </div>
+          
+          <div class="d-flex justify-content-center gap-3 mt-4">
+            <form method="post" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger px-4">
+                <i class="fas fa-trash-alt me-2"></i>Ya, Hapus
+              </button>
+            </form>
+            <a href="{% url 'mealtracker:supplement_list' %}" class="btn btn-outline-secondary px-4">
+              <i class="fas fa-times me-2"></i>Batal
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+<div class="supplement-delete-page">
+  <div class="confirm-box">
+    <h1>Hapus Suplemen?</h1>
+    <p>Yakin mau hapus suplemen <strong>"{{ supplement.name }}"</strong>? Tindakan ini tidak bisa dibatalkan.</p>
+    
+    <div class="button-group">
+      <form method="post" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit">🗑️ Hapus</button>
+      </form>
+      <a href="{% url 'mealtracker:supplement_list' %}" class="cancel-btn">Batal</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,260 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .project-form-card {
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .form-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0,0,0,.125);
+        padding: 1.25rem 1.5rem;
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
+    
+    .form-body {
+        padding: 1.5rem;
+    }
+    
+    .form-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid rgba(0,0,0,.125);
+        padding: 1rem 1.5rem;
+        border-radius: 0 0 0.5rem 0.5rem;
+    }
+    
+    .color-option {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 10px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: transform 0.2s;
+    }
+    
+    .color-option:hover {
+        transform: scale(1.1);
+    }
+    
+    .color-option.active {
+        border-color: #212529;
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{% url 'taskmanager:project_detail' project.id %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Project
+        </a>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card project-form-card">
+                <div class="form-header">
+                    <h2 class="h4 mb-0">
+                        <i class="fas fa-edit me-2"></i>Edit Project
+                    </h2>
+                </div>
+                
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-body">
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                Project Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                Description
+                            </label>
+                            {{ form.description }}
+                            <div class="form-text">
+                                A brief description of your project (supports markdown)
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label">
+                                    Start Date
+                                </label>
+                                {{ form.start_date }}
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.due_date.id_for_label }}" class="form-label">
+                                    Due Date
+                                </label>
+                                {{ form.due_date }}
+                                {% if form.due_date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.due_date.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label d-block">Project Color</label>
+                            <div class="d-flex flex-wrap">
+                                {% for choice in form.color %}
+                                    <div class="me-3 mb-2">
+                                        <input type="radio" name="color" value="{{ choice.data.value }}" 
+                                               id="{{ choice.id_for_label }}" 
+                                               class="d-none" 
+                                               {% if choice.data.selected %}checked{% endif %}>
+                                        <label for="{{ choice.id_for_label }}" class="color-option" 
+                                               style="background-color: {{ choice.data.value }};"
+                                               title="{{ choice.choice_label }}"></label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-4">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                Active Project
+                            </label>
+                            <div class="form-text">
+                                Inactive projects will be archived and hidden from the main view.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-footer d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteProjectModal">
+                            <i class="fas fa-trash-alt me-1"></i> Delete Project
+                        </button>
+                        <div>
+                            <a href="{% url 'taskmanager:project_detail' project.id %}" class="btn btn-outline-secondary me-2">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Project Modal -->
+<div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteProjectModalLabel">Delete Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the project "{{ project.name }}"? This action cannot be undone.</p>
+                <p class="text-danger"><strong>Warning:</strong> All tasks and subtasks in this project will also be deleted.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="{% url 'taskmanager:project_delete' project.id %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-1"></i> Delete Project
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date pickers
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+        // Set min attribute to today's date
+        const today = new Date().toISOString().split('T')[0];
+        input.min = today;
+        
+        // Format the date for display
+        if (input.value) {
+            const date = new Date(input.value);
+            input.value = date.toISOString().split('T')[0];
+        }
+    });
+    
+    // Color picker interaction
+    document.querySelectorAll('.color-option').forEach(option => {
+        option.addEventListener('click', function(e) {
+            // Remove active class from all options
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            
+            // Add active class to clicked option
+            this.classList.add('active');
+            
+            // Update the radio input
+            const inputId = this.getAttribute('for');
+            if (inputId) {
+                document.getElementById(inputId).checked = true;
+            }
+        });
+    });
+    
+    // Initialize active color on page load
+    const checkedInput = document.querySelector('input[name="color"]:checked');
+    if (checkedInput) {
+        const label = document.querySelector(`label[for="${checkedInput.id}"]`);
+        if (label) {
+            label.classList.add('active');
+        }
+    } else if (document.querySelector('.color-option')) {
+        // If no color is selected, select the first one
+        document.querySelector('.color-option').click();
+    }
+    
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+});
+</script>
+{% endblock %}

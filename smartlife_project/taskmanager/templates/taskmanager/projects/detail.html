@@ -1,0 +1,312 @@
+{% extends 'dashboardmanager/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    .project-header {
+        background: linear-gradient(135deg, {{ project.color }} 0%, #ffffff 100%);
+        border-radius: 0.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .project-actions .btn {
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .task-card {
+        transition: all 0.2s ease;
+        margin-bottom: 1rem;
+        border-left: 4px solid {{ project.color }};
+    }
+    
+    .task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .subtask-item {
+        padding: 0.5rem 1rem;
+        margin: 0.25rem 0;
+        background-color: #f8f9fa;
+        border-radius: 0.25rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .subtask-item.completed {
+        text-decoration: line-through;
+        opacity: 0.7;
+    }
+    
+    .progress {
+        height: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{% url 'taskmanager:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+    <!-- Project Header -->
+    <div class="project-header">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h1 class="h2 mb-2">{{ project.name }}</h1>
+                {% if project.description %}
+                    <p class="lead mb-0">{{ project.description }}</p>
+                {% endif %}
+                <div class="mt-2">
+                    <span class="badge bg-{{ project.get_status_class }}">
+                        {{ project.get_status_display }}
+                    </span>
+                    <span class="ms-2 text-muted">
+                        <i class="far fa-calendar-alt me-1"></i>
+                        {{ project.start_date|date:"M d, Y" }} - {{ project.due_date|date:"M d, Y" }}
+                    </span>
+                </div>
+            </div>
+            <div class="project-actions">
+                <a href="{% url 'taskmanager:project_update' project.pk %}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit me-1"></i> Edit Project
+                </a>
+                <a href="{% url 'taskmanager:create_task_workflow' project.pk %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Add Task
+                </a>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="mt-4">
+            <div class="d-flex justify-content-between mb-1">
+                <span>Project Progress</span>
+                <span>{{ project.progress }}%</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ project.progress }}%" 
+                     aria-valuenow="{{ project.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} me-2"></i>
+                <div>{{ message }}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}  
+    <!-- Tasks Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Tasks</h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary me-1" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#completedTasks" aria-expanded="false" aria-controls="completedTasks">
+                            Show Completed ({{ completed_tasks|length }})
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if active_tasks %}
+                        <div class="list-group list-group-flush">
+                            {% for task in active_tasks %}
+                                <div class="list-group-item p-0 border-0 mb-3">
+                                    <div class="card task-card">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h5 class="card-title mb-1">
+                                                        <a href="{% url 'taskmanager:task_detail' task.id %}" class="text-decoration-none stretched-link">
+                                                            {{ task.title }}
+                                                        </a>
+                                                        {% if task.priority %}
+                                                            <span class="badge bg-{{ task.get_priority_class }} ms-2">
+                                                                {{ task.get_priority_display }}
+                                                            </span>
+                                                        {% endif %}
+                                                    </h5>
+                                                    <p class="card-text text-muted small mb-2">
+                                                        {% if task.description %}
+                                                            {{ task.description|truncatewords:20 }}
+                                                        {% endif %}
+                                                    </p>
+                                                    <div class="d-flex align-items-center text-muted small">
+                                                        {% if task.deadline %}
+                                                            <span class="me-3">
+                                                                <i class="far fa-calendar-alt me-1"></i>
+                                                                Due {{ task.deadline|date:"M d, Y" }}
+                                                            </span>
+                                                        {% endif %}
+                                                        <span>
+                                                            <i class="far fa-check-circle me-1"></i>
+                                                            {{ task.completed_subtasks_count }} of {{ task.subtasks.count }} subtasks
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input task-toggle" type="checkbox" 
+                                                           data-task-id="{{ task.id }}" 
+                                                           {% if task.is_completed %}checked{% endif %}>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Subtasks -->
+                                            {% if task.subtasks.exists %}
+                                                <div class="mt-3">
+                                                    {% for subtask in task.subtasks.all|slice:":3" %}
+                                                        <div class="subtask-item {% if subtask.is_completed %}completed{% endif %}" style="position: relative; z-index: 2;">
+                                                            <input class="form-check-input me-2 subtask-toggle" type="checkbox" 
+                                                                   data-subtask-id="{{ subtask.id }}"
+                                                                   {% if subtask.is_completed %}checked{% endif %}>
+                                                            <a href="{% url 'taskmanager:task_detail' task.id %}#subtask-{{ subtask.id }}" class="text-decoration-none text-dark">
+                                                                {{ subtask.title }}
+                                                            </a>
+                                                        </div>
+                                                    {% endfor %}
+                                                    {% if task.subtasks.count > 3 %}
+                                                        <div class="text-center mt-2">
+                                                            <a href="{% url 'taskmanager:task_detail' task.id %}#subtasks" class="text-muted small">
+                                                                + {{ task.subtasks.count|add:"-3" }} more subtasks
+                                                            </a>
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-tasks fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No tasks found for this project.</p>
+                            <a href="{% url 'taskmanager:create_task_workflow' project.pk %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i> Add Your First Task
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Completed Tasks -->
+                {% if completed_tasks %}
+                    <div class="collapse" id="completedTasks">
+                        <div class="card-body border-top">
+                            <h6 class="text-muted mb-3">Completed Tasks</h6>
+                            <div class="list-group list-group-flush">
+                                {% for task in completed_tasks %}
+                                    <div class="list-group-item p-0 border-0 mb-2">
+                                        <div class="card task-card bg-light">
+                                            <div class="card-body py-2">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="text-decoration-line-through text-muted">
+                                                        {{ task.title }}
+                                                    </div>
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input task-toggle" type="checkbox" 
+                                                               data-task-id="{{ task.id }}" checked>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle task completion toggle
+    document.querySelectorAll('.task-toggle').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const taskId = this.dataset.taskId;
+            const isCompleted = this.checked;
+            
+            fetch(`/tasks/${taskId}/toggle-complete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFTTOKEN': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    is_completed: isCompleted
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to update the UI
+                    window.location.reload();
+                } else {
+                    alert('Error updating task status');
+                    this.checked = !isCompleted; // Revert the checkbox
+                }
+            });
+        });
+    });
+    
+    // Handle subtask completion toggle
+    document.querySelectorAll('.subtask-toggle').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const subtaskId = this.dataset.subtaskId;
+            const isCompleted = this.checked;
+            
+            fetch(`/subtasks/${subtaskId}/toggle-complete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFTTOKEN': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    is_completed: isCompleted
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const subtaskItem = this.closest('.subtask-item');
+                    if (isCompleted) {
+                        subtaskItem.classList.add('completed');
+                    } else {
+                        subtaskItem.classList.remove('completed');
+                    }
+                    // Reload to update progress
+                    window.location.reload();
+                } else {
+                    alert('Error updating subtask status');
+                    this.checked = !isCompleted; // Revert the checkbox
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
