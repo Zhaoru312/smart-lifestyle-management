@@ -1,0 +1,20 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block title %}Body Stat Form | SmartLife{% endblock %}
+
+{% block content_header %}
+<h1 class="m-0">Body Stat Form</h1>
+{% endblock %}
+
+{% block content %}
+<div class="card card-primary">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success">Save</button>
+            <a href="{% url 'body_stat_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

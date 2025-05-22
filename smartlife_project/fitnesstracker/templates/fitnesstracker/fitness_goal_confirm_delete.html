@@ -1,0 +1,11 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block content %}
+  <h2>Delete Fitness Goal</h2>
+  <p>Are you sure you want to delete this goal: <strong>{{ goal.goal_type }}</strong>?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a href="{% url 'fitness_goal_list' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}

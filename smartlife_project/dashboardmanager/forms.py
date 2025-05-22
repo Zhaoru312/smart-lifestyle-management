@@ -75,7 +75,7 @@ class TestimonialForm(forms.ModelForm):
                 'class': 'form-control',
                 'min': '1',
                 'step': '1',
-                'placeholder': 'Leave blank to auto-increment'
+                'placeholder': 'Leave blank for auto-increment'
             }),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'required': True}),
@@ -87,6 +87,12 @@ class TestimonialForm(forms.ModelForm):
         if rating is not None and (rating < 1 or rating > 5):
             raise forms.ValidationError('Rating must be between 1 and 5')
         return rating
+        
+    def clean_order(self):
+        order = self.cleaned_data.get('order')
+        if order is None or order == '':
+            return None
+        return order
 
 class dashboardFAQForm(forms.ModelForm):
     # Define predefined categories

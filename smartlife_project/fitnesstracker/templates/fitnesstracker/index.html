@@ -1,0 +1,52 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block title %}Fitness Dashboard | SmartLife{% endblock %}
+
+{% block content_header %}
+<h1 class="m-0">Fitness Features</h1>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h5>Workout Plans</h5>
+                <a href="{% url 'workout_plan_list' %}" class="btn btn-primary">View</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h5>Exercises</h5>
+                <a href="{% url 'exercise_list' %}" class="btn btn-primary">View</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h5>Body Stats</h5>
+                <a href="{% url 'body_stat_list' %}" class="btn btn-primary">View</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h5>Activity Logs</h5>
+                <a href="{% url 'activity_log_list' %}" class="btn btn-primary">View</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h5>Fitness Goals</h5>
+                <a href="{% url 'fitness_goal_list' %}" class="btn btn-primary">View</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+<!-- templates/fitnesstracker/workout_plan_form.html -->
+{% extends 'dashboardmanager/base.html' %}
+
+{% block title %}Add/Edit Workout Plan{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Workout Plan Form</h3>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success">Save</button>
+            <a href="{% url 'workout_plan_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

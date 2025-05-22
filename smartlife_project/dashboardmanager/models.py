@@ -301,8 +301,9 @@ class Testimonial(models.Model):
         help_text='Rating from 1 to 5 stars'
     )
     order = models.PositiveIntegerField(
-        default=0,
-        help_text='Display order (lower numbers appear first)'
+        null=True,
+        blank=True,
+        help_text='Display order (lower numbers appear first). Leave blank to add to the end.'
     )
     is_active = models.BooleanField(default=True, help_text='Whether this testimonial is currently displayed')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -318,9 +319,9 @@ class Testimonial(models.Model):
         
     def save(self, *args, **kwargs):
         # Auto-increment order if not set
-        if not self.order:
+        if self.order is None or self.order == '':
             last = Testimonial.objects.order_by('-order').first()
-            self.order = last.order + 1 if last else 1
+            self.order = (last.order + 1) if (last and last.order is not None) else 1
         super().save(*args, **kwargs)
 
 class FAQ(models.Model):

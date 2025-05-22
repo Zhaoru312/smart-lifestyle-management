@@ -1,0 +1,18 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block title %}Delete Exercise | SmartLife{% endblock %}
+
+{% block content_header %}
+<h1 class="m-0">Delete Exercise</h1>
+{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger">
+    <p>Are you sure you want to delete "{{ exercise.name }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, delete</button>
+        <a href="{% url 'exercise_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block title %}Add/Edit Activity Log{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header"><h3>{{ form.instance.pk|yesno:"Edit Activity Log,Add Activity Log" }}</h3></div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success">Save</button>
+            <a href="{% url 'activity_log_list' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

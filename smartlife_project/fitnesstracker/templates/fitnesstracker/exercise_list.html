@@ -1,0 +1,45 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block title %}Exercises | SmartLife{% endblock %}
+
+{% block content_header %}
+<h1 class="m-0">Exercises</h1>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Exercise List</h3>
+        <a href="{% url 'exercise_add' %}" class="btn btn-sm btn-primary">+ Add Exercise</a>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Muscle Group</th>
+                    <th>Equipment</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exercise in exercises %}
+                <tr>
+                    <td>{{ exercise.name }}</td>
+                    <td>{{ exercise.description }}</td>
+                    <td>{{ exercise.muscle_group }}</td>
+                    <td>{{ exercise.equipment }}</td>
+                    <td>
+                        <a href="{% url 'exercise_edit' exercise.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'exercise_delete' exercise.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">No exercises found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

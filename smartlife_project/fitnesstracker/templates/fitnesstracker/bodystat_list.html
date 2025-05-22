@@ -1,0 +1,47 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block title %}Body Stats | SmartLife{% endblock %}
+
+{% block content_header %}
+<h1 class="m-0">Body Stats</h1>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Track Your Body Stats</h3>
+        <div class="card-tools">
+            <a href="{% url 'body_stat_add' %}" class="btn btn-sm btn-primary">+ Add Stat</a>
+        </div>
+    </div>
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-hover text-center align-middle">
+            <thead class="thead-light">
+                <tr>
+                    <th>Date</th>
+                    <th>Weight (kg)</th>
+                    <th>Height (cm)</th>
+                    <th>Body Fat (%)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in stats %}
+                <tr>
+                    <td>{{ stat.date }}</td>
+                    <td>{{ stat.weight }}</td>
+                    <td>{{ stat.height }}</td>
+                    <td>{{ stat.body_fat_percentage }}</td>
+                    <td>
+                        <a href="{% url 'body_stat_edit' stat.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                        <a href="{% url 'body_stat_delete' stat.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">No body stats found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -348,12 +348,26 @@ class TestimonialUpdateView(AdminRequiredMixin, UpdateView):
             messages.success(request, 'Image cleared successfully')
             return redirect('dashboardmanager:update_testimonial', pk=self.object.pk)
             
-        return super().post(request, *args, **kwargs)
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
     
     def form_valid(self, form):
-        response = super().form_valid(form)
+        # Save the form first
+        self.object = form.save()
+        
+        # Add success message
         messages.success(self.request, self.success_message)
-        return response
+        
+        # Redirect to success URL
+        return redirect(self.get_success_url())
+        
+    def form_invalid(self, form):
+        # Log form errors for debugging
+        print("Form errors:", form.errors)
+        return super().form_invalid(form)
 
 class HeroSectionDeleteView(DeleteView):
     """View for deleting a herosection"""

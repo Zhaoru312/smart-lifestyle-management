@@ -1,0 +1,33 @@
+{% extends 'dashboardmanager/base.html' %}
+
+{% block content %}
+  <h2>Fitness Goals</h2>
+  <a href="{% url 'fitness_goal_add' %}" class="btn btn-primary mb-3">Add New Goal</a>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Goal Type</th>
+        <th>Description</th>
+        <th>Target Date</th>
+        <th>Achieved</th>
+        <th>Progress (%)</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for goal in goals %}
+      <tr>
+        <td>{{ goal.goal_type }}</td>
+        <td>{{ goal.description }}</td>
+        <td>{{ goal.target_date }}</td>
+        <td>{{ goal.is_achieved }}</td>
+        <td>{{ goal.progress_percentage }}</td>
+        <td>
+          <a href="{% url 'fitness_goal_edit' goal.pk %}" class="btn btn-warning btn-sm">Edit</a>
+          <a href="{% url 'fitness_goal_delete' goal.pk %}" class="btn btn-danger btn-sm">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
