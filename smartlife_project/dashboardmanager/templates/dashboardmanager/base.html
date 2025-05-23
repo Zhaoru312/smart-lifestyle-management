@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@12.1.2/dist/gridstack.min.css">
+    <!-- Custom styles for dashboard -->
+    {% load static %}
     {% block extra_css %}{% endblock %}
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -151,21 +153,67 @@
     <!-- jQuery UI (required for AdminLTE tooltips) -->
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <!-- Bootstrap 5 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Chart.js for charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- AdminLTE App JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <!-- AdminLTE App -->
     <script src="https://adminlte.io/themes/v3/dist/js/adminlte.min.js"></script>
-    <!-- Initialize tooltips -->
+    
+    <!-- Custom JavaScript -->
     <script>
-    $(function () {
-        // Initialize tooltips
-        $('[data-toggle="tooltip"]').tooltip();
-        // Initialize popovers
-        $('[data-toggle="popover"]').popover();
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Add animation to table rows
+        const tableRows = document.querySelectorAll('table tbody tr');
+        tableRows.forEach((row, index) => {
+            // Add staggered animation
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(-10px)';
+            row.style.transition = 'all 0.3s ease-out';
+            
+            // Stagger the animation
+            setTimeout(() => {
+                row.style.opacity = '1';
+                row.style.transform = 'translateX(0)';
+            }, 50 * index);
+        });
+        
+        // Add hover effect to cards
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 0.5rem 1.5rem rgba(0, 0, 0, 0.05)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 0.125rem 0.25rem rgba(0, 0, 0, 0.075)';
+            });
+        });
     });
     </script>
+    
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SortableJS for drag and drop functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <script>
+    // Initialize jQuery UI components
+    $(function () {
+        // Initialize popovers
+        $('[data-bs-toggle="popover"]').popover();
+    });
+    </script>
+    
+    {% block extra_scripts %}{% endblock %}
     <!-- Custom Dashboard CSS -->
     <style>
         .grid-stack {
@@ -182,7 +230,6 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             overflow: hidden;
-            z-index: 1 !important;
         }
         .grid-stack-item:hover {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);

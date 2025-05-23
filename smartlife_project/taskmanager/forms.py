@@ -429,29 +429,27 @@ class TaskForm(forms.ModelForm):
 class SubtaskForm(forms.ModelForm):
     class Meta:
         model = Subtask
-        fields = ['task', 'title', 'is_completed']
+        fields = ['title', 'task', 'is_completed']
         widgets = {
-            'task': forms.HiddenInput(),
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'e.g., Research topic, Buy materials',
-                'minlength': '3',
-                'maxlength': '200',
-                'required': True
+                'placeholder': 'Enter subtask title',
+                'required': 'required'
             }),
+            'task': forms.HiddenInput(),
             'is_completed': forms.CheckboxInput(attrs={
-                'class': 'form-check-input',
+                'class': 'form-check-input'
             })
         }
-    help_texts = {
-                'title': 'A clear description of this step (3-200 characters)',
-                'is_completed': 'Mark as completed'
-            }
-    labels = {
-                'title': 'Subtask',
-                'is_completed': 'Completed'
-            }
-    
+        help_texts = {
+            'title': 'A clear description of this step (3-200 characters)',
+            'is_completed': 'Mark as completed'
+        }
+        labels = {
+            'title': 'Subtask',
+            'is_completed': 'Completed'
+        }
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)

@@ -107,7 +107,7 @@ def task_list(request):
     elif completed == 'false':
         tasks = tasks.filter(is_completed=False)
     
-    return render(request, 'tasks/list.html', {
+    return render(request, 'taskmanager/tasks/list.html', {
         'tasks': tasks,
         'projects': Project.objects.filter(user=request.user),
         'categories': Category.objects.filter(user=request.user)
@@ -121,7 +121,7 @@ def task_create(request):
             task = form.save(commit=False)
             task.user = request.user
             task.save()
-            return redirect('task_list')
+            return redirect('taskmanager:task_list')
     else:
         form = TaskForm(request.user)
     return render(request, 'tasks/create.html', {'form': form})
@@ -189,7 +189,8 @@ def task_delete(request, pk):
     task = get_object_or_404(Task, pk=pk, user=request.user)
     if request.method == 'POST':
         task.delete()
-        return redirect('task_list')
+        messages.success(request, 'Task deleted successfully!')
+        return redirect('taskmanager:project_detail', pk=task.project.pk)
     return render(request, 'tasks/delete.html', {'task': task})
 
 @login_required
@@ -231,34 +232,63 @@ def categories_list(request):
 @login_required
 def categories_create(request):
     if request.method == 'POST':
-        form = CategoryForm(request.user, request.POST)
+        # Create a mutable copy of the POST data
+        post_data = request.POST.copy()
+        
+        # Create form with user and POST data
+        form = CategoryForm(post_data, user=request.user)
+        
         if form.is_valid():
-            category = form.save(commit=False)
-            category.user = request.user
-            category.save()
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                # Return JSON response for AJAX requests
-                return JsonResponse({
-                    'success': True,
-                    'category_id': category.id,
-                    'category_name': str(category)
-                })
-            return redirect('taskmanager:categories_list')
+            try:
+                category = form.save(commit=False)
+                category.user = request.user
+                category.save()
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    # Return JSON response for AJAX requests
+                    return JsonResponse({
+                        'success': True,
+                        'category_id': category.id,
+                        'category_name': str(category)
+                    })
+                
+                # Add success message for non-AJAX requests
+                messages.success(request, 'Category created successfully!')
+                next_url = request.POST.get('next', reverse('taskmanager:categories_list'))
+                return redirect(next_url)
+                
+            except Exception as e:
+                error_msg = str(e)
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': error_msg
+                    }, status=400)
+                messages.error(request, f'Error creating category: {error_msg}')
         else:
+            # Handle form errors
+            error_msgs = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    error_msgs.append(f"{field}: {error}")
+            
+            error_msg = ", ".join(error_msgs)
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                # Return form errors for AJAX requests
                 return JsonResponse({
                     'success': False,
-                    'error': 'Invalid form data',
+                    'error': error_msg,
                     'errors': form.errors
                 }, status=400)
+            messages.error(request, error_msg)
     else:
         form = CategoryForm(user=request.user)
-        
+    
     # Only render the template for non-AJAX requests
     if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'taskmanager/categories/create.html', {'form': form})
+        return render(request, 'taskmanager/categories/create.html', {
+            'form': form,
+            'next': request.GET.get('next', '')
+        })
     return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
 
 # ===== SUBTASK VIEWS =====
@@ -323,33 +353,36 @@ def subtask_create(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
     
     if request.method == 'POST':
-        # Fix: Pass data first, then user as keyword argument
         form = SubtaskForm(request.POST, user=request.user)
         if form.is_valid():
-            subtask = form.save(commit=False)
-            subtask.task = task
-            subtask.save()
-            
-            # Update parent task progress
-            task.update_progress()
-            
-            # Log activity
-            TaskActivity.objects.create(
-                task=task,
-                user=request.user,
-                activity_type='created',
-                description=f'Created subtask "{subtask.title}"',
-            )
-            
-            messages.success(request, 'Subtask created successfully!')
-            return redirect('taskmanager:task_detail', pk=task.pk)
+            try:
+                # Create subtask and assign the task
+                subtask = form.save(commit=False)
+                subtask.task = task  # Assign the task from URL parameter
+                subtask.save()
+                
+                # Update parent task progress
+                task.update_progress()
+                
+                # Log activity
+                TaskActivity.objects.create(
+                    task=task,
+                    user=request.user,
+                    activity_type='created',
+                    description=f'Created subtask "{subtask.title}"',
+                )
+                
+                messages.success(request, 'Subtask created successfully!')
+                return redirect('taskmanager:task_detail', pk=task.pk)
+                
+            except Exception as e:
+                messages.error(request, f'Error creating subtask: {str(e)}')
     else:
-        # Fix: Pass user as keyword argument
         form = SubtaskForm(user=request.user)
     
     return render(request, 'taskmanager/projects/subtask_form.html', {
         'form': form,
-        'task': task,
+        'task': task,  # Pass task to template for back button
         'title': 'Create New Subtask',
         'form_action': 'create'
     })
@@ -457,25 +490,42 @@ def create_subtask(request, task_id):
     task = get_object_or_404(Task, id=task_id, user=request.user)
     
     if request.method == 'POST':
-        if 'add_another' in request.POST:
-            form = SubtaskForm(request.POST)
-            if form.is_valid():
-                subtask = form.save(commit=False)
-                subtask.task = task
-                subtask.save()
-                task.update_progress()
-                messages.success(request, 'Subtask added successfully!')
-                # Include namespace in redirect
-                return redirect('taskmanager:create_subtask_workflow', task_id=task.id)
-        else:
+        if 'finish' in request.POST:
+            # Handle finish button click
             messages.success(request, 'Task created successfully!')
-            # If there are subtasks, go to the last one, otherwise go to task detail
             last_subtask = task.subtasks.last()
             if last_subtask:
                 return redirect('taskmanager:subtask_detail', pk=last_subtask.id)
             return redirect('taskmanager:task_detail', pk=task.id)
+        
+        # Create a mutable copy of the POST data
+        post_data = request.POST.copy()
+        # Ensure task is set in the form data
+        post_data['task'] = task.id
+        
+        # Handle add subtask form submission
+        form = SubtaskForm(post_data)
+        if form.is_valid():
+            try:
+                subtask = form.save(commit=False)
+                subtask.task = task  # Ensure task is set from URL
+                subtask.save()
+                task.update_progress()
+                messages.success(request, 'Subtask added successfully!')
+                return redirect('taskmanager:create_subtask_workflow', task_id=task.id)
+            except Exception as e:
+                messages.error(request, f'Error saving subtask: {str(e)}')
+        else:
+            # Add form errors to messages
+            for field, errors in form.errors.items():
+                for error in errors:
+                    if field == '__all__':
+                        messages.error(request, error)
+                    else:
+                        messages.error(request, f"{field}: {error}")
     else:
-        form = SubtaskForm()
+        # Initialize form with task pre-filled
+        form = SubtaskForm(initial={'task': task.id})
     
     subtasks = task.subtasks.all()
     
@@ -486,7 +536,7 @@ def create_subtask(request, task_id):
         'step': 3,
         'total_steps': 3,
         'current_title': 'Add Subtasks',
-        'color_choices': Project.COLOR_CHOICES  # Pass color choices to template if needed
+        'color_choices': Project.COLOR_CHOICES
     })
 
 # ===== DASHBOARD VIEW =====

@@ -308,24 +308,8 @@
                     {% endif %}                  
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-body p-4">
-                            <form id="main-form" method="post" class="needs-validation" novalidate>
-                                {% csrf_token %}
-                                
-                                {% if form.non_field_errors %}
-                                <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    <div>
-                                        {% for error in form.non_field_errors %}
-                                            <div class="small">{{ error }}</div>
-                                        {% endfor %}
-                                    </div>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                                {% endif %}
-
-                                <div class="form-section">
-
-                                <!-- Main Form -->
+                            <!-- Main Content -->
+                            <div class="form-section">
                                 <div class="card border-0 shadow-sm mb-4">
                                     <div class="card-body p-4">
                                         <div class="card mb-4">
@@ -367,20 +351,30 @@
                                             </div>
                                             {% endif %}
 
+                                            <!-- Single form for adding subtasks -->
                                             <form method="post" class="needs-validation" novalidate>
                                                 {% csrf_token %}
+                                                {{ form.task }}
                                                 <div class="input-group mb-3">
                                                     <input type="text" 
-                                                    name="title" 
-                                                    class="form-control" 
-                                                    placeholder="Add a subtask..." 
-                                                    required>
+                                                           name="title" 
+                                                           id="id_title"
+                                                           class="form-control {% if form.title.errors %}is-invalid{% endif %}" 
+                                                           placeholder="Add a subtask..." 
+                                                           value="{{ form.title.value|default:'' }}"
+                                                           required>
                                                     <button class="btn btn-outline-secondary" type="submit" name="add_another">
                                                         <i class="fas fa-plus"></i> Add
                                                     </button>
-                                                    <div class="invalid-feedback">
-                                                        Please provide a title for the subtask.
-                                                    </div>
+                                                    {% if form.title.errors %}
+                                                        <div class="invalid-feedback d-block">
+                                                            {{ form.title.errors.0 }}
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="form-text">
+                                                            {{ form.title.help_text|default:"A clear description of this step (3-200 characters)" }}
+                                                        </div>
+                                                    {% endif %}
                                                 </div>
                                             </form>
                                         </div>
@@ -396,6 +390,7 @@
                                         <div>
                                             <form method="post" class="d-inline">
                                                 {% csrf_token %}
+                                                <input type="hidden" name="finish" value="1">
                                                 <button type="submit" class="btn btn-success">
                                                     <i class="fas fa-check me-2"></i>Finish
                                                 </button>
