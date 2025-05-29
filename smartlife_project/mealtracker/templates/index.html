@@ -23,6 +23,7 @@
         </ol>
     </div>
 </div>
+
 <div class="container-fluid">
     <!-- Content Row -->
     <div class="row">
@@ -161,12 +162,18 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-danger">Avoid Items</h6>
-                    <a href="{% url 'mealtracker:avoiditem_list' %}" class="btn btn-sm btn-danger">
-                        <i class="fas fa-plus"></i> View Avoid Item
-                    </a>
+                    <div>
+                        <input id="avoidItemSearch" type="text" class="form-control form-control-sm d-inline-block me-2" placeholder="Search Avoid Items..." style="width: 200px;">
+                        <button id="printAvoidItemsBtn" class="btn btn-sm btn-secondary me-2">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                        <a href="{% url 'mealtracker:avoiditem_list' %}" class="btn btn-sm btn-danger">
+                            <i class="fas fa-plus"></i> View Avoid Item
+                        </a>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
+                    <div class="table-responsive" id="avoidItemsTableContainer">
                         <table class="table table-bordered" id="avoidItemsTable" width="100%" cellspacing="0">
                             <thead>
                                 <tr>
@@ -202,4 +209,54 @@
         </div>
     </div>
 </div>
-{% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('avoidItemSearch');
+    const table = document.getElementById('avoidItemsTable');
+    const printBtn = document.getElementById('printAvoidItemsBtn');
+
+    // Search filter for Avoid Items table
+    searchInput.addEventListener('input', () => {
+        const filter = searchInput.value.toLowerCase();
+        const rows = table.tBodies[0].rows;
+        for(let row of rows){
+            const name = row.cells[0].textContent.toLowerCase();
+            const reason = row.cells[1].textContent.toLowerCase();
+            if(name.includes(filter) || reason.includes(filter)){
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+
+printBtn.addEventListener('click', () => {
+    const originalTable = document.getElementById('avoidItemsTable');
+    const clonedTable = originalTable.cloneNode(true);
+
+    clonedTable.querySelectorAll('thead tr th:last-child, tbody tr td:last-child').forEach(cell => {
+        cell.remove();
+    });
+
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html><head><title>Avoid Items</title>');
+    printWindow.document.write('<link rel="stylesheet" href="{% static "dashboardmanager/css/sb-admin-2.min.css" %}">');
+    printWindow.document.write('<style>table { width: 100%; border-collapse: collapse; } table, th, td { border: 1px solid black; padding: 8px; text-align: left; }</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write('<h3>Avoid Items List</h3>');
+    printWindow.document.write(clonedTable.outerHTML);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 500);
+});
+
+
+});
+</script>
+
+{% endblock content %}

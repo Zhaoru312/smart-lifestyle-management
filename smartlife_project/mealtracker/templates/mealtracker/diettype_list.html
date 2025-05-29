@@ -16,6 +16,9 @@
                 <a href="{% url 'mealtracker:diettype_create' %}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Tambah Tipe Diet
                 </a>
+                <button id="printBtn" class="btn btn-secondary">
+                        <i class="fas fa-print me-2"></i>Print
+                </button>
             </div>
             <nav aria-label="breadcrumb" class="mt-3">
                 <ol class="breadcrumb">
@@ -63,9 +66,9 @@
     </div>
 
     <!-- Diet Types List -->
-    <div class="row">
+    <div class="row" id="dietList">
         {% for diet in diettypes %}
-        <div class="col-12 col-md-6 col-lg-4 mb-4">
+        <div class="col-12 col-md-6 col-lg-4 mb-4 diet-card" data-name="{{ diet.name|lower }}" data-category="{{ diet.name|lower }}" data-calories="{{ diet.recommended_calories }}">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-header bg-white py-3">
                     <div class="d-flex justify-content-between align-items-center">
@@ -104,7 +107,7 @@
                         </div>
                         <div class="progress" style="height: 8px;">
                             <div class="progress-bar bg-success" role="progressbar" 
-                                 style="width: {{ diet.recommended_calories|stringformat:'d'|slice:':2' }}%" 
+                                 style="width: {{ diet.recommended_calories|floatformat:0|divisibleby:50|default:0|floatformat:0 }}%" 
                                  aria-valuenow="{{ diet.recommended_calories }}" 
                                  aria-valuemin="0" 
                                  aria-valuemax="5000">
@@ -192,31 +195,87 @@
     }
 </style>
 
-<!-- JavaScript for Search and Filter -->
+<!-- JavaScript for Search, Filter & Sort -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
         const searchInput = document.getElementById('searchInput');
         const filterCategory = document.getElementById('filterCategory');
         const sortBy = document.getElementById('sortBy');
-        const dietCards = document.querySelectorAll('.col-12.col-md-6.col-lg-4');
-        
+        const dietCards = Array.from(document.querySelectorAll('.diet-card'));
+        const dietList = document.getElementById('dietList');
+
         function filterAndSortDiets() {
             const searchTerm = searchInput.value.toLowerCase();
-            const selectedCategory = filterCategory.value;
+            const selectedCategory = filterCategory.value.toLowerCase();
             const sortMethod = sortBy.value;
-            
-            dietCards.forEach(card => {
-                const name = card.querySelector('.card-header h5').textContent.toLowerCase();
-                const visible = name.includes(searchTerm);
-                card.style.display = visible ? 'block' : 'none';
+
+            // Filter
+            let filtered = dietCards.filter(card => {
+                const name = card.getAttribute('data-name');
+                const category = card.getAttribute('data-category');
+                const matchesSearch = name.includes(searchTerm);
+                const matchesCategory = !selectedCategory || category === selectedCategory;
+                return matchesSearch && matchesCategory;
             });
-            
-            // Note: Additional filtering and sorting logic can be added here
+
+            // Sort
+            filtered.sort((a, b) => {
+                const nameA = a.getAttribute('data-name');
+                const nameB = b.getAttribute('data-name');
+                const caloriesA = parseInt(a.getAttribute('data-calories')) || 0;
+                const caloriesB = parseInt(b.getAttribute('data-calories')) || 0;
+
+                switch(sortMethod) {
+                    case 'name_asc':
+                        return nameA.localeCompare(nameB);
+                    case 'name_desc':
+                        return nameB.localeCompare(nameA);
+                    case 'calories_asc':
+                        return caloriesA - caloriesB;
+                    case 'calories_desc':
+                        return caloriesB - caloriesA;
+                    default:
+                        return 0;
+                }
+            });
+
+            // Clear container
+            dietList.innerHTML = '';
+
+            // Append filtered & sorted cards or show empty message
+            if(filtered.length === 0) {
+                dietList.innerHTML = `
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body text-center py-5">
+                                <div class="mb-3">
+                                    <i class="fas fa-utensils fa-4x text-muted opacity-25"></i>
+                                </div>
+                                <h5 class="text-muted mb-3">Belum ada tipe diet yang tersedia</h5>
+                                <p class="text-muted mb-4">Mulai dengan menambahkan tipe diet baru untuk mengatur pola makan Anda</p>
+                                <a href="{% url 'mealtracker:diettype_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Tambah Tipe Diet
+                                </a>
+                            </div>
+                        </div>
+                    </div>`;
+            } else {
+                filtered.forEach(card => dietList.appendChild(card));
+            }
         }
-        
+
         searchInput.addEventListener('input', filterAndSortDiets);
         filterCategory.addEventListener('change', filterAndSortDiets);
         sortBy.addEventListener('change', filterAndSortDiets);
+
+        filterAndSortDiets(); // Initial run
+
+        const printBtn = document.getElementById('printBtn');
+        if(printBtn) {
+            printBtn.addEventListener('click', () => {
+                window.print();
+            });
+        }
     });
 </script>
 {% endblock %}

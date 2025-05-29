@@ -237,8 +237,8 @@ def category_delete(request, pk):
 #financial
 @login_required
 def financial_goal_list(request):
-    goals = FinancialGoal.objects.all()
-    return render(request, 'financialmanagement/financial_goal_list.html', {'goals': goals})
+    financial_goals = FinancialGoal.objects.all()[:3]
+    return render(request, 'financialmanagement/financial_goal_list.html', {'financial_goals': financial_goals})
 
 @login_required
 def financial_goal_create(request):

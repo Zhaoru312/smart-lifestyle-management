@@ -4,68 +4,206 @@
 {% block title %}Daftar Kategori{% endblock %}
 
 {% block content %}
-{% if messages %}
-{% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" aria-live="polite">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-{% endfor %}
-{% endif %}
-<div class="row">
-    <div class="col-12">
-        <h2 class="mb-4">Daftar Kategori</h2>
-
-        <!-- Tombol Aksi -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <a href="{% url 'financial_home' %}" class="btn btn-outline-dark">
-                ← Kembali
-            </a>
-            <a href="{% url 'category_create' %}" class="btn btn-dark">
-                <i class="fas fa-plus-circle"></i> Tambah Kategori Baru
-            </a>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1 font-weight-bold text-gray-900">Daftar Kategori</h1>
+            <p class="mb-0 text-muted">Kelola kategori keuangan Anda</p>
         </div>
-
-        <!-- Tabel -->
-        <div class="card shadow-sm">
-            <div class="card-body table-responsive p-0">
-                <table class="table table-hover text-nowrap table-bordered mb-0">
-                    <thead class="table-dark">
+        <a href="{% url 'financial_home' %}" class="btn btn-outline-secondary no-print">
+            <i class="fas fa-arrow-left me-2"></i>Kembali
+        </a>
+    </div>
+    
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="card card-primary card-outline" id="categoryCard">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0">
+                <i class="fas fa-tags me-2"></i>Data Kategori
+                {% if categories %}<span class="badge bg-primary ms-2">{{ categories|length }}</span>{% endif %}
+            </h3>
+            
+            <div class="d-flex align-items-center gap-2 no-print card-controls ms-auto">
+                <div class="input-group input-group-sm" style="width: 250px;">
+                    <input type="text" id="categorySearch" class="form-control" placeholder="Cari kategori...">
+                    <button type="button" class="btn btn-outline-secondary" onclick="clearSearch('categorySearch')" title="Hapus pencarian">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printSection('categoryCard')" title="Cetak Data">
+                    <i class="fas fa-print"></i>
+                </button>
+                <a href="{% url 'category_create' %}" class="btn btn-primary btn-sm" title="Tambah Kategori Baru">
+                    <i class="fas fa-plus me-1"></i> Tambah
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleCard('categoryCard')" title="Sembunyikan/Tampilkan">
+                    <i class="fas fa-minus" id="categoryCardIcon"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-0" id="categoryCardBody">
+            {% if categories %}
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0" id="categoryTable">
+                    <thead class="table-light">
                         <tr>
-                            <th>Nama</th>
-                            <th>Tipe</th>
-                            <th>Deskripsi</th>
-                            <th>Tanggal Dibuat</th>
-                            <th>Diperbarui</th>
-                            <th>Aksi</th>
+                            <th style="width: 20%;">Nama</th>
+                            <th style="width: 15%;">Tipe</th>
+                            <th style="width: 30%;">Deskripsi</th>
+                            <th style="width: 15%;">Dibuat</th>
+                            <th style="width: 15%;">Diperbarui</th>
+                            <th style="width: 10%;" class="text-center no-print">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for category in categories %}
-                        <tr>
+                        <tr data-id="{{ category.id }}">
                             <td>{{ category.name }}</td>
-                            <td>{{ category.type|title }}</td>
-                            <td>{{ category.description|default:"-" }}</td>
+                            <td>
+                                <span class="badge {% if category.type == 'income' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ category.get_type_display }}
+                                </span>
+                            </td>
+                            <td>{{ category.description|default:"-"|truncatechars:60 }}</td>
                             <td>{{ category.created_at|date:"d M Y" }}</td>
                             <td>{{ category.updated_at|date:"d M Y" }}</td>
-                            <td>
-                                <a href="{% url 'category_edit' category.pk %}" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{% url 'category_delete' category.pk %}" class="btn btn-sm btn-danger">
-                                    <i class="fas fa-trash-alt"></i>
-                                </a>
+                            <td class="text-center no-print">
+                                <div class="btn-group" role="group">
+                                    <a href="{% url 'category_edit' category.pk %}" 
+                                       class="btn btn-sm btn-warning"
+                                       data-bs-toggle="tooltip" data-bs-placement="top"
+                                       title="Edit Kategori">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'category_delete' category.pk %}" 
+                                       class="btn btn-sm btn-danger"
+                                       data-bs-toggle="tooltip" data-bs-placement="top"
+                                       title="Hapus Kategori"
+                                       onclick="return confirm('Apakah Anda yakin ingin menghapus kategori ini?')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
                             </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center text-muted">Tidak ada data kategori.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Tidak ada data kategori</h5>
+                <p class="text-muted mb-4">Mulai dengan menambahkan kategori baru</p>
+                <a href="{% url 'category_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Tambah Kategori
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<script>
+// Toggle card visibility
+function toggleCard(cardId) {
+    const cardBody = document.getElementById(`${cardId}Body`);
+    const cardIcon = document.getElementById(`${cardId}Icon`);
+    
+    if (cardBody.style.display === 'none') {
+        cardBody.style.display = 'block';
+        cardIcon.classList.remove('fa-plus');
+        cardIcon.classList.add('fa-minus');
+    } else {
+        cardBody.style.display = 'none';
+        cardIcon.classList.remove('fa-minus');
+        cardIcon.classList.add('fa-plus');
+    }
+}
+
+// Clear search input
+function clearSearch(inputId) {
+    document.getElementById(inputId).value = '';
+    const table = document.getElementById('categoryTable');
+    const rows = table.getElementsByTagName('tr');
+    for (let i = 1; i < rows.length; i++) {
+        rows[i].style.display = '';
+    }
+}
+
+// Search functionality
+document.getElementById('categorySearch').addEventListener('keyup', function() {
+    const input = this.value.toLowerCase();
+    const table = document.getElementById('categoryTable');
+    const rows = table.getElementsByTagName('tr');
+    
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 0; j < cells.length - 1; j++) {
+            const cellText = cells[j].textContent || cells[j].innerText;
+            if (cellText.toLowerCase().indexOf(input) > -1) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
+    }
+});
+
+// Print specific section
+function printSection(sectionId) {
+    const printContent = document.getElementById(sectionId).innerHTML;
+    const originalContent = document.body.innerHTML;
+    
+    document.body.innerHTML = `
+        <style>
+            @media print {
+                body * {
+                    visibility: hidden;
+                }
+                #${sectionId}, #${sectionId} * {
+                    visibility: visible;
+                }
+                #${sectionId} {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                }
+                .no-print, .no-print * {
+                    display: none !important;
+                }
+                @page {
+                    size: landscape;
+                }
+            }
+        </style>
+        ${printContent}
+    `;
+    
+    window.print();
+    document.body.innerHTML = originalContent;
+    window.location.reload();
+}
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
 {% endblock %}

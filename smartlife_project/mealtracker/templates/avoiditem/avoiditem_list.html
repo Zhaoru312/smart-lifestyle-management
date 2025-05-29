@@ -3,105 +3,114 @@
 
 {% block content %}
 <div class="container-fluid">
-  <!-- Breadcrumb -->
+  <!-- Breadcrumb and Buttons -->
   <div class="row mb-4">
-      <div class="col-12">
-          <div class="d-flex justify-content-between align-items-center">
-              <a href="{% url 'mealtracker:dashboard' %}" class="btn btn-info">
-                <i class="fas fa-arrow-left"></i> Kembali ke mealplan
-              </a>
-              <h1 class="h3 mb-0">
-                  <i class="fas fa-ban text-primary mr-2"></i>Daftar Hindaran
-              </h1>
-              <a href="{% url 'mealtracker:avoiditem_create' %}" class="btn btn-primary">
-                  <i class="fas fa-plus-circle mr-2"></i>Tambah Hindaran
-              </a>
-          </div>
-          <nav aria-label="breadcrumb" class="mt-3">
-              <ol class="breadcrumb">
-                  <li class="breadcrumb-item"><a href="{% url 'dashboardmanager:index' %}">Home</a></li>
-                  <li class="breadcrumb-item"><a href="{% url 'mealtracker:dashboard' %}">Meal Tracker</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">Daftar Hindaran</li>
-              </ol>
-          </nav>
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <a href="{% url 'mealtracker:dashboard' %}" class="btn btn-info">
+          <i class="fas fa-arrow-left"></i> Kembali ke mealplan
+        </a>
+        <h1 class="h3 mb-0">
+          <i class="fas fa-ban text-primary mr-2"></i>Daftar Hindaran
+        </h1>
+        <div>
+          <a href="{% url 'mealtracker:avoiditem_create' %}" class="btn btn-primary mr-2">
+            <i class="fas fa-plus-circle mr-2"></i>Tambah Hindaran
+          </a>
+          <!-- Print Button -->
+          <button id="printBtn" class="btn btn-secondary">
+            <i class="fas fa-print mr-2"></i>Print
+          </button>
+        </div>
       </div>
+      <nav aria-label="breadcrumb" class="mt-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'dashboardmanager:index' %}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'mealtracker:dashboard' %}">Meal Tracker</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Daftar Hindaran</li>
+        </ol>
+      </nav>
+    </div>
   </div>
-    <style>
-      .avoid-item-card {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        margin-bottom: 20px;
-        background: #fff;
-      }
-      .avoid-item-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      }
-      .card-header {
-        background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
-        color: white;
-        border-radius: 15px 15px 0 0 !important;
-        padding: 1rem 1.25rem;
-        border: none;
-      }
-      .card-body {
-        padding: 1.5rem;
-      }
-      .severity-high {
-        color: #dc3545;
-        font-weight: bold;
-      }
-      .severity-medium {
-        color: #fd7e14;
-        font-weight: bold;
-      }
-      .severity-low {
-        color: #28a745;
-        font-weight: bold;
-      }
-      .item-image {
-        max-width: 200px;
-        border-radius: 10px;
-        margin: 10px 0;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      }
-      .notes-section {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 12px;
-        margin-top: 15px;
-      }
-      .action-buttons .btn {
-        margin: 0 5px;
-        border-radius: 20px;
-        padding: 5px 15px;
-        font-size: 0.9rem;
-      }
-      .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        color: #6c757d;
-      }
-      .empty-state i {
-        font-size: 3rem;
-        margin-bottom: 15px;
-        color: #dee2e6;
-      }
+
+  <style>
+    .avoid-item-card {
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      margin-bottom: 20px;
+      background: #fff;
+    }
+    .avoid-item-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    .card-header {
+      background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+      color: white;
+      border-radius: 15px 15px 0 0 !important;
+      padding: 1rem 1.25rem;
+      border: none;
+    }
+    .card-body {
+      padding: 1.5rem;
+    }
+    .severity-high {
+      color: #dc3545;
+      font-weight: bold;
+    }
+    .severity-medium {
+      color: #fd7e14;
+      font-weight: bold;
+    }
+    .severity-low {
+      color: #28a745;
+      font-weight: bold;
+    }
+    .item-image {
+      max-width: 200px;
+      border-radius: 10px;
+      margin: 10px 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .notes-section {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 15px;
+    }
+    .action-buttons .btn {
+      margin: 0 5px;
+      border-radius: 20px;
+      padding: 5px 15px;
+      font-size: 0.9rem;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: #dee2e6;
+    }
   </style>
-  </style>
-</head>
-<body>
+
   <div class="container">
     {% if items %}
       <div class="row">
         {% for avoiditem in items %}
           <div class="col-md-6 col-lg-4 mb-4">
-            <div class="avoid-item-card card h-100">
+            <div class="avoid-item-card card h-100" data-name="{{ avoiditem.name }}" data-reason="{{ avoiditem.reason|escapejs }}">
               <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">{{ avoiditem.name }}</h5>
-                <span class="badge {% if avoiditem.severity >= 3 %}badge-danger{% elif avoiditem.severity == 2 %}badge-warning{% else %}badge-info{% endif %}">
+                <span class="badge 
+                  {% if avoiditem.severity >= 3 %}badge-danger
+                  {% elif avoiditem.severity == 2 %}badge-warning
+                  {% else %}badge-info
+                  {% endif %}">
                   {{ avoiditem.get_severity_display }}
                 </span>
               </div>
@@ -109,31 +118,25 @@
                 <p class="card-text">
                   <strong>Alasan:</strong> {{ avoiditem.reason }}
                 </p>
-                
+
                 {% if avoiditem.image %}
                   <div class="text-center my-3">
                     <img src="{{ avoiditem.image.url }}" alt="{{ avoiditem.name }}" class="img-fluid item-image">
                   </div>
                 {% endif %}
-                
+
                 {% if avoiditem.notes %}
                   <div class="notes-section">
                     <h6><i class="fas fa-sticky-note mr-2"></i>Catatan:</h6>
                     <p class="mb-0">{{ avoiditem.notes }}</p>
                   </div>
                 {% endif %}
-                
+
                 <div class="action-buttons text-right mt-3">
-                  <a href="{% url 'mealtracker:avoiditem_update' avoiditem.pk %}" 
-                     class="btn btn-outline-primary btn-sm"
-                     data-toggle="tooltip" 
-                     title="Edit">
+                  <a href="{% url 'mealtracker:avoiditem_update' avoiditem.pk %}" class="btn btn-outline-primary btn-sm" data-toggle="tooltip" title="Edit">
                     <i class="fas fa-edit"></i> Edit
                   </a>
-                  <a href="{% url 'mealtracker:avoiditem_delete' avoiditem.pk %}" 
-                     class="btn btn-outline-danger btn-sm"
-                     data-toggle="tooltip"
-                     title="Hapus">
+                  <a href="{% url 'mealtracker:avoiditem_delete' avoiditem.pk %}" class="btn btn-outline-danger btn-sm" data-toggle="tooltip" title="Hapus">
                     <i class="fas fa-trash"></i> Hapus
                   </a>
                 </div>
@@ -153,13 +156,90 @@
       </div>
     {% endif %}
   </div>
-  
+
   <script>
-    // Initialize tooltips
+    // Initialize tooltips (make sure jQuery & Bootstrap JS loaded)
     $(function () {
       $('[data-toggle="tooltip"]').tooltip();
     });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const printBtn = document.getElementById('printBtn');
+    if (!printBtn) {
+      console.error('No #printBtn found!');
+      return;
+    }
+
+    printBtn.addEventListener('click', () => {
+      const cards = document.querySelectorAll('.avoid-item-card');
+      if (cards.length === 0) {
+        alert('Ga ada data yang bisa di-print!');
+        return;
+      }
+
+      let printContent = `
+        <html>
+          <head>
+            <title>Daftar Hindaran</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              h2 { text-align: center; margin-bottom: 20px; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+              th { background-color: #f2f2f2; }
+            </style>
+          </head>
+          <body>
+            <h2>Daftar Hindaran</h2>
+            <table>
+              <thead><tr><th>Name</th><th>Reason</th></tr></thead>
+              <tbody>
+      `;
+
+      const escapeHtml = (str) => str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+
+      cards.forEach(card => {
+        const name = escapeHtml(card.getAttribute('data-name') || '—');
+        const reason = escapeHtml(card.getAttribute('data-reason') || '—');
+        printContent += `<tr><td>${name}</td><td>${reason}</td></tr>`;
+      });
+
+      printContent += `
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+
+      const printWindow = window.open('', '_blank', 'height=600,width=800');
+      if (!printWindow) {
+        alert('Popup blocker detected! Please allow popups for this site.');
+        return;
+      }
+
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+
+      // Wait for document ready state
+      printWindow.document.onreadystatechange = function () {
+        if (printWindow.document.readyState === 'complete') {
+          printWindow.focus();
+          printWindow.print();
+        }
+      };
+
+      // fallback timeout if onreadystatechange doesn't fire
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 1000);
+    });
+  });
   </script>
-</body>
-</html>
+</div>
 {% endblock %}

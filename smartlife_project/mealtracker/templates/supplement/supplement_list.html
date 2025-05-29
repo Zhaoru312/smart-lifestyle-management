@@ -8,7 +8,7 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <a href="{% url 'mealtracker:dashboard' %}" class="btn btn-info">
-                <i class="fas fa-arrow-left"></i> Kembali ke mealplan
+                    <i class="fas fa-arrow-left"></i> Kembali ke mealplan
                 </a>
                 <h1 class="h3 mb-0">
                     <i class="fas fa-pills text-primary mr-2"></i>Daftar Suplemen
@@ -27,10 +27,39 @@
         </div>
     </div>
 
+    <!-- Search + Filter + Print Buttons -->
+    <div class="row mb-4">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="fas fa-search text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Cari suplemen...">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="fas fa-search me-1"></i>Cari
+                </button>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" id="typeFilter">
+                <option value="" selected>Semua Tipe</option>
+                <option value="protein">Protein</option>
+                <option value="vitamin">Vitamin</option>
+                <option value="mineral">Mineral</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="col-md-3 text-end">
+            <button class="btn btn-success" id="printButton">
+                <i class="fas fa-print me-1"></i>Print
+            </button>
+        </div>
+    </div>
+
     <!-- Supplement Cards -->
-    <div class="row">
+    <div class="row" id="supplementContainer">
         {% for supplement in supplements %}
-        <div class="col-md-6 col-lg-4 mb-4">
+        <div class="col-md-6 col-lg-4 mb-4 supplement-card" data-type="{{ supplement.get_type_display|lower }}">
             <div class="card h-100 shadow-sm border-0">
                 <div class="position-relative">
                     {% if supplement.image %}
@@ -145,13 +174,63 @@
     }
 </style>
 
+{% block extra_js %}
 <script>
-    // Initialize tooltips
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
+
+        const searchInput = document.getElementById('searchInput');
+        const searchButton = document.getElementById('searchButton');
+        const typeFilter = document.getElementById('typeFilter');
+        const supplementContainer = document.getElementById('supplementContainer');
+
+        function filterSupplements() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedType = typeFilter.value.toLowerCase();
+            const cards = supplementContainer.getElementsByClassName('supplement-card');
+
+            Array.from(cards).forEach(card => {
+                const name = card.querySelector('.card-title').textContent.toLowerCase();
+                const brand = card.querySelector('p.text-muted.mb-2').textContent.toLowerCase();
+                const type = card.getAttribute('data-type').toLowerCase();
+
+                const matchesSearch = name.includes(searchTerm) || brand.includes(searchTerm);
+                const matchesType = selectedType === '' || type === selectedType;
+
+                if (matchesSearch && matchesType) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        searchButton.addEventListener('click', filterSupplements);
+        searchInput.addEventListener('keyup', e => {
+            if (e.key === 'Enter') filterSupplements();
+        });
+        typeFilter.addEventListener('change', filterSupplements);
+
+        // Print button
+        const printButton = document.getElementById('printButton');
+        printButton.addEventListener('click', () => {
+            // Only print visible supplements
+            const cards = supplementContainer.getElementsByClassName('supplement-card');
+            Array.from(cards).forEach(card => {
+                if (card.style.display === 'none') {
+                    card.classList.add('d-print-none');
+                } else {
+                    card.classList.remove('d-print-none');
+                }
+            });
+            window.print();
+        });
     });
 </script>
+{% endblock %}
+
 {% endblock %}
