@@ -146,67 +146,103 @@
 </div>
 
 <script>
-// Toggle card visibility
-function toggleCard(cardId) {
-    const cardBody = document.getElementById(`${cardId}Body`);
-    const cardIcon = document.getElementById(`${cardId}Icon`);
-    
-    if (cardBody.style.display === 'none') {
-        cardBody.style.display = 'block';
-        cardIcon.classList.remove('fa-plus');
-        cardIcon.classList.add('fa-minus');
-    } else {
-        cardBody.style.display = 'none';
-        cardIcon.classList.remove('fa-minus');
-        cardIcon.classList.add('fa-plus');
+    // Toggle card visibility
+    function toggleCard(cardId) {
+        const cardBody = document.getElementById(`${cardId}Body`);
+        const cardIcon = document.getElementById(`${cardId}Icon`);
+        
+        if (cardBody.style.display === 'none') {
+            cardBody.style.display = 'block';
+            cardIcon.classList.remove('fa-plus');
+            cardIcon.classList.add('fa-minus');
+        } else {
+            cardBody.style.display = 'none';
+            cardIcon.classList.remove('fa-minus');
+            cardIcon.classList.add('fa-plus');
+        }
     }
-}
-
-// Clear search input
-function clearSearch(inputId) {
-    document.getElementById(inputId).value = '';
-    // Add search functionality here if needed
-}
-
-// Print specific section
-function printSection(sectionId) {
-    const printContent = document.getElementById(sectionId).innerHTML;
-    const originalContent = document.body.innerHTML;
     
-    document.body.innerHTML = `
-        <style>
-            @media print {
-                body * {
-                    visibility: hidden;
-                }
-                #${sectionId}, #${sectionId} * {
-                    visibility: visible;
-                }
-                #${sectionId} {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                }
-                .no-print, .no-print * {
-                    display: none !important;
+    // Clear search input
+    function clearSearch(inputId) {
+        document.getElementById(inputId).value = '';
+        const table = document.getElementById('remindersTable');
+        const rows = table.getElementsByTagName('tr');
+        for (let i = 1; i < rows.length; i++) {
+            rows[i].style.display = '';
+        }
+    }
+    
+    // Search functionality
+    document.getElementById('remindersSearch').addEventListener('keyup', function() {
+        const input = this.value.toLowerCase();
+        const table = document.getElementById('remindersTable');
+        const rows = table.getElementsByTagName('tr');
+        
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            let found = false;
+            
+            for (let j = 0; j < cells.length - 1; j++) { // Skip the last cell (action buttons)
+                const cellText = cells[j].textContent || cells[j].innerText;
+                if (cellText.toLowerCase().indexOf(input) > -1) {
+                    found = true;
+                    break;
                 }
             }
-        </style>
-        ${printContent}
-    `;
-    
-    window.print();
-    document.body.innerHTML = originalContent;
-    window.location.reload();
-}
-
-// Initialize tooltips
-document.addEventListener('DOMContentLoaded', function() {
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+            
+            rows[i].style.display = found ? '' : 'none';
+        }
     });
-});
-</script>
-{% endblock %}
+        
+    
+    // Print specific section
+    function printSection(sectionId) {
+        const printContent = document.getElementById(sectionId).outerHTML;
+        const originalContent = document.body.innerHTML;
+        
+        document.body.innerHTML = `
+            <style>
+                @media print {
+                    body * {
+                        visibility: hidden;
+                    }
+                    #${sectionId}, #${sectionId} * {
+                        visibility: visible;
+                    }
+                    #${sectionId} {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                    }
+                    .no-print, .no-print * {
+                        display: none !important;
+                    }
+                    @page {
+                        size: landscape;
+                    }
+                    .badge {
+                        border: none;
+                        padding: 0.35em 0.65em;
+                        font-weight: 600;
+                    }
+                }
+            </style>
+            ${printContent}
+        `;
+        
+        window.print();
+        document.body.innerHTML = originalContent;
+        window.location.reload();
+    }
+    
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+    </script>
+    {% endblock %}
+    

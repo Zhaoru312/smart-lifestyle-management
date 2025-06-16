@@ -34,19 +34,3 @@
   </div>
 </div>
 {% endblock %}
-
-<div class="supplement-delete-page">
-  <div class="confirm-box">
-    <h1>Hapus Suplemen?</h1>
-    <p>Yakin mau hapus suplemen <strong>"{{ supplement.name }}"</strong>? Tindakan ini tidak bisa dibatalkan.</p>
-    
-    <div class="button-group">
-      <form method="post" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit">🗑️ Hapus</button>
-      </form>
-      <a href="{% url 'mealtracker:supplement_list' %}" class="cancel-btn">Batal</a>
-    </div>
-  </div>
-</div>
-{% endblock %}

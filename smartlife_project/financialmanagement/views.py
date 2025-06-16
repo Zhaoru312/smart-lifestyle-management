@@ -78,7 +78,7 @@ def budget_create(request):
         form = BudgetForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('budget_list')
+            return redirect('financialmanagement:budget_list')
     else:
         form = BudgetForm()
     return render(request, 'financialmanagement/budget_form.html', {'form': form})
@@ -90,7 +90,7 @@ def budget_update(request, pk):
         form = BudgetForm(request.POST, instance=budget)
         if form.is_valid():
             form.save()
-            return redirect('budget_list')
+            return redirect('financialmanagement:budget_list')
     else:
         form = BudgetForm(instance=budget)
     return render(request, 'financialmanagement/budget_form.html', {'form': form})
@@ -100,7 +100,7 @@ def budget_delete(request, pk):
     budget = get_object_or_404(Budget, pk=pk)
     if request.method == 'POST':
         budget.delete()
-        return redirect('budget_list')
+        return redirect('financialmanagement:budget_list')
     return render(request, 'financialmanagement/budget_confirm_delete.html', {'budget': budget})
 
 #expense
@@ -115,7 +115,7 @@ def expense_create(request):
         form = ExpenseForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('expense_list')
+            return redirect('financialmanagement:expense_list')
     else:
         form = ExpenseForm()
     return render(request, 'financialmanagement/expense_form.html', {'form': form})
@@ -127,7 +127,7 @@ def expense_update(request, pk):
         form = ExpenseForm(request.POST, instance=expense)
         if form.is_valid():
             form.save()
-            return redirect('expense_list')
+            return redirect('financialmanagement:expense_list')
     else:
         form = ExpenseForm(instance=expense)
     return render(request, 'financialmanagement/expense_form.html', {'form': form})
@@ -137,7 +137,7 @@ def expense_delete(request, pk):
     expense = get_object_or_404(Expense, pk=pk)
     if request.method == 'POST':
         expense.delete()
-        return redirect('expense_list')
+        return redirect('financialmanagement:expense_list')
     return render(request, 'financialmanagement/expense_confirm_delete.html', {'expense': expense})
 
 #income
@@ -147,7 +147,7 @@ def income_create(request):
         form = IncomeForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('income_list')  
+            return redirect('financialmanagement:income_list')  
     else:
         form = IncomeForm()
     return render(request, 'financialmanagement/income_form.html', {'form': form})
@@ -164,7 +164,7 @@ def income_edit(request, pk):
         form = IncomeForm(request.POST, instance=income)
         if form.is_valid():
             form.save()
-            return redirect('income_list')
+            return redirect('financialmanagement:income_list')
     else:
         form = IncomeForm(instance=income)
     return render(request, 'financialmanagement/income_form.html', {'form': form, 'title': 'Edit Income'})
@@ -174,7 +174,7 @@ def income_delete(request, pk):
     income = get_object_or_404(Income, pk=pk)
     if request.method == 'POST':
         income.delete()
-        return redirect('income_list')
+        return redirect('financialmanagement:income_list')
     return render(request, 'financialmanagement/income_confirm_delete.html', {'income': income})
 
 #category
@@ -194,7 +194,7 @@ def category_create(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Kategori berhasil ditambahkan!')
-            return redirect('category_list')
+            return redirect('financialmanagement:category_list')
     else:
         form = CategoryForm()
     return render(request, 'financialmanagement/category_form.html', {
@@ -211,7 +211,7 @@ def category_edit(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, 'Kategori berhasil diperbarui!')
-            return redirect('category_list')
+            return redirect('financialmanagement:category_list')
     else:
         form = CategoryForm(instance=category)
     return render(request, 'financialmanagement/category_form.html', {
@@ -227,7 +227,7 @@ def category_delete(request, pk):
         category_name = category.name
         category.delete()
         messages.success(request, f'Kategori "{category_name}" berhasil dihapus.')
-        return redirect('category_list')
+        return redirect('financialmanagement:category_list')
     return render(request, 'financialmanagement/category_confirm_delete.html', {
         'category': category,
         'title': 'Hapus Kategori',
@@ -246,7 +246,7 @@ def financial_goal_create(request):
         form = FinancialGoalForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('financialgoal_list')
+            return redirect('financialmanagement:financialgoal_list')
     else:
         form = FinancialGoalForm()
     return render(request, 'financialmanagement/financial_goal_form.html', {'form': form})
@@ -258,7 +258,7 @@ def financial_goal_edit(request, pk):
         form = FinancialGoalForm(request.POST, instance=goal)
         if form.is_valid():
             form.save()
-            return redirect('financialgoal_list')
+            return redirect('financialmanagement:financialgoal_list')
     else:
         form = FinancialGoalForm(instance=goal)
     return render(request, 'financialmanagement/financial_goal_form.html', {'form': form})
@@ -268,5 +268,5 @@ def financial_goal_delete(request, pk):
     goal = get_object_or_404(FinancialGoal, pk=pk)
     if request.method == 'POST':
         goal.delete()
-        return redirect('financialgoal_list')
+        return redirect('financialmanagement:financialgoal_list')
     return render(request, 'financialmanagement/financial_goal_confirm_delete.html', {'goal': goal})

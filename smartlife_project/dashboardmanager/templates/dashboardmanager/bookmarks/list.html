@@ -157,12 +157,39 @@ function toggleCard(cardId) {
 // Clear search input
 function clearSearch(inputId) {
     document.getElementById(inputId).value = '';
-    // Add search functionality here if needed
+    const table = document.getElementById('bookmarksTable');
+    const rows = table.getElementsByTagName('tr');
+    for (let i = 1; i < rows.length; i++) {
+        rows[i].style.display = '';
+    }
 }
+
+// Search functionality
+document.getElementById('bookmarksSearch').addEventListener('keyup', function() {
+    const input = this.value.toLowerCase();
+    const table = document.getElementById('bookmarksTable');
+    const rows = table.getElementsByTagName('tr');
+    
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        let found = false;
+        
+        for (let j = 0; j < cells.length - 1; j++) { // Skip the last cell (action buttons)
+            const cellText = cells[j].textContent || cells[j].innerText;
+            if (cellText.toLowerCase().indexOf(input) > -1) {
+                found = true;
+                break;
+            }
+        }
+        
+        rows[i].style.display = found ? '' : 'none';
+    }
+});
+    
 
 // Print specific section
 function printSection(sectionId) {
-    const printContent = document.getElementById(sectionId).innerHTML;
+    const printContent = document.getElementById(sectionId).outerHTML;
     const originalContent = document.body.innerHTML;
     
     document.body.innerHTML = `
@@ -182,6 +209,14 @@ function printSection(sectionId) {
                 }
                 .no-print, .no-print * {
                     display: none !important;
+                }
+                @page {
+                    size: landscape;
+                }
+                .badge {
+                    border: none;
+                    padding: 0.35em 0.65em;
+                    font-weight: 600;
                 }
             }
         </style>

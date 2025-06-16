@@ -7,7 +7,16 @@ from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.utils import timezone
 from django.urls import reverse_lazy
+from django.db import models
+from django.db.models import Avg, Count, Q, Sum, F
 import uuid
+from datetime import date
+
+# Import models from other apps
+from taskmanager.models import Task, TaskActivity
+from mealtracker.models import Meal, Drink, DietType, AvoidItem, Supplement
+from financialmanagement.models import Expense, Income, FinancialGoal, Budget
+from fitnesstracker.models import BodyStat, ActivityLog, FitnessGoal, Exercise
 
 # Local application imports
 from .models import UserProfile, DashboardBookmark, DashboardNote, DashboardReminder, DashboardShortcut
@@ -53,60 +62,262 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
         
-        # Get dashboard statistics
+        # Initialize stats dictionary
         stats = {
-            'total_expenses': 1234.56,
-            'workout_streak': 14,
-            'active_habits': 5,
-            'pending_tasks': 3
+            'pending_tasks': 0,
+            'completed_tasks': 0,
+            'total_projects': 0,
+            'meals_today': 0,
+            'calories_today': 0,
+            'total_meals': 0
         }
+        
+        # Get task manager stats
+        task_stats = Task.objects.filter(user=user).aggregate(
+            pending=Count('id', filter=Q(is_completed=False)),
+            completed=Count('id', filter=Q(is_completed=True)),
+            total_projects=Count('project', distinct=True)
+        )
+        stats.update({
+            'pending_tasks': task_stats['pending'] or 0,
+            'completed_tasks': task_stats['completed'] or 0,
+            'total_projects': task_stats['total_projects'] or 0
+        })
+        
+        # Get upcoming tasks
+        upcoming_tasks = Task.objects.filter(
+            user=user,
+            is_completed=False,
+            deadline__gte=date.today()
+        ).order_by('deadline')[:5]
+        
+        context['upcoming_tasks'] = upcoming_tasks
+        
+        # Get meal stats
+        total_meals = Meal.objects.count()
+        total_drinks = Drink.objects.count()
+        avg_calories = Meal.objects.aggregate(avg=Avg('calories'))['avg'] or 0
+        
+        # Get financial stats
+        current_month = timezone.now().month
+        current_year = timezone.now().year
+        
+        # Calculate monthly income
+        monthly_income = Income.objects.filter(
+            date__year=current_year,
+            date__month=current_month
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Calculate monthly expenses
+        monthly_expenses = Expense.objects.filter(
+            date__year=current_year,
+            date__month=current_month
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Calculate savings rate (income - expenses) / income * 100
+        savings_rate = 0
+        if monthly_income > 0:
+            savings_rate = ((monthly_income - monthly_expenses) / monthly_income) * 100
+            savings_rate = round(savings_rate, 2)
+        
+        # Get fitness stats
+        today = timezone.now().date()
+        start_of_week = today - timezone.timedelta(days=today.weekday())
+        end_of_week = start_of_week + timezone.timedelta(days=6)
+        
+        # Count workouts this week (without user filter since ActivityLog doesn't have a user field)
+        workouts_this_week = ActivityLog.objects.filter(
+            date__range=[start_of_week, end_of_week]
+        ).count()
+        
+        # Get active fitness goals (without user filter since FitnessGoal doesn't have a user field)
+        fitness_goals = FitnessGoal.objects.filter(
+            is_achieved=False
+        ).order_by('-id')[:3]  # Show 3 most recent goals
+        
+        # Update stats with all data
+        stats.update({
+            'monthly_income': monthly_income,
+            'monthly_expenses': monthly_expenses,
+            'savings_rate': savings_rate,
+            'workouts_this_week': workouts_this_week,
+        })
+        
+        stats.update({
+            'total_meals': total_meals,
+            'total_drinks': total_drinks,
+            'avg_meal_calories': round(avg_calories, 1),
+            'total_diets': DietType.objects.count(),
+            'total_supplements': Supplement.objects.count()
+        })
+        
+        # Get recent meals and drinks
+        context.update({
+            'recent_meals': Meal.objects.select_related('category').order_by('-id')[:5],
+            'recent_drinks': Drink.objects.select_related('category').order_by('-id')[:5],
+            'diet_types': DietType.objects.all()[:3],
+            'avoid_items': AvoidItem.objects.order_by('-severity')[:3],
+            'supplements': Supplement.objects.all()[:3]
+        })
+        
+        # Get financial data
+        today = timezone.now().date()
+        month_start = today.replace(day=1)
+        
+        # Calculate monthly income and expenses
+        monthly_expenses = Expense.objects.filter(
+            date__year=month_start.year,
+            date__month=month_start.month
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        monthly_income = Income.objects.filter(
+            date__year=month_start.year,
+            date__month=month_start.month
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        # Get recent transactions
+        recent_expenses = Expense.objects.select_related('category').order_by('-date')[:5]
+        recent_incomes = Income.objects.select_related('category').order_by('-date')[:5]
+        
+        # Get financial goals
+        active_goals = FinancialGoal.objects.filter(
+            due_date__gte=today
+        ).order_by('due_date')[:3]
+        
+        # Update stats with financial data
+        stats.update({
+            'monthly_income': monthly_income,
+            'monthly_expenses': monthly_expenses,
+            'savings_rate': round(((monthly_income - monthly_expenses) / monthly_income * 100) if monthly_income > 0 else 0, 1),
+            'active_goals_count': FinancialGoal.objects.filter(due_date__gte=today).count(),
+        })
+        
+        # Get fitness data
+        latest_body_stat = BodyStat.objects.order_by('-date').first()
+        recent_workouts = ActivityLog.objects.order_by('-date')[:5]
+        fitness_goals = FitnessGoal.objects.filter(is_achieved=False).order_by('target_date')[:3]
+        
+        # Update stats with fitness data
+        if latest_body_stat:
+            stats.update({
+                'current_weight': latest_body_stat.weight_kg,
+                'body_fat': latest_body_stat.body_fat_percentage,
+                'workouts_this_week': ActivityLog.objects.filter(
+                    date__gte=today - timezone.timedelta(days=7)
+                ).count(),
+                'active_goals': FitnessGoal.objects.filter(is_achieved=False).count(),
+            })
         
         # Get user's dashboard items
         context.update({
             'stats': stats,
             'recent_activity': self._get_recent_activity(),
-            'bookmarks': DashboardBookmark.objects.filter(user=self.request.user)
-                .order_by('-is_favorite', '-created_at')[:3],
-            'notes': DashboardNote.objects.filter(user=self.request.user)
-                .order_by('-is_pinned', '-created_at')[:3],
-            'reminders': DashboardReminder.objects.filter(user=self.request.user)
-                .order_by('is_completed', 'due_date')[:3],
-            'shortcuts': DashboardShortcut.objects.filter(
-                user=self.request.user, 
-                is_active=True
-            ).order_by('shortcut_key')[:3],
+            'fitness_goals': fitness_goals,
+            'bookmarks': DashboardBookmark.objects.filter(user=user).order_by('-is_favorite', '-created_at')[:3],
+            'notes': DashboardNote.objects.filter(user=user).order_by('-is_pinned', '-created_at')[:3],
+            'reminders': DashboardReminder.objects.filter(user=user).order_by('is_completed', 'due_date')[:3],
+            'shortcuts': DashboardShortcut.objects.filter(user=user, is_active=True).order_by('shortcut_key')[:3],
+            # Financial data
+            'recent_expenses': recent_expenses,
+            'recent_incomes': recent_incomes,
+            'active_goals': active_goals,
+            'current_budget': Budget.objects.order_by('-end_date').first(),
+            # Fitness data
+            'latest_body_stat': latest_body_stat,
+            'recent_workouts': recent_workouts,
+            'fitness_goals': fitness_goals,
         })
         return context
     
     def _get_recent_activity(self):
-        """Helper method to get recent user activity"""
-        return [
-            {
-                'date': '2025-05-09',
-                'activity': 'Completed morning workout',
-                'category': 'Fitness',
-                'status': 'completed'
-            },
-            {
-                'date': '2025-05-09',
-                'activity': 'Logged daily expenses',
+        """Helper method to get recent activity across all apps"""
+        activities = []
+        user = self.request.user
+        today = timezone.now().date()
+        
+        # Get recent task activities
+        task_activities = TaskActivity.objects.filter(
+            task__user=user
+        ).select_related('task').order_by('-created_at')[:5]
+        
+        for activity in task_activities:
+            activities.append({
+                'date': activity.created_at.strftime('%Y-%m-%d'),
+                'time': activity.created_at.strftime('%H:%M'),
+                'activity': f"{activity.get_activity_type_display()} task: {activity.task.title if activity.task else 'N/A'}",
+                'category': 'Task',
+                'status': 'completed' if activity.activity_type == 'complete' else 'updated',
+                'icon': 'fa-tasks',
+                'color': 'primary'
+            })
+            
+        # Add financial activities
+        recent_expenses = Expense.objects.order_by('-date')[:3]
+        for expense in recent_expenses:
+            activities.append({
+                'date': expense.date.strftime('%Y-%m-%d'),
+                'time': expense.created_at.strftime('%H:%M') if expense.created_at else '00:00',
+                'activity': f"Expense: {expense.name} - ${expense.amount}",
                 'category': 'Finance',
-                'status': 'completed'
-            },
-            {
-                'date': '2025-05-09',
-                'activity': 'Checked meditation habit',
-                'category': 'Habit',
-                'status': 'completed'
-            },
-            {
-                'date': '2025-05-09',
-                'activity': 'Logged dinner meal',
+                'status': 'expense',
+                'icon': 'fa-arrow-down',
+                'color': 'danger'
+            })
+            
+        recent_incomes = Income.objects.order_by('-date')[:2]
+        for income in recent_incomes:
+            activities.append({
+                'date': income.date.strftime('%Y-%m-%d'),
+                'time': income.created_at.strftime('%H:%M') if income.created_at else '00:00',
+                'activity': f"Income: {income.name} - ${income.amount}",
+                'category': 'Finance',
+                'status': 'income',
+                'icon': 'fa-arrow-up',
+                'color': 'success'
+            })
+            
+        # Add fitness activities
+        recent_workouts = ActivityLog.objects.order_by('-date')[:3]
+        for workout in recent_workouts:
+            activities.append({
+                'date': workout.date.strftime('%Y-%m-%d'),
+                'time': 'Workout',
+                'activity': f"{workout.activity_type} for {workout.duration_minutes} mins",
+                'category': 'Fitness',
+                'status': 'completed',
+                'icon': 'fa-dumbbell',
+                'color': 'info'
+            })
+    
+        # Add recent meal and drink activities
+        recent_meals = Meal.objects.order_by('-id')[:3]
+        recent_drinks = Drink.objects.order_by('-id')[:2]
+        
+        for meal in recent_meals:
+            activities.append({
+                'date': timezone.now().strftime('%Y-%m-%d'),
+                'time': timezone.now().strftime('%H:%M'),
+                'activity': f"Meal: {meal.name} ({meal.calories} cal)",
                 'category': 'Meal',
                 'status': 'completed'
-            }
-        ]
+            })
+            
+        for drink in recent_drinks:
+            activities.append({
+                'date': timezone.now().strftime('%Y-%m-%d'),
+                'time': timezone.now().strftime('%H:%M'),
+                'activity': f"Drink: {drink.name} ({drink.calories} cal)",
+                'category': 'Drink',
+                'status': 'completed'
+            })
+        
+        # Sort all activities by date and time (newest first)
+        activities.sort(key=lambda x: (x['date'], x['time']), reverse=True)
+        
+        # Return only the 5 most recent activities
+        return activities[:5]
 
 class AppListView(LoginRequiredMixin, TemplateView):
     """View showing list of all available applications"""

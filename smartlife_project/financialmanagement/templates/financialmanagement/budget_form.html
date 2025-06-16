@@ -1,13 +1,13 @@
 {% extends 'dashboardmanager/base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-  <div class="card shadow-sm rounded">
+<div class="container py-4 d-flex justify-content-center">
+  <div class="card shadow-lg border-0 rounded-4" style="width: 100%; max-width: 650px;">
     <div class="card-header bg-dark text-white">
       <h4 class="mb-0">{{ form.instance.pk|yesno:"Edit Budget,Tambah Budget Baru" }}</h4>
     </div>
     <div class="card-body">
-      <form method="post">
+      <form method="post" class="vertical-form">
         {% csrf_token %}
 
         <div class="mb-3">
@@ -39,9 +39,9 @@
           <input type="hidden" name="amount" id="id_amount" />
         </div>
 
-        <div class="d-flex justify-content-between">
-          <button type="submit" class="btn btn-dark">💾 Simpan</button>
-          <a href="{% url 'budget_list' %}" class="btn btn-secondary">Batal</a>
+        <div class="d-flex justify-content-end gap-2">
+          <button type="submit" class="btn btn-dark"><i class="fas fa-save me-1"></i> Simpan</button>
+          <a href="{% url 'financialmanagement:budget_list' %}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Batal</a>
         </div>
       </form>
     </div>

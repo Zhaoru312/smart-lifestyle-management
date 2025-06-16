@@ -18,8 +18,9 @@ class BudgetForm(forms.ModelForm):
 class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expense
-        fields = ['name', 'amount', 'date', 'notes']
+        fields = ['category', 'amount', 'date', 'notes']
         widgets = {
+            'category': forms.Select(attrs={'class': 'form-control'}),
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
 
@@ -27,8 +28,9 @@ class ExpenseForm(forms.ModelForm):
 class IncomeForm(forms.ModelForm):
     class Meta:
         model = Income
-        fields = ['name', 'amount', 'date', 'notes']   
+        fields = ['category', 'amount', 'date', 'notes']   
         widgets = {
+            'category': forms.Select(attrs={'class': 'form-control'}),
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
 

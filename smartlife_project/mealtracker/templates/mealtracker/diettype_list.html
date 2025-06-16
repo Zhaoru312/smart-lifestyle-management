@@ -214,7 +214,7 @@
                 const name = card.getAttribute('data-name');
                 const category = card.getAttribute('data-category');
                 const matchesSearch = name.includes(searchTerm);
-                const matchesCategory = !selectedCategory || category === selectedCategory;
+                const matchesCategory = !selectedCategory || category.includes(selectedCategory);
                 return matchesSearch && matchesCategory;
             });
 

@@ -17,7 +17,7 @@
     <form method="post">
       {% csrf_token %}
       <button type="submit" class="btn btn-danger">Ya, Hapus</button>
-      <a href="{% url 'expense_list' %}" class="btn btn-secondary">Batal</a>
+      <a href="{% url 'financialmanagement:expense_list' %}" class="btn btn-secondary">Batal</a>
     </form>
   </div>
 </div>

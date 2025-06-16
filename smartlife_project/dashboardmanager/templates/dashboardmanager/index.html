@@ -1,78 +1,59 @@
-{% extends 'dashboardmanager/base.html' %}
+    {% extends 'dashboardmanager/base.html' %}
 
-{% block content_header %}
-    <div class="row mb-2">
-        <div class="col-sm-6">
-            <h1 class="m-0">Dashboard</h1>
+    {% block content_header %}
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Dashboard</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
         </div>
-        <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item active">Dashboard</li>
-            </ol>
+    {% endblock %}
+
+    {% block content %}
+
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" aria-live="polite">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    </div>
-{% endblock %}
-
-{% block content %}
-
-{% if messages %}
-{% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" aria-live="polite">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-{% endfor %}
-{% endif %}
-<div class="row">
-    <!-- Total Expenses Card -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            Total Expenses
+    {% endfor %}
+    {% endif %}
+    <div class="row">
+        <!-- Pending Tasks Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Pending Tasks
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.pending_tasks }}</div>
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">${{ stats.total_expenses|floatformat:"2" }}</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                        <div class="col-auto">
+                            <i class="fas fa-tasks fa-2x text-gray-300"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Workout Stats Card -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
+        <!-- Completed Tasks Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                            Workout Sessions
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.workout_sessions }}</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-dumbbell fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Task Stats Card -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-info shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                             Completed Tasks
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.completed_tasks }}/{{ stats.total_tasks }}</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.completed_tasks }}</div>
                     </div>
                     <div class="col-auto">
                         <i class="fas fa-check-circle fa-2x text-gray-300"></i>
@@ -82,24 +63,50 @@
         </div>
     </div>
 
-    <!-- Expense Categories Card -->
+    <!-- Projects Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Active Projects
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_projects }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-project-diagram fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meals Card -->
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card border-left-warning shadow h-100 py-2">
             <div class="card-body">
                 <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                         <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                            Expense Categories
+                            Meals & Drinks
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.expense_categories }}</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                            {{ stats.total_meals }} Meals
+                            <small class="text-muted">({{ stats.avg_meal_calories|floatformat:0 }} avg cal)</small>
+                        </div>
+                        <div class="mt-1">
+                            <small class="text-muted">{{ stats.total_drinks }} Drinks • {{ stats.total_diets }} Diets</small>
+                        </div>
                     </div>
                     <div class="col-auto">
-                        <i class="fas fa-tags fa-2x text-gray-300"></i>
+                        <i class="fas fa-utensils fa-2x text-gray-300"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Quick Access Tools -->
     <div class="row">
@@ -212,7 +219,7 @@
                     <div class="list-group list-group-flush">
                         {% for shortcut in shortcuts|slice:':3' %}
                         <a href="{{ shortcut.action }}" class="list-group-item list-group-item-action {% if not shortcut.is_active %}text-muted{% endif %}">
-                            <i class="{{ shortcut.icon }} mr-2"></i>
+                            <i class="fas {{ shortcut.icon }} mr-2"></i>
                             {{ shortcut.title|truncatechars:20 }}
                             <span class="badge badge-light float-right">{{ shortcut.shortcut_key }}</span>
                         </a>
@@ -228,6 +235,558 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Financial Overview Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="fas fa-wallet mr-2"></i>Financial Overview</h4>
+        </div>
+        
+        <!-- Monthly Income Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-success shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-success font-weight-bold mb-0">Monthly Income</h6>
+                            <h3 class="mb-0">Rp {{ stats.monthly_income|floatformat:2 }}</h3>
+                        </div>
+                        <i class="fas fa-arrow-up fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'financialmanagement:income_list' %}" class="btn btn-sm btn-outline-success">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Monthly Expenses Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-danger shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-danger font-weight-bold mb-0">Monthly Expenses</h6>
+                            <h3 class="mb-0">Rp {{ stats.monthly_expenses|floatformat:2 }}</h3>
+                        </div>
+                        <i class="fas fa-arrow-down fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'financialmanagement:expense_list' %}" class="btn btn-sm btn-outline-danger">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Savings Rate Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-info font-weight-bold mb-0">Savings Rate</h6>
+                            <h3 class="mb-0">{{ stats.savings_rate|default:0 }}%</h3>
+                        </div>
+                        <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'financialmanagement:budget_list' %}" class="btn btn-sm btn-outline-info">View Budgets</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Transactions -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-exchange-alt mr-2"></i>Recent Transactions
+                    </h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for expense in recent_expenses %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ expense.name }}</h6>
+                                    <small class="text-muted">{{ expense.category.name|default:"Uncategorized" }}</small>
+                                </div>
+                                <span class="text-danger">-Rp {{ expense.amount|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% for income in recent_incomes %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ income.name }}</h6>
+                                    <small class="text-muted">{{ income.category.name|default:"Uncategorized" }}</small>
+                                </div>
+                                <span class="text-success">+Rp {{ income.amount|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if not recent_expenses and not recent_incomes %}
+                        <div class="text-center p-4">
+                            <p class="text-muted mb-0">No recent transactions</p>
+                            <div class="mt-2">
+                                <a href="{% url 'financialmanagement:expense_add' %}" class="btn btn-sm btn-outline-danger mr-2">
+                                    <i class="fas fa-plus"></i> Add Expense
+                                </a>
+                                <a href="{% url 'financialmanagement:income_add' %}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-plus"></i> Add Income
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Financial Goals -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-bullseye mr-2"></i>Financial Goals
+                    </h6>
+                    <a href="{% url 'financialmanagement:financialgoal_create' %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-plus"></i> Add Goal
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if active_goals %}
+                        {% for goal in active_goals %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>{{ goal.name }}</span>
+                                <span>Rp {{ goal.current_amount|floatformat:2 }} of Rp {{ goal.target_amount|floatformat:2 }}</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-warning" role="progressbar" 
+                                     style="width: {{ goal.progress_percentage }}%" 
+                                     aria-valuenow="{{ goal.progress_percentage }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">Due: {{ goal.due_date|date:"M d, Y" }} ({{ goal.days_remaining }} days left)</small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <p class="text-muted">No active financial goals</p>
+                            <a href="{% url 'financialmanagement:financialgoal_create' %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-plus"></i> Create Your First Goal
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Fitness Overview Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="fas fa-dumbbell mr-2"></i>Fitness Overview</h4>
+        </div>
+        
+        <!-- Current Weight Card -->
+        {% if latest_body_stat %}
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-primary shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-primary font-weight-bold mb-0">Current Weight</h6>
+                            <h3 class="mb-0">{{ latest_body_stat.weight_kg|floatformat:1 }} kg</h3>
+                            <small class="text-muted">{{ latest_body_stat.date|date:"M d, Y" }}</small>
+                        </div>
+                        <i class="fas fa-weight fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'fitnesstracker:body_stat_list' %}" class="btn btn-sm btn-outline-primary">View History</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Body Fat Percentage Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-info shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-info font-weight-bold mb-0">Body Fat</h6>
+                            <h3 class="mb-0">{{ latest_body_stat.body_fat_percentage|floatformat:1 }}%</h3>
+                            <small class="text-muted">Muscle: {{ latest_body_stat.muscle_mass_percentage|floatformat:1 }}%</small>
+                        </div>
+                        <i class="fas fa-chart-pie fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'fitnesstracker:body_stat_add' %}" class="btn btn-sm btn-outline-info">Update Stats</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Weekly Activity Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-success shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-success font-weight-bold mb-0">This Week</h6>
+                            <h3 class="mb-0">{{ stats.workouts_this_week|default:0 }}</h3>
+                            <small class="text-muted">Workouts completed</small>
+                        </div>
+                        <i class="fas fa-fire fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'fitnesstracker:fitness_goal_list' %}" class="btn btn-sm btn-outline-success">View Activities</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Workouts -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-dumbbell mr-2"></i>Recent Workouts
+                    </h6>
+                    <a href="{% url 'fitnesstracker:activity_log_add' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus"></i> Log Workout
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_workouts %}
+                        <div class="list-group list-group-flush">
+                            {% for workout in recent_workouts %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">{{ workout.activity_type }}</h6>
+                                        <small class="text-muted">{{ workout.date|date:"M d, Y" }}</small>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-weight-bold">{{ workout.duration_minutes }} min</div>
+                                        <small class="text-muted">{{ workout.calories_burned }} cal</small>
+                                    </div>
+                                </div>
+                                {% if workout.notes %}
+                                <div class="mt-2 small text-muted">{{ workout.notes|truncatechars:60 }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center p-4">
+                            <p class="text-muted mb-3">No recent workouts logged</p>
+                            <a href="{% url 'fitnesstracker:activity_log_add' %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus"></i> Log Your First Workout
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Fitness Goals -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-bullseye mr-2"></i>Fitness Goals
+                    </h6>
+                    <a href="{% url 'fitnesstracker:fitness_goal_add' %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-plus"></i> Add Goal
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if fitness_goals %}
+                        {% for goal in fitness_goals %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>{{ goal.get_goal_type_display }}</span>
+                                <span>{{ goal.progress_percentage }}% Complete</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-warning" role="progressbar" 
+                                     style="width: {{ goal.progress_percentage }}%" 
+                                     aria-valuenow="{{ goal.progress_percentage }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100"></div>
+                            </div>
+                            <small class="text-muted">
+                                {{ goal.description|truncatechars:50 }}
+                                {% if goal.target_date %}
+                                    <br>Target: {{ goal.target_date|date:"M d, Y" }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <p class="text-muted">No active fitness goals</p>
+                            <a href="{% url 'fitnesstracker:fitness_goal_add' %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-plus"></i> Create Your First Goal
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Meals & Drinks Section -->
+    <div class="row mb-4">
+        <!-- Recent Meals -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-utensils mr-2"></i>Recent Meals
+                    </h6>
+                    <a href="{% url 'mealtracker:meal_list' %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-plus"></i> Add Meal
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_meals %}
+                        <div class="list-group list-group-flush">
+                            {% for meal in recent_meals %}
+                            <div class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ meal.name }}</h6>
+                                    <small class="text-muted">{{ meal.calories }} cal</small>
+                                </div>
+                                <p class="mb-1">
+                                    <span class="badge badge-secondary">{{ meal.category.name }}</span>
+                                    <span class="badge badge-info">{{ meal.protein }}g protein</span>
+                                </p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <p class="text-muted">No meals logged yet</p>
+                            <a href="{% url 'mealtracker:meal_add' %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-plus"></i> Add Your First Meal
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Drinks -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-coffee mr-2"></i>Recent Drinks
+                    </h6>
+                    <a href="{% url 'mealtracker:drink_create' %}" class="btn btn-sm btn-info">
+                        <i class="fas fa-plus"></i> Add Drink
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_drinks %}
+                        <div class="list-group list-group-flush">
+                            {% for drink in recent_drinks %}
+                            <div class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ drink.name }}</h6>
+                                    <small class="text-muted">{{ drink.calories }} cal</small>
+                                </div>
+                                <p class="mb-1">
+                                    <span class="badge badge-secondary">{{ drink.category.name }}</span>
+                                    <span class="badge badge-warning">{{ drink.sugar }}g sugar</span>
+                                    {% if drink.is_caffeinated %}
+                                    <span class="badge badge-primary">Caffeinated</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <p class="text-muted">No drinks logged yet</p>
+                            <a href="{% url 'mealtracker:drink_create' %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-plus"></i> Add Your First Drink
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diet & Supplements -->
+    <div class="row mb-4">
+        <!-- Diet Types -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-apple-alt mr-2"></i>Diet Types
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if diet_types %}
+                        <div class="list-group list-group-flush">
+                            {% for diet in diet_types %}
+                            <div class="list-group-item">
+                                <h6 class="mb-1">{{ diet.name }}</h6>
+                                {% if diet.recommended_calories %}
+                                    <small class="text-muted">{{ diet.recommended_calories }} recommended calories</small>
+                                {% endif %}
+                                {% if diet.description %}
+                                    <p class="mb-0 small">{{ diet.description|truncatechars:100 }}</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No diet types available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Supplements -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-pills mr-2"></i>Supplements
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if supplements %}
+                        <div class="list-group list-group-flush">
+                            {% for supplement in supplements %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">{{ supplement.name }}</h6>
+                                    {% if supplement.brand %}
+                                        <small class="text-muted">{{ supplement.brand }}</small>
+                                    {% endif %}
+                                </div>
+                                {% if supplement.dosage %}
+                                    <small class="text-muted">Dosage: {{ supplement.dosage }}</small>
+                                {% endif %}
+                                {% if supplement.benefits %}
+                                    <p class="mb-0 small mt-1">{{ supplement.benefits|truncatechars:80 }}</p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">No supplements available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Tasks & Recent Activities -->
+    <div class="row">
+        <!-- Upcoming Tasks -->
+        {% if upcoming_tasks %}
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Upcoming Tasks</h6>
+                    <a href="{% url 'taskmanager:task-list' %}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for task in upcoming_tasks %}
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <a href="{% url 'taskmanager:task-detail' task.id %}" class="text-dark">
+                                        {{ task.title|truncatechars:40 }}
+                                    </a>
+                                </h6>
+                                <small class="text-muted">Due: {{ task.deadline|date:"M d" }}</small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if task.project %}
+                                    <span class="badge me-1" style="background-color: {{ task.project.color }}">
+                                        {{ task.project.name }}
+                                    </span>
+                                    {% endif %}
+                                    <span class="badge bg-{{ task.get_priority_display|lower }}">
+                                        {{ task.get_priority_display }}
+                                    </span>
+                                </div>
+                                <div class="progress flex-grow-1 mx-2" style="height: 6px;">
+                                    <div class="progress-bar bg-{{ task.get_priority_display|lower }}" 
+                                         role="progressbar" 
+                                         style="width: {{ task.progress }}%" 
+                                         aria-valuenow="{{ task.progress }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ task.progress }}%</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Meals -->
+        {% if recent_meals %}
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Meals</h6>
+                    <a href="{% url 'mealtracker:meal_list' %}" class="btn btn-sm btn-primary">View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for meal_log in recent_meals %}
+                        <div class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ meal_log.meal.name }}</h6>
+                                <small class="text-muted">{{ meal_log.timestamp|timesince }} ago</small>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <span class="badge bg-primary me-1">
+                                        {{ meal_log.meal.get_meal_type_display }}
+                                    </span>
+                                    <span class="text-muted">
+                                        {{ meal_log.meal.calories }} cal
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="text-muted">
+                                        {{ meal_log.meal.protein }}g protein
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     <!-- Recent Activity -->
@@ -292,87 +851,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Charts -->
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">Monthly Expenses</h6>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="expenseChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">Habit Progress</h6>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="habitChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-$(document).ready(function() {
-    // Initialize expense and habit charts
-    const expenseData = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-            label: 'Monthly Expenses',
-            data: [1200, 1900, 1500, 1700, 1800, 2100],
-            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        }]
-    };
-
-    const habitData = {
-        labels: ['Meditation', 'Reading', 'Exercise', 'Coding'],
-        datasets: [{
-            data: [85, 92, 78, 95],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)'
-            ],
-            borderWidth: 1
-        }]
-    };
-
-    if (document.getElementById('expenseChart')) {
-        new Chart(document.getElementById('expenseChart'), {
-            type: 'line',
-            data: expenseData,
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
-        });
-    }
-
-    if (document.getElementById('habitChart')) {
-        new Chart(document.getElementById('habitChart'), {
-            type: 'bar',
-            data: habitData,
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
-        });
-    }
-});
-</script>
+</div>
 {% endblock %}

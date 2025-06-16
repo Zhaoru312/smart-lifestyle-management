@@ -10,7 +10,7 @@
             <h1 class="h3 mb-1 font-weight-bold text-gray-900">Daftar Pemasukan</h1>
             <p class="mb-0 text-muted">Kelola catatan pemasukan Anda</p>
         </div>
-        <a href="{% url 'financial_home' %}" class="btn btn-outline-secondary no-print">
+        <a href="{% url 'financialmanagement:financial_home' %}" class="btn btn-outline-secondary no-print">
             <i class="fas fa-arrow-left me-2"></i>Kembali
         </a>
     </div>
@@ -43,7 +43,7 @@
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printSection('incomeCard')" title="Cetak Data">
                     <i class="fas fa-print"></i>
                 </button>
-                <a href="{% url 'income_create' %}" class="btn btn-primary btn-sm" title="Tambah Pemasukan Baru">
+                <a href="{% url 'financialmanagement:income_create' %}" class="btn btn-primary btn-sm" title="Tambah Pemasukan Baru">
                     <i class="fas fa-plus me-1"></i> Tambah
                 </a>
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleCard('incomeCard')" title="Sembunyikan/Tampilkan">
@@ -76,18 +76,18 @@
                                 </span>
                             </td>
                             <td class="font-weight-bold text-success">+ Rp {{ income.amount|currency_idr }}</td>
-                            <td>{{ income.description|default:"-"|truncatechars:60 }}</td>
+                            <td>{{ income.notes|default:"-"|truncatechars:60 }}</td>
                             <td>{{ income.created_at|date:"d M Y" }}</td>
                             <td>{{ income.updated_at|date:"d M Y" }}</td>
                             <td class="text-center no-print">
                                 <div class="btn-group" role="group">
-                                    <a href="{% url 'income_edit' income.pk %}" 
+                                    <a href="{% url 'financialmanagement:income_edit' income.pk %}" 
                                        class="btn btn-sm btn-warning"
                                        data-bs-toggle="tooltip" data-bs-placement="top"
                                        title="Edit Pemasukan">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{% url 'income_delete' income.pk %}" 
+                                    <a href="{% url 'financialmanagement:income_delete' income.pk %}" 
                                        class="btn btn-sm btn-danger"
                                        data-bs-toggle="tooltip" data-bs-placement="top"
                                        title="Hapus Pemasukan"
@@ -106,7 +106,7 @@
                 <i class="fas fa-hand-holding-usd fa-3x text-muted mb-3"></i>
                 <h5 class="text-muted">Tidak ada data pemasukan</h5>
                 <p class="text-muted mb-4">Mulai dengan menambahkan pemasukan baru</p>
-                <a href="{% url 'income_create' %}" class="btn btn-primary">
+                <a href="{% url 'financialmanagement:income_create' %}" class="btn btn-primary">
                     <i class="fas fa-plus me-1"></i> Tambah Pemasukan
                 </a>
             </div>
@@ -166,7 +166,7 @@ document.getElementById('incomeSearch').addEventListener('keyup', function() {
 
 // Print specific section
 function printSection(sectionId) {
-    const printContent = document.getElementById(sectionId).innerHTML;
+    const printContent = document.getElementById(sectionId).outerHTML;
     const originalContent = document.body.innerHTML;
     
     document.body.innerHTML = `

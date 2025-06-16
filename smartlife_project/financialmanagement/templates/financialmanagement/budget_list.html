@@ -10,7 +10,7 @@
             <h1 class="h3 mb-1 font-weight-bold text-gray-900">Daftar Budget</h1>
             <p class="mb-0 text-muted">Kelola budget keuangan Anda</p>
         </div>
-        <a href="{% url 'financial_home' %}" class="btn btn-outline-secondary no-print">
+        <a href="{% url 'financialmanagement:financial_home' %}" class="btn btn-outline-secondary no-print">
             <i class="fas fa-arrow-left me-2"></i>Kembali
         </a>
     </div>
@@ -43,7 +43,7 @@
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printSection('budgetCard')" title="Cetak Data">
                     <i class="fas fa-print"></i>
                 </button>
-                <a href="{% url 'budget_create' %}" class="btn btn-primary btn-sm" title="Tambah Budget Baru">
+                <a href="{% url 'financialmanagement:budget_create' %}" class="btn btn-primary btn-sm" title="Tambah Budget Baru">
                     <i class="fas fa-plus me-1"></i> Tambah
                 </a>
                 <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleCard('budgetCard')" title="Sembunyikan/Tampilkan">
@@ -75,13 +75,13 @@
                             <td>{{ budget.notes|default:"-"|truncatechars:60 }}</td>
                             <td class="text-center no-print">
                                 <div class="btn-group" role="group">
-                                    <a href="{% url 'budget_update' budget.pk %}" 
+                                    <a href="{% url 'financialmanagement:budget_update' budget.pk %}" 
                                        class="btn btn-sm btn-warning"
                                        data-bs-toggle="tooltip" data-bs-placement="top"
                                        title="Edit Budget">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{% url 'budget_delete' budget.pk %}" 
+                                    <a href="{% url 'financialmanagement:budget_delete' budget.pk %}" 
                                        class="btn btn-sm btn-danger"
                                        data-bs-toggle="tooltip" data-bs-placement="top"
                                        title="Hapus Budget"
@@ -100,7 +100,7 @@
                 <i class="fas fa-wallet fa-3x text-muted mb-3"></i>
                 <h5 class="text-muted">Tidak ada data budget</h5>
                 <p class="text-muted mb-4">Mulai dengan menambahkan budget baru</p>
-                <a href="{% url 'budget_create' %}" class="btn btn-primary">
+                <a href="{% url 'financialmanagement:budget_create' %}" class="btn btn-primary">
                     <i class="fas fa-plus me-1"></i> Tambah Budget
                 </a>
             </div>
@@ -161,7 +161,7 @@ document.getElementById('budgetSearch').addEventListener('keyup', function() {
 
 // Print specific section
 function printSection(sectionId) {
-    const printContent = document.getElementById(sectionId).innerHTML;
+    const printContent = document.getElementById(sectionId).outerHTML;
     const originalContent = document.body.innerHTML;
     
     document.body.innerHTML = `

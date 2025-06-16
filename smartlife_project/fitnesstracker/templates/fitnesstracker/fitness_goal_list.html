@@ -2,8 +2,10 @@
 
 {% block content %}
   <h2>Fitness Goals</h2>
-  <a href="{% url 'fitness_goal_add' %}" class="btn btn-primary mb-3">Add New Goal</a>
-  <table class="table table-bordered">
+  <a href="{% url 'fitnesstracker:fitness_goal_add' %}" class="btn btn-primary mb-3">Add New Goal</a>
+
+  <!-- ✅ Tambahkan class "datatable" -->
+  <table class="table table-bordered datatable">
     <thead>
       <tr>
         <th>Goal Type</th>
@@ -23,11 +25,41 @@
         <td>{{ goal.is_achieved }}</td>
         <td>{{ goal.progress_percentage }}</td>
         <td>
-          <a href="{% url 'fitness_goal_edit' goal.pk %}" class="btn btn-warning btn-sm">Edit</a>
-          <a href="{% url 'fitness_goal_delete' goal.pk %}" class="btn btn-danger btn-sm">Delete</a>
+          <a href="{% url 'fitnesstracker:fitness_goal_edit' goal.pk %}" class="btn btn-warning btn-sm">Edit</a>
+          <a href="{% url 'fitnesstracker:fitness_goal_delete' goal.pk %}" class="btn btn-danger btn-sm">Delete</a>
         </td>
       </tr>
+      {% empty %}
+      <tr><td colspan="6" class="text-center">No fitness goals found.</td></tr>
       {% endfor %}
     </tbody>
   </table>
+{% endblock %}
+
+{% block extra_js %}
+  <!-- jQuery & DataTables -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+  <!-- DataTables Buttons extension -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+  <!-- FileSaver & PDF support -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+  <!-- DataTables init -->
+  <script>
+    $(document).ready(function () {
+      $('.datatable').DataTable({
+        dom: 'Bfrtip',
+        buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+      });
+    });
+  </script>
 {% endblock %}
