@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .models import WorkoutPlan, Exercise, BodyStat, ActivityLog, FitnessGoal
 from .forms import WorkoutPlanForm, ExerciseForm, BodyStatForm, ActivityLogForm, FitnessGoalForm
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 
 def fitness_goal_list(request):
     goals = FitnessGoal.objects.all()
@@ -12,7 +13,7 @@ def fitness_goal_add(request):
         form = FitnessGoalForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:fitness_goal_list')
+            return redirect('fitness_goal_list')
     else:
         form = FitnessGoalForm()
     return render(request, 'fitnesstracker/fitness_goal_form.html', {'form': form})
@@ -23,7 +24,7 @@ def fitness_goal_edit(request, pk):
         form = FitnessGoalForm(request.POST, instance=goal)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:fitness_goal_list')
+            return redirect('fitness_goal_list')
     else:
         form = FitnessGoalForm(instance=goal)
     return render(request, 'fitnesstracker/fitness_goal_form.html', {'form': form})
@@ -32,8 +33,11 @@ def fitness_goal_delete(request, pk):
     goal = get_object_or_404(FitnessGoal, pk=pk)
     if request.method == 'POST':
         goal.delete()
-        return redirect('fitnesstracker:fitness_goal_list')
-    return render(request, 'fitnesstracker/fitness_goal_confirm_delete.html', {'goal': goal})
+        return redirect('fitness_goal_list')
+    return render(request, 'fitnesstracker/fitness_goal_confirm_delete.html', {
+        'goal': goal,
+        'back_url': reverse('fitness_goal_list')
+    })
 
 def activity_log_list(request):
     logs = ActivityLog.objects.all().order_by('-date')
@@ -44,7 +48,7 @@ def activity_log_add(request):
         form = ActivityLogForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:activity_log_list')
+            return redirect('activity_log_list')
     else:
         form = ActivityLogForm()
     return render(request, 'fitnesstracker/activity_log_form.html', {'form': form})
@@ -55,7 +59,7 @@ def activity_log_edit(request, pk):
         form = ActivityLogForm(request.POST, instance=log)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:activity_log_list')
+            return redirect('activity_log_list')
     else:
         form = ActivityLogForm(instance=log)
     return render(request, 'fitnesstracker/activity_log_form.html', {'form': form})
@@ -64,8 +68,11 @@ def activity_log_delete(request, pk):
     log = get_object_or_404(ActivityLog, pk=pk)
     if request.method == 'POST':
         log.delete()
-        return redirect('fitnesstracker:activity_log_list')
-    return render(request, 'fitnesstracker/activity_log_confirm_delete.html', {'log': log})
+        return redirect('activity_log_list')
+    return render(request, 'fitnesstracker/activity_log_confirm_delete.html', {
+        'log': log,
+        'back_url': reverse('activity_log_list')
+    })
 
 def fitness_index(request):
     return render(request, 'fitnesstracker/index.html')
@@ -75,7 +82,7 @@ def workout_plan_create(request):
         form = WorkoutPlanForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:workout_plan_list')
+            return redirect('workout_plan_list')
     else:
         form = WorkoutPlanForm()
     return render(request, 'fitnesstracker/workout_plan_form.html', {'form': form})
@@ -86,7 +93,7 @@ def workout_plan_edit(request, pk):
         form = WorkoutPlanForm(request.POST, instance=plan)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:workout_plan_list')
+            return redirect('workout_plan_list')
     else:
         form = WorkoutPlanForm(instance=plan)
     return render(request, 'fitnesstracker/workout_plan_form.html', {'form': form})
@@ -95,8 +102,11 @@ def workout_plan_delete(request, pk):
     plan = get_object_or_404(WorkoutPlan, pk=pk)
     if request.method == 'POST':
         plan.delete()
-        return redirect('fitnesstracker:workout_plan_list')
-    return render(request, 'fitnesstracker/workout_plan_confirm_delete.html', {'plan': plan})
+        return redirect('workout_plan_list')
+    return render(request, 'fitnesstracker/workout_plan_confirm_delete.html', {
+        'plan': plan,
+        'back_url': reverse('workout_plan_list')
+    })
 
 def body_stat_list(request):
     stats = BodyStat.objects.all().order_by('-date')
@@ -104,7 +114,7 @@ def body_stat_list(request):
         form = BodyStatForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:body_stat_list')
+            return redirect('body_stat_list')
     else:
         form = BodyStatForm()
     
@@ -116,7 +126,7 @@ def workout_plan_list(request):
         form = WorkoutPlanForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:workout_plan_list')
+            return redirect('workout_plan_list')
     else:
         form = WorkoutPlanForm()
     
@@ -131,7 +141,7 @@ def exercise_add(request):
         form = ExerciseForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:exercise_list')
+            return redirect('exercise_list')
     else:
         form = ExerciseForm()
     return render(request, 'fitnesstracker/exercise_form.html', {'form': form})
@@ -142,7 +152,7 @@ def exercise_edit(request, pk):
         form = ExerciseForm(request.POST, instance=exercise)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:exercise_list')
+            return redirect('exercise_list')
     else:
         form = ExerciseForm(instance=exercise)
     return render(request, 'fitnesstracker/exercise_form.html', {'form': form})
@@ -151,8 +161,11 @@ def exercise_delete(request, pk):
     exercise = get_object_or_404(Exercise, pk=pk)
     if request.method == 'POST':
         exercise.delete()
-        return redirect('fitnesstracker:exercise_list')
-    return render(request, 'fitnesstracker/exercise_confirm_delete.html', {'exercise': exercise})
+        return redirect('exercise_list')
+    return render(request, 'fitnesstracker/exercise_confirm_delete.html', {
+        'exercise': exercise,
+        'back_url': reverse('exercise_list')
+    })
 
 def body_stat_list(request):
     stats = BodyStat.objects.all().order_by('-date')
@@ -163,7 +176,7 @@ def body_stat_add(request):
         form = BodyStatForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:body_stat_list')
+            return redirect('body_stat_list')
     else:
         form = BodyStatForm()
     return render(request, 'fitnesstracker/bodystat_form.html', {'form': form})
@@ -174,7 +187,7 @@ def body_stat_edit(request, pk):
         form = BodyStatForm(request.POST, instance=stat)
         if form.is_valid():
             form.save()
-            return redirect('fitnesstracker:body_stat_list')
+            return redirect('body_stat_list')
     else:
         form = BodyStatForm(instance=stat)
     return render(request, 'fitnesstracker/bodystat_form.html', {'form': form})
@@ -183,5 +196,8 @@ def body_stat_delete(request, pk):
     stat = get_object_or_404(BodyStat, pk=pk)
     if request.method == 'POST':
         stat.delete()
-        return redirect('fitnesstracker:body_stat_list')
-    return render(request, 'fitnesstracker/bodystat_confirm_delete.html', {'stat': stat})
+        return redirect('body_stat_list')
+    return render(request, 'fitnesstracker/bodystat_confirm_delete.html', {
+        'stat': stat,
+        'back_url': reverse('body_stat_list')
+    })

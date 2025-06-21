@@ -52,8 +52,6 @@ INSTALLED_APPS = [
     'financialmanagement',
     'fitnesstracker',
     'mealtracker',
-    'habittracker',
-    'mentalhealth',
     'taskmanager'
 ]
 

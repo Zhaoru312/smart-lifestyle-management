@@ -1,11 +1,19 @@
 {% extends 'dashboardmanager/base.html' %}
-
 {% block content %}
-  <h2>Delete Fitness Goal</h2>
-  <p>Are you sure you want to delete this goal: <strong>{{ goal.goal_type }}</strong>?</p>
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Yes, delete</button>
-    <a href="{% url 'fitnesstracker:fitness_goal_list' %}" class="btn btn-secondary">Cancel</a>
-  </form>
+{% include 'fitnesstracker/_back_button_confirm_delete.html' with back_url=back_url %}
+{% include 'fitnesstracker/_confirm_delete_style.html' %}
+<div class="confirm-delete-card">
+    <div class="confirm-delete-header">
+        <span class="confirm-delete-icon"><i class="fas fa-trash-alt"></i></span><br>
+        Confirm Delete
+    </div>
+    <div class="confirm-delete-body">
+        <div class="confirm-delete-text">Are you sure you want to delete this goal: <strong>{{ goal.goal_type }}</strong>?</div>
+        <form method="post" class="confirm-delete-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Yes, delete</button>
+            {# pastikan context view mengirimkan back_url=reverse('fitness_goal_list') #}
+        </form>
+    </div>
+</div>
 {% endblock %}

@@ -29,9 +29,7 @@ urlpatterns = [
     # Feature-specific app URLs
     path('finance/', include('financialmanagement.urls')),
     path('fitness/', include('fitnesstracker.urls')),
-    path('habit/', include('habittracker.urls')),
     path('meal/', include('mealtracker.urls')),
-    path('mental/', include('mentalhealth.urls')),
     path('tasks/', include('taskmanager.urls')),
     
     # Django admin interface

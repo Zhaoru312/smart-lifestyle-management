@@ -1,75 +1,304 @@
 {% extends 'dashboardmanager/base.html' %}
 
+{% block title %}{{ form.instance.pk|yesno:'Edit Budget,Tambah Budget' }} | SmartLife{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #5c6bc0;
+        box-shadow: 0 0 0 0.2rem rgba(92, 107, 192, 0.25);
+    }
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+    .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875em;
+    }
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4 d-flex justify-content-center">
-  <div class="card shadow-lg border-0 rounded-4" style="width: 100%; max-width: 650px;">
-    <div class="card-header bg-dark text-white">
-      <h4 class="mb-0">{{ form.instance.pk|yesno:"Edit Budget,Tambah Budget Baru" }}</h4>
+<div>
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">{{ form.instance.pk|yesno:'Edit Budget,Tambah Budget' }}</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboardmanager:index' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'financialmanagement:budget_list' %}">Daftar Budget</a></li>
+                        <li class="breadcrumb-item active">{{ form.instance.pk|yesno:'Edit,Tambah' }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-      <form method="post" class="vertical-form">
-        {% csrf_token %}
 
-        <div class="mb-3">
-          <label for="{{ form.name.id_for_label }}" class="form-label">Nama Budget</label>
-          {{ form.name }}
-        </div>
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas {{ form.instance.pk|yesno:'fa-edit,fa-plus-circle' }} mr-1"></i>
+                                {{ form.instance.pk|yesno:'Edit Data Budget,Form Tambah Budget' }}
+                            </h3>
+                        </div>
+                        <form method="post" class="form-horizontal">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card-body">
+                                <!-- Name Field -->
+                                <div class="form-group row">
+                                    <label for="{{ form.name.id_for_label }}" class="col-sm-3 col-form-label">
+                                        Nama Budget <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" 
+                                               name="{{ form.name.name }}" 
+                                               id="{{ form.name.id_for_label }}" 
+                                               class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                                               value="{{ form.name.value|default:'' }}"
+                                               placeholder="Contoh: Budget Bulanan Januari"
+                                               {% if not form.name.value and not form.name.errors %}autofocus{% endif %}>
+                                        {% if form.name.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.name.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-        <div class="mb-3">
-          <label for="{{ form.start_date.id_for_label }}" class="form-label">Tanggal Mulai</label>
-          {{ form.start_date }}
-        </div>
+                                <!-- Start Date Field -->
+                                <div class="form-group row">
+                                    <label for="{{ form.start_date.id_for_label }}" class="col-sm-3 col-form-label">
+                                        Tanggal Mulai <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group date" id="start-datepicker" data-td-target-input="nearest">
+                                            <input type="date" 
+                                                   name="{{ form.start_date.name }}" 
+                                                   id="{{ form.start_date.id_for_label }}" 
+                                                   class="form-control {% if form.start_date.errors %}is-invalid{% endif %}" 
+                                                   value="{{ form.start_date.value|date:'Y-m-d' }}">
+                                            <div class="input-group-append" data-td-target="#start-datepicker" data-td-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                        {% if form.start_date.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.start_date.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-        <div class="mb-3">
-          <label for="{{ form.end_date.id_for_label }}" class="form-label">Tanggal Berakhir</label>
-          {{ form.end_date }}
-        </div>
+                                <!-- End Date Field -->
+                                <div class="form-group row">
+                                    <label for="{{ form.end_date.id_for_label }}" class="col-sm-3 col-form-label">
+                                        Tanggal Berakhir <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group date" id="end-datepicker" data-td-target-input="nearest">
+                                            <input type="date" 
+                                                   name="{{ form.end_date.name }}" 
+                                                   id="{{ form.end_date.id_for_label }}" 
+                                                   class="form-control {% if form.end_date.errors %}is-invalid{% endif %}" 
+                                                   value="{{ form.end_date.value|date:'Y-m-d' }}">
+                                            <div class="input-group-append" data-td-target="#end-datepicker" data-td-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                        {% if form.end_date.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.end_date.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-        <div class="mb-3">
-          <label for="{{ form.notes.id_for_label }}" class="form-label">Catatan</label>
-          {{ form.notes }}
-        </div>
+                                <!-- Amount Field -->
+                                <div class="form-group row">
+                                    <label for="id_amount_formatted" class="col-sm-3 col-form-label">
+                                        Jumlah (Rp) <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <div class="input-group">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="text" 
+                                                   id="id_amount_formatted" 
+                                                   name="amount_display" 
+                                                   class="form-control {% if form.amount.errors %}is-invalid{% endif %}" 
+                                                   placeholder="Contoh: 1.000.000" 
+                                                   oninput="formatRupiah(this)" 
+                                                   value="{{ form.initial.amount|default:'' }}">
+                                        </div>
+                                        <input type="hidden" name="amount" id="id_amount" value="{{ form.initial.amount|default:0 }}">
+                                        {% if form.amount.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.amount.errors.0 }}
+                                            </div>
+                                        {% else %}
+                                            <small class="form-text text-muted">Masukkan jumlah tanpa titik atau koma</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-        <div class="mb-3">
-          <label for="id_amount_formatted" class="form-label">Jumlah (Rp)</label>
-          <div class="input-group">
-            <span class="input-group-text">Rp</span>
-            <input type="text" id="id_amount_formatted" name="amount_display" class="form-control" placeholder="Contoh: 100.000" oninput="formatRupiah(this)" />
-          </div>
-          <input type="hidden" name="amount" id="id_amount" />
-        </div>
+                                <!-- Notes Field -->
+                                <div class="form-group row">
+                                    <label for="{{ form.notes.id_for_label }}" class="col-sm-3 col-form-label">
+                                        Catatan
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <textarea name="{{ form.notes.name }}" 
+                                                  id="{{ form.notes.id_for_label }}" 
+                                                  class="form-control" 
+                                                  rows="3" 
+                                                  placeholder="Tulis catatan (opsional)">{% if form.notes.value %}{{ form.notes.value }}{% endif %}</textarea>
+                                        {% if form.notes.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.notes.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
 
-        <div class="d-flex justify-content-end gap-2">
-          <button type="submit" class="btn btn-dark"><i class="fas fa-save me-1"></i> Simpan</button>
-          <a href="{% url 'financialmanagement:budget_list' %}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Batal</a>
+                            <div class="card-footer text-right">
+                                <a href="{% url 'financialmanagement:budget_list' %}" class="btn btn-secondary mr-2">
+                                    <i class="fas fa-arrow-left mr-1"></i> Kembali
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-1"></i> Simpan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-      </form>
-    </div>
-  </div>
+    </section>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+$(document).ready(function() {
+    // Format Rupiah on page load if amount exists
     const rawAmount = document.getElementById('id_amount').value;
-    if (rawAmount) {
-      const formatted = new Intl.NumberFormat('id-ID').format(rawAmount);
-      document.getElementById('id_amount_formatted').value = formatted;
+    if (rawAmount && parseFloat(rawAmount) > 0) {
+        const formatted = formatRupiahValue(rawAmount);
+        document.getElementById('id_amount_formatted').value = formatted;
     }
-  });
 
-  function formatRupiah(el) {
-    let raw = el.value.replace(/\D/g, '');
-    let formatted = '';
-    let reverse = raw.split('').reverse().join('');
-    for (let i = 0; i < reverse.length; i++) {
-      formatted += reverse[i];
-      if ((i + 1) % 3 === 0 && i + 1 !== reverse.length) {
-        formatted += '.';
-      }
+    // Initialize datepickers if available
+    if (typeof tempusDominus !== 'undefined') {
+        // Start Date Picker
+        const startDatepickerEl = document.getElementById('start-datepicker');
+        if (startDatepickerEl) {
+            new tempusDominus.TempusDominus(startDatepickerEl, {
+                localization: {
+                    locale: 'id',
+                    format: 'yyyy-MM-dd',
+                },
+                display: {
+                    icons: {
+                        time: 'fa fa-clock',
+                        date: 'fa fa-calendar',
+                        up: 'fa fa-arrow-up',
+                        down: 'fa fa-arrow-down',
+                        previous: 'fa fa-chevron-left',
+                        next: 'fa fa-chevron-right',
+                        today: 'fa fa-calendar-check',
+                        clear: 'fa fa-trash',
+                        close: 'fa fa-times'
+                    },
+                    buttons: {
+                        today: true,
+                        clear: true,
+                        close: true
+                    }
+                },
+                defaultDate: '{{ form.start_date.value|default:"" }}' || new Date(),
+            });
+        }
+
+        // End Date Picker
+        const endDatepickerEl = document.getElementById('end-datepicker');
+        if (endDatepickerEl) {
+            new tempusDominus.TempusDominus(endDatepickerEl, {
+                localization: {
+                    locale: 'id',
+                    format: 'yyyy-MM-dd',
+                },
+                display: {
+                    icons: {
+                        time: 'fa fa-clock',
+                        date: 'fa fa-calendar',
+                        up: 'fa fa-arrow-up',
+                        down: 'fa fa-arrow-down',
+                        previous: 'fa fa-chevron-left',
+                        next: 'fa fa-chevron-right',
+                        today: 'fa fa-calendar-check',
+                        clear: 'fa fa-trash',
+                        close: 'fa fa-times'
+                    },
+                    buttons: {
+                        today: true,
+                        clear: true,
+                        close: true
+                    }
+                },
+                defaultDate: '{{ form.end_date.value|default:"" }}' || new Date(),
+            });
+        }
     }
-    formatted = formatted.split('').reverse().join('');
-    el.value = formatted;
-    document.getElementById('id_amount').value = raw;
-  }
+});
+
+function formatRupiah(input) {
+    // Remove all non-digit characters
+    let value = input.value.replace(/\D/g, '');
+    
+    // Store the cursor position
+    const cursorPosition = input.selectionStart;
+    
+    // Format the number with dots as thousand separators
+    const formattedValue = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    
+    // Update the input value
+    input.value = formattedValue;
+    
+    // Update the hidden input with the raw number
+    document.getElementById('id_amount').value = value;
+    
+    // Restore the cursor position
+    const newCursorPosition = cursorPosition + (formattedValue.length - input.value.length);
+    input.setSelectionRange(newCursorPosition, newCursorPosition);
+}
+
+function formatRupiahValue(value) {
+    // Format a raw number value to Rupiah format
+    if (!value) return '';
+    const num = parseFloat(value);
+    if (isNaN(num)) return '';
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
 </script>
 {% endblock %}

@@ -1,18 +1,19 @@
 {% extends 'dashboardmanager/base.html' %}
-
-{% block title %}Delete Exercise | SmartLife{% endblock %}
-
-{% block content_header %}
-<h1 class="m-0">Delete Exercise</h1>
-{% endblock %}
-
 {% block content %}
-<div class="alert alert-danger">
-    <p>Are you sure you want to delete "{{ exercise.name }}"?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Yes, delete</button>
-        <a href="{% url 'fitnesstracker:exercise_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+{% include 'fitnesstracker/_back_button_confirm_delete.html' with back_url=back_url %}
+{% include 'fitnesstracker/_confirm_delete_style.html' %}
+<div class="confirm-delete-card">
+    <div class="confirm-delete-header">
+        <span class="confirm-delete-icon"><i class="fas fa-trash-alt"></i></span><br>
+        Confirm Delete
+    </div>
+    <div class="confirm-delete-body">
+        <div class="confirm-delete-text">Are you sure you want to delete <strong>{{ exercise.name }}</strong>?</div>
+        <form method="post" class="confirm-delete-form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Yes, delete</button>
+            {# pastikan context view mengirimkan back_url=reverse('exercise_list') #}
+        </form>
+    </div>
 </div>
 {% endblock %}

@@ -91,13 +91,17 @@
                                                 title="Edit Hero Section">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="{% url 'dashboardmanager:delete_hero_section' hero.id %}" 
-                                                class="btn btn-sm btn-danger btn-delete"
-                                                data-bs-toggle="tooltip" data-bs-placement="top" 
-                                                title="Delete Hero Section"
-                                                onclick="return confirm('Are you sure you want to delete this hero section?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form action="{% url 'dashboardmanager:delete_hero_section' hero.id %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" 
+                                                        class="btn btn-sm btn-danger" 
+                                                        data-bs-toggle="tooltip" 
+                                                        data-bs-placement="top" 
+                                                        title="Delete Hero Section"
+                                                        onclick="return confirm('Are you sure you want to delete this hero section?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -184,13 +188,17 @@
                                                title="Edit Feature">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="{% url 'dashboardmanager:delete_feature' feature.id %}" 
-                                               class="btn btn-sm btn-danger"
-                                               data-bs-toggle="tooltip" data-bs-placement="top"
-                                               title="Delete Feature"
-                                               onclick="return confirm('Are you sure you want to delete this feature?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form action="{% url 'dashboardmanager:delete_feature' feature.id %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" 
+                                                        class="btn btn-sm btn-danger" 
+                                                        data-bs-toggle="tooltip" 
+                                                        data-bs-placement="top" 
+                                                        title="Delete Feature"
+                                                        onclick="return confirm('Are you sure you want to delete this feature?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -278,13 +286,17 @@
                                                 title="Edit FAQ">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="{% url 'dashboardmanager:delete_faq' faq.id %}" 
-                                                class="btn btn-sm btn-danger btn-delete"
-                                                data-bs-toggle="tooltip" data-bs-placement="top" 
-                                                title="Delete FAQ"
-                                                onclick="return confirm('Are you sure you want to delete this FAQ?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form action="{% url 'dashboardmanager:delete_faq' faq.id %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" 
+                                                        class="btn btn-sm btn-danger" 
+                                                        data-bs-toggle="tooltip" 
+                                                        data-bs-placement="top" 
+                                                        title="Delete FAQ"
+                                                        onclick="return confirm('Are you sure you want to delete this FAQ?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -394,13 +406,17 @@
                                                title="Edit Testimonial">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="{% url 'dashboardmanager:delete_testimonial' testimonial.id %}" 
-                                               class="btn btn-sm btn-danger"
-                                               data-bs-toggle="tooltip" data-bs-placement="top"
-                                               title="Delete Testimonial"
-                                               onclick="return confirm('Are you sure you want to delete this testimonial?')">
-                                                <i class="fas fa-trash"></i>
-                                            </a>
+                                            <form action="{% url 'dashboardmanager:delete_testimonial' testimonial.id %}" method="post" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" 
+                                                        class="btn btn-sm btn-danger" 
+                                                        data-bs-toggle="tooltip" 
+                                                        data-bs-placement="top" 
+                                                        title="Delete Testimonial"
+                                                        onclick="return confirm('Are you sure you want to delete this testimonial?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>

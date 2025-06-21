@@ -25,56 +25,88 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Confirmation for delete actions with SweetAlert2
-    const deleteButtons = document.querySelectorAll('.btn-delete');
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', async function(e) {
-            e.preventDefault();
-            const deleteUrl = this.getAttribute('href');
-            
+    // Handle form submissions with confirmation
+    document.addEventListener('submit', async function(e) {
+        const form = e.target;
+        
+        // Only handle forms with data-confirm attribute
+        if (!form.hasAttribute('data-confirm')) {
+            return true;
+        }
+        
+        // Prevent default form submission
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const confirmMessage = form.getAttribute('data-confirm');
+        const formData = new FormData(form);
+        
+        // Show confirmation dialog
+        try {
             const result = await Swal.fire({
                 title: 'Are you sure?',
-                text: 'This action cannot be undone!',
+                text: confirmMessage,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
                 reverseButtons: true,
-                focusCancel: true
+                focusCancel: true,
+                allowOutsideClick: false,
+                allowEscapeKey: false
             });
             
-            if (result.isConfirmed) {
-                try {
-                    const response = await fetch(deleteUrl, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': getCookie('csrftoken'),
-                            'X-Requested-With': 'XMLHttpRequest',
-                        },
-                    });
-                    
-                    const data = await response.json();
-                    
-                    if (response.ok && data.success) {
-                        // Remove the row from the table
-                        const row = this.closest('tr');
-                        row.style.opacity = '0';
-                        setTimeout(() => {
-                            row.remove();
-                            showAlert('Item deleted successfully!', 'success');
-                        }, 300);
-                    } else {
-                        throw new Error(data.message || 'Failed to delete item');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    showAlert(error.message || 'An error occurred while deleting the item.', 'error');
-                }
+            if (!result.isConfirmed) {
+                return false;
             }
             
-            return false;
-        });
+            // If confirmed, proceed with the form submission
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+            });
+            
+            if (response.redirected) {
+                // If the response is a redirect, follow it
+                window.location.href = response.url;
+                return;
+            }
+            
+            if (response.redirected) {
+                // If the response is a redirect, follow it
+                window.location.href = response.url;
+                return;
+            }
+            
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                // Remove the row from the table
+                const row = form.closest('tr');
+                if (row) {
+                    row.style.opacity = '0';
+                    setTimeout(() => {
+                        row.remove();
+                        showAlert(data.message || 'Item deleted successfully!', 'success');
+                    }, 300);
+                } else {
+                    showAlert(data.message || 'Item deleted successfully!', 'success');
+                    // Reload the page to reflect changes if the row couldn't be found
+                    setTimeout(() => window.location.reload(), 1500);
+                }
+            } else {
+                throw new Error(data.message || 'Failed to delete item');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert(error.message || 'An error occurred while processing your request.', 'error');
+        }
     });
     
     // Toggle active status with loading state
@@ -258,6 +290,9 @@ function showAlert(message, type = 'info') {
             const alert = bootstrap.Alert.getOrCreateInstance(alertDiv);
             if (alert) {
                 alert.close();
+            } else {
+                // Fallback in case Bootstrap's Alert is not available
+                alertDiv.remove();
             }
         }, 5000);
     }
@@ -265,6 +300,8 @@ function showAlert(message, type = 'info') {
 
 function clearSearch(inputId) {
     const input = document.getElementById(inputId);
+    if (!input) return;
+    
     input.value = '';
     
     // Trigger the input event to refresh the search

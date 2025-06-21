@@ -1,19 +1,19 @@
 <!-- templates/fitnesstracker/workout_plan_confirm_delete.html -->
 {% extends 'dashboardmanager/base.html' %}
-
-{% block title %}Delete Workout Plan{% endblock %}
-
 {% block content %}
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Confirm Delete</h3>
+{% include 'fitnesstracker/_back_button_confirm_delete.html' with back_url=back_url %}
+{% include 'fitnesstracker/_confirm_delete_style.html' %}
+<div class="confirm-delete-card">
+    <div class="confirm-delete-header">
+        <span class="confirm-delete-icon"><i class="fas fa-trash-alt"></i></span><br>
+        Confirm Delete
     </div>
-    <div class="card-body">
-        <p>Are you sure you want to delete <strong>{{ plan.name }}</strong>?</p>
-        <form method="post">
+    <div class="confirm-delete-body">
+        <div class="confirm-delete-text">Are you sure you want to delete <strong>{{ plan.name }}</strong>?</div>
+        <form method="post" class="confirm-delete-form">
             {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Yes, delete</button>
-            <a href="{% url 'fitnesstracker:workout_plan_list' %}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Yes, delete</button>
+            {# pastikan context view mengirimkan back_url=reverse('workout_plan_list') #}
         </form>
     </div>
 </div>

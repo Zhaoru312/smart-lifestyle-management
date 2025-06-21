@@ -7,44 +7,98 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6 col-lg-4">
-        <div class="card bg-light">
-            <div class="card-body text-center">
-                <h5>Workout Plans</h5>
-                <a href="{% url 'fitnesstracker:workout_plan_list' %}" class="btn btn-primary">View</a>
+<style>
+    .fitness-hero {
+        background: linear-gradient(90deg, #56ccf2 0%, #2f80ed 100%);
+        color: #fff;
+        border-radius: 1rem;
+        padding: 2.5rem 2rem 2rem 2rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.12);
+        text-align: center;
+    }
+    .fitness-card {
+        border: none;
+        border-radius: 1.5rem;
+        box-shadow: 0 4px 16px rgba(44, 62, 80, 0.10);
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-bottom: 2.5rem;
+        background: #f8fafc;
+    }
+    .fitness-col {
+        margin-bottom: 2.5rem;
+    }
+    .fitness-feature-row {
+        margin-top: 1.5rem;
+    }
+    .fitness-card:hover {
+        transform: translateY(-8px) scale(1.03);
+        box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
+    }
+    .fitness-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.6rem;
+        color: #2f80ed;
+    }
+    .fitness-btn {
+        border-radius: 2rem;
+        padding: 0.5rem 2rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="fitness-hero">
+    <h1 class="display-4 font-weight-bold mb-2">Fitness Dashboard</h1>
+    <p class="lead mb-0">Track, plan, and achieve your fitness goals with SmartLife!</p>
+</div>
+<div class="row justify-content-center fitness-feature-row">
+    <div class="col-md-6 col-lg-4 fitness-col">
+        <div class="card fitness-card text-center">
+            <div class="card-body">
+                <div class="fitness-icon"><i class="fas fa-dumbbell"></i></div>
+                <h5 class="card-title">Workout Plans</h5>
+                <p class="card-text">Kelola dan lihat rencana latihan Anda.</p>
+                <a href="{% url 'fitnesstracker:workout_plan_list' %}" class="btn btn-primary fitness-btn">View</a>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-lg-4">
-        <div class="card bg-light">
-            <div class="card-body text-center">
-                <h5>Exercises</h5>
-                <a href="{% url 'fitnesstracker:exercise_list' %}" class="btn btn-primary">View</a>
+    <div class="col-md-6 col-lg-4 fitness-col">
+        <div class="card fitness-card text-center">
+            <div class="card-body">
+                <div class="fitness-icon"><i class="fas fa-running"></i></div>
+                <h5 class="card-title">Exercises</h5>
+                <p class="card-text">Kumpulan latihan dan instruksi gerakan.</p>
+                <a href="{% url 'fitnesstracker:exercise_list' %}" class="btn btn-primary fitness-btn">View</a>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-lg-4">
-        <div class="card bg-light">
-            <div class="card-body text-center">
-                <h5>Body Stats</h5>
-                <a href="{% url 'fitnesstracker:body_stat_list' %}" class="btn btn-primary">View</a>
+    <div class="col-md-6 col-lg-4 fitness-col">
+        <div class="card fitness-card text-center">
+            <div class="card-body">
+                <div class="fitness-icon"><i class="fas fa-weight"></i></div>
+                <h5 class="card-title">Body Stats</h5>
+                <p class="card-text">Pantau progres berat badan dan statistik tubuh.</p>
+                <a href="{% url 'fitnesstracker:body_stat_list' %}" class="btn btn-primary fitness-btn">View</a>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-lg-4">
-        <div class="card bg-light">
-            <div class="card-body text-center">
-                <h5>Activity Logs</h5>
-                <a href="{% url 'fitnesstracker:activity_log_list' %}" class="btn btn-primary">View</a>
+    <div class="col-md-6 col-lg-4 fitness-col">
+        <div class="card fitness-card text-center">
+            <div class="card-body">
+                <div class="fitness-icon"><i class="fas fa-chart-line"></i></div>
+                <h5 class="card-title">Activity Logs</h5>
+                <p class="card-text">Catatan aktivitas harian dan latihan Anda.</p>
+                <a href="{% url 'fitnesstracker:activity_log_list' %}" class="btn btn-primary fitness-btn">View</a>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-lg-4">
-        <div class="card bg-light">
-            <div class="card-body text-center">
-                <h5>Fitness Goals</h5>
-                <a href="{% url 'fitnesstracker:fitness_goal_list' %}" class="btn btn-primary">View</a>
+    <div class="col-md-6 col-lg-4 fitness-col">
+        <div class="card fitness-card text-center">
+            <div class="card-body">
+                <div class="fitness-icon"><i class="fas fa-bullseye"></i></div>
+                <h5 class="card-title">Fitness Goals</h5>
+                <p class="card-text">Buat dan pantau target fitness Anda.</p>
+                <a href="{% url 'fitnesstracker:fitness_goal_list' %}" class="btn btn-primary fitness-btn">View</a>
             </div>
         </div>
     </div>

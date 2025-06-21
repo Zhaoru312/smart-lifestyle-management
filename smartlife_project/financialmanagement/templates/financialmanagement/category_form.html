@@ -1,36 +1,145 @@
 {% extends 'dashboardmanager/base.html' %}
 
+{% block title %}{{ form.instance.pk|yesno:'Edit Kategori,Tambah Kategori' }} | SmartLife{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #5c6bc0;
+        box-shadow: 0 0 0 0.2rem rgba(92, 107, 192, 0.25);
+    }
+    .is-invalid {
+        border-color: #dc3545 !important;
+    }
+    .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875em;
+    }
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4 d-flex justify-content-center">
-  <div class="card shadow-lg border-0 rounded-4" style="width: 100%; max-width: 650px;">
-    <div class="card-header bg-dark text-white">
-      <h4 class="mb-0">{{ form.instance.pk|yesno:"Edit Kategori, Tambah Kategori Baru" }}</h4>
+<div>
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">{{ form.instance.pk|yesno:'Edit Kategori,Tambah Kategori' }}</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboardmanager:index' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'financialmanagement:category_list' %}">Daftar Kategori</a></li>
+                        <li class="breadcrumb-item active">{{ form.instance.pk|yesno:'Edit,Tambah' }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-      <form method="post" class="vertical-form">
-        {% csrf_token %}
 
-        <div class="mb-3">
-          <label for="{{ form.name.id_for_label }}" class="form-label">Nama Kategori</label>
-          {{ form.name }}
-        </div>
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas {{ form.instance.pk|yesno:'fa-edit,fa-plus-circle' }} mr-1"></i>
+                                {{ form.instance.pk|yesno:'Edit Data Kategori,Form Tambah Kategori' }}
+                            </h3>
+                        </div>
+                        <form method="post" class="form-horizontal">
+                            {% csrf_token %}
+                            
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card-body">
+                                <!-- Name Field -->
+                                <div class="form-group row">
+                                    <label for="{{ form.name.id_for_label }}" class="col-sm-3 col-form-label">
+                                        Nama Kategori <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" 
+                                               name="{{ form.name.name }}" 
+                                               id="{{ form.name.id_for_label }}" 
+                                               class="form-control {% if form.name.errors %}is-invalid{% endif %}" 
+                                               value="{{ form.name.value|default:'' }}"
+                                               placeholder="Contoh: Makanan, Transportasi, dll"
+                                               {% if not form.name.value and not form.name.errors %}autofocus{% endif %}>
+                                        {% if form.name.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.name.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-        <div class="mb-3">
-          <label for="{{ form.description.id_for_label }}" class="form-label">Deskripsi</label>
-          {{ form.description }}
-        </div>
+                                <!-- Type Field -->
+                                <div class="form-group row">
+                                    <label for="{{ form.type.id_for_label }}" class="col-sm-3 col-form-label">
+                                        Tipe <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <select name="{{ form.type.name }}" id="{{ form.type.id_for_label }}" class="form-control {% if form.type.errors %}is-invalid{% endif %}">
+                                            {% for value, label in form.type.field.choices %}
+                                                <option value="{{ value }}" {% if form.type.value == value %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.type.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.type.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
 
-        <div class="mb-3">
-          <label for="{{ form.type.id_for_label }}" class="form-label">Tipe</label>
-          {{ form.type }}
-        </div>
+                                <!-- Description Field -->
+                                <div class="form-group row">
+                                    <label for="{{ form.description.id_for_label }}" class="col-sm-3 col-form-label">
+                                        Deskripsi
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <textarea name="{{ form.description.name }}" 
+                                                  id="{{ form.description.id_for_label }}" 
+                                                  class="form-control" 
+                                                  rows="3" 
+                                                  placeholder="Tulis deskripsi kategori (opsional)">{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
+                                        {% if form.description.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ form.description.errors.0 }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
 
-        <div class="d-flex justify-content-end gap-2">
-          <button type="submit" class="btn btn-dark"><i class="fas fa-save me-1"></i> Simpan</button>
-          <a href="{% url 'financialmanagement:category_list' %}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Batal</a>
+                            <div class="card-footer text-right">
+                                <a href="{% url 'financialmanagement:category_list' %}" class="btn btn-secondary mr-2">
+                                    <i class="fas fa-arrow-left mr-1"></i> Kembali
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save mr-1"></i> Simpan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-      </form>
-    </div>
-  </div>
+    </section>
 </div>
 {% endblock %}

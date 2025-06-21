@@ -1,5 +1,6 @@
 # Django imports
 from django.shortcuts import redirect, get_object_or_404
+from django.http import JsonResponse
 from django.views.generic import View, TemplateView, ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.conf import settings
@@ -330,9 +331,7 @@ class AppListView(LoginRequiredMixin, TemplateView):
         apps = [
             {'name': 'Finance', 'url': '/finance/', 'icon': 'fas fa-wallet', 'description': 'Manage your finances and track expenses'},
             {'name': 'Fitness', 'url': '/fitness/', 'icon': 'fas fa-dumbbell', 'description': 'Track your workouts and fitness goals'},
-            {'name': 'Habit', 'url': '/habit/', 'icon': 'fas fa-check-circle', 'description': 'Build and track your habits'},
             {'name': 'Meal', 'url': '/meal/', 'icon': 'fas fa-utensils', 'description': 'Log and plan your meals'},
-            {'name': 'Mental', 'url': '/mental/', 'icon': 'fas fa-brain', 'description': 'Track your mental health and mood'},
             {'name': 'Tasks', 'url': '/tasks/', 'icon': 'fas fa-tasks', 'description': 'Manage your daily tasks and to-do list'}
         ]
         
@@ -584,12 +583,22 @@ class HeroSectionDeleteView(DeleteView):
     """View for deleting a herosection"""
     model = HeroSection
     success_url = reverse_lazy('dashboardmanager:landing_page')
-    success_message = 'Herosectionx deleted successfully'
+    success_message = 'Hero section deleted successfully'
     
     def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': self.success_message,
+                'redirect_url': str(success_url)
+            })
+            
         messages.success(self.request, self.success_message)
-        return response
+        return redirect(success_url)
     
     def get(self, request, *args, **kwargs):
         # Only allow POST requests for deletion
@@ -602,9 +611,19 @@ class FeatureDeleteView(DeleteView):
     success_message = 'Feature deleted successfully'
     
     def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': self.success_message,
+                'redirect_url': str(success_url)
+            })
+            
         messages.success(self.request, self.success_message)
-        return response
+        return redirect(success_url)
     
     def get(self, request, *args, **kwargs):
         # Only allow POST requests for deletion
@@ -617,9 +636,19 @@ class TestimonialDeleteView(AdminRequiredMixin, DeleteView):
     success_message = 'Testimonial deleted successfully'
     
     def delete(self, request, *args, **kwargs):
-        response = super().delete(request, *args, **kwargs)
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': self.success_message,
+                'redirect_url': str(success_url)
+            })
+            
         messages.success(self.request, self.success_message)
-        return response
+        return redirect(success_url)
     
     def get(self, request, *args, **kwargs):
         # Only allow POST requests for deletion
@@ -644,10 +673,29 @@ class FAQUpdateView(AdminRequiredMixin, UpdateView):
         return response
 
 class FAQDeleteView(AdminRequiredMixin, DeleteView):
-    """View for deleting an FAQ"""
+    """View for deleting a FAQ"""
     model = FAQ
     success_url = reverse_lazy('dashboardmanager:landing_page')
     success_message = 'FAQ deleted successfully'
+    
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': self.success_message,
+                'redirect_url': str(success_url)
+            })
+            
+        messages.success(self.request, self.success_message)
+        return redirect(success_url)
+    
+    def get(self, request, *args, **kwargs):
+        # Only allow POST requests for deletion
+        return redirect(self.success_url)
 
 class BookmarkListView(LoginRequiredMixin, ListView):
     """View for listing and creating bookmarks"""
